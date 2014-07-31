@@ -23,6 +23,7 @@
   "devDependencies": {
     "mocha": "1.21.x",
     "should": "4.0.x",
+    "jshint": "2.5.x",
     "mocha-jshint": "0.0.9"
   },
   "engines": {
@@ -30,5 +31,8 @@
   },
   "scripts": {
     "test": "mocha"
+  },
+  "bin": {
+    "dendry": "lib/cli.js"
   }
 }
