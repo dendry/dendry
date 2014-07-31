@@ -1,0 +1,14 @@
+{
+    "name": "dendry",
+    "version": "0.1.1",
+    "description": "Tools to create and build interactive fiction.",
+    "keywords": ["interactive fiction"],
+
+    "author": "Ian Millington <idmillington@gmail.com>",
+    "homepage": "https://github.com/idmillington/dendry",
+    "repository": {"type":"git",
+                   "url":"git://github.com/idmillington/dendry.git"},
+    "bugs": "https://github.com/idmillington/dendry/issues",
+
+    "main": "lib/dendry.js"
+}
