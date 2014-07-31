@@ -1,14 +1,30 @@
 {
-    "name": "dendry",
-    "version": "0.1.1",
-    "description": "Tools to create and build interactive fiction.",
-    "keywords": ["interactive fiction"],
+  "name": "dendry",
+  "version": "0.0.1",
+  "description": "Tools to create and build interactive fiction.",
+  "keywords": ["interactive fiction"],
 
-    "author": "Ian Millington <idmillington@gmail.com>",
-    "homepage": "https://github.com/idmillington/dendry",
-    "repository": {"type":"git",
-                   "url":"git://github.com/idmillington/dendry.git"},
-    "bugs": "https://github.com/idmillington/dendry/issues",
+  "author": "Ian Millington <idmillington@gmail.com>",
+  "homepage": "https://github.com/idmillington/dendry",
+  "repository": {"type":"git",
+                 "url":"git://github.com/idmillington/dendry.git"},
+  "bugs": "https://github.com/idmillington/dendry/issues",
 
-    "main": "lib/dendry.js"
+  "license": "MIT",
+
+  "main": "lib/dendry.js",
+  "dependencies": {
+    "argparse": "0.1.x"
+  },
+  "devDependencies": {
+    "mocha": "1.21.x",
+    "should": "4.0.x"
+  },
+  "engines": {
+    "node": ">= 0.10"
+  },
+
+  "scripts": {
+    "test": "mocha"
+  }
 }
