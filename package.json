@@ -21,7 +21,9 @@
     "argparse": "0.1.x",
     "prompt": "0.2.x",
     "handlebars": "2.0.x",
-    "colors": "0.6.x"
+    "colors": "0.6.x",
+    "ncp": "0.6.x",
+    "dive": "0.3.x"
   },
   "devDependencies": {
     "mocha": "1.21.x",
