@@ -1,7 +1,7 @@
 Dendry
 ======
 
-[![Build Status](https://travis-ci.org/idmillington/dendry.svg?branch=master)](https://travis-ci.org/idmillington/dendry)
+[![Build Status](https://travis-ci.org/idmillington/dendry.svg?branch=master)](https://travis-ci.org/idmillington/dendry) [![Dependencies Status](https://david-dm.org/idmillington/dendry.svg)](https://david-dm.org/)
 
 This is a new project aimed at developing a suite of command line
 tools and a common file format for hypertext interactive fiction. My
