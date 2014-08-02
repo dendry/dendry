@@ -36,7 +36,7 @@ title: A New Section
 This is content for the @new-id section. The top-level content doesn't
 have a specific id, its id is generated from the part of the filename
 before any period, so in this case, the id of the top level content is
-'parse-text'. All sections are wrapped into a list in the 'sections'
+'parse-test'. All sections are wrapped into a list in the 'sections'
 property. So 'sections' is another reserved word that can't be used
 for user-defined properties.
 
