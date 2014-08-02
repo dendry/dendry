@@ -1,0 +1,89 @@
+# Dry files can have lines beginning with hash for comments. Note
+# that, unlike many file formats comments can only be complete lines,
+# you can't comment a property (say) by putting a hash at the end of
+# the value, followed by some text. In that case, the hash sign will
+# be considered part of the property. A dry file is split into
+# sections, each of which can begin with some properties:
+title: A Title
+# Properties are separated from values by a colon.
+author: Ms A Uthor
+# Different properties may be subject to their own syntax
+# requirements.
+tags: top-level, bright, silly
+# Properties may not contain spaces, and have words separated by a
+# hyphen.
+view-if: sunny > 1
+# Properties may run over multiple lines, but the second and
+# successive lines must be indented. Consequently property names
+# cannot be indented.
+choose-if: sunny > 1 and last-rain < 2 or
+   cares-about-weather = 0
+# Properties are separated from content by a double blank line.
+
+This is now content. Each section of a dry file can have unlimited
+amounts of content. When the dry file is parsed, the content is
+accumulated and placed into a 'content' property. For this reason,
+'content' is not a valid property name.
+
+# A new section of content is begun with an id started by an at
+# symbol. The id is placed in the content's properties, so again 'id'
+# is not a valid property name.
+@new-id
+# There should be no gap between an id and its properties, otherwise,
+# the properties will be interpreted as content.
+title: A New Section
+
+This is content for the @new-id section. The top-level content doesn't
+have a specific id, its id is generated from the part of the filename
+before any period, so in this case, the id of the top level content is
+'parse-text'. All sections are wrapped into a list in the 'sections'
+property. So 'sections' is another reserved word that can't be used
+for user-defined properties.
+
+The last bit of content for dry files is an option block. They are
+only required in interactive content, and are invalid in any other
+context. There can be only one option block per section, and it must
+be the last thing in the section, it is illegal to add more content
+after an option block. The option block, if it is present is compiled
+and added to a 'options' property, making 'options' another reserved
+word.
+
+# An option block:
+- min: 4
+# option blocks start each line with a hyphen
+- max: 9
+# lines starting with just a hyphen declare a property
+- min-priority: 3
+# lines starting with an at sign indicate a link to a named id, the
+# text after the colon is the title that will be displayed to overrule
+# the title of that section, if any.
+- @new-id: The title of this link.
+- @other-id
+# lines starting with a hash indicate a tag, links corresponding to
+# that tag will be added. Because this can have multiple links, titles
+# aren't allowed.
+- #tag
+# either explicit @ links or tag links can be followed with an if
+# statement
+- @new-id if sunny > 1: The title of this link.
+- #tag if sunny > 2
+# These if statements are used to control if a set of links
+# appears. Each link is compiled into an object with id, condition and
+# title members (the latter begin always underfined for tags), and
+# these appear in a list put in the 'options' property of the options
+# object.
+
+# Some more specific cases:
+
+@no-properties
+
+This section goes right from id to content, without a property list.
+
+@no-content
+description: This section has no content, but goes right to options.
+
+- @no-properties: The no properties section.
+
+@only-options
+
+- @no-properties: This section has only options.
