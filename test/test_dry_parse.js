@@ -438,6 +438,14 @@ describe("dry-file", function() {
         result.sections[0].options.options.length.should.equal(6);
       });
     });
+
+    it("should fail if the file is not there", function() {
+      var fn = path.join(__dirname, 'files', 'not-a-file.type.dry');
+      parse.parseFile(fn, function(err, result) {
+        (!!err).should.be.true;
+        (result === undefined).should.be.true;
+      });
+    });
   });
 
 });

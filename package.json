@@ -5,7 +5,6 @@
   "keywords": [
     "interactive fiction"
   ],
-
   "author": "Ian Millington <idmillington@gmail.com>",
   "homepage": "https://github.com/idmillington/dendry",
   "repository": {
@@ -13,9 +12,7 @@
     "url": "git://github.com/idmillington/dendry.git"
   },
   "bugs": "https://github.com/idmillington/dendry/issues",
-
   "license": "MIT",
-
   "main": "lib/dendry.js",
   "dependencies": {
     "argparse": "0.1.x",
@@ -30,13 +27,16 @@
     "mocha": "1.21.x",
     "should": "4.0.x",
     "jshint": "2.5.x",
-    "mocha-jshint": "0.0.9"
+    "mocha-jshint": "0.0.9",
+    "istanbul": "~0.3.0",
+    "coveralls": "~2.11.1"
   },
   "engines": {
     "node": ">= 0.10"
   },
   "scripts": {
-    "test": "mocha"
+    "test": "./node_modules/.bin/istanbul test ./node_modules/.bin/_mocha",
+    "coverage": "./node_modules/coveralls/bin/coveralls.js<./coverage/lcov.info"
   },
   "bin": {
     "dendry": "lib/cli.js"
