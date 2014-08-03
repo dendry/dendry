@@ -1,3 +1,5 @@
+"use strict";
+
 var path = require('path');
 var should = require('should');
 // Disable errors from using the should library.
@@ -430,9 +432,11 @@ describe("dry-file", function() {
 
   describe("filesystem", function() {
     it("should load and parse file", function() {
-      var fn = path.join(__dirname, 'files', 'parse_dry-test.type.dry');
+      var fn = path.join(__dirname, 'files', 'test_parse_dry.test.dry');
       parse.parseFile(fn, function(err, result) {
         (!!err).should.be.false;
+        result.id.should.equal('test_parse_dry');
+        result.type.should.equal('test');
         result.sections.length.should.equal(4);
         result.sections[0].id.should.equal('new-id');
         result.sections[0].options.options.length.should.equal(6);
