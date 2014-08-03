@@ -355,6 +355,12 @@ describe("dry-file", function() {
       });
     });
 
+    it("should allow an id to be specified in other sections", function() {
+      parse.parse("test.dry", "\n- @foo\n@bar\n\n-@foo", function(err, result) {
+        (!!err).should.be.false;
+      });
+    });
+
     it("should not allow a tag to be specified more than once", function() {
       parse.parse("test.dry", "\n- #foo\n-#foo", function(err, result) {
         (!!err).should.be.true;
@@ -364,7 +370,6 @@ describe("dry-file", function() {
         (result === undefined).should.be.true;
       });
     });
-
   });
 
   // ----------------------------------------------------------------------
