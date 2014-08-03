@@ -1,3 +1,9 @@
+/* dendry
+ * http://github.com/idmillington/dendry
+ *
+ * MIT License
+ */
+/*jshint indent:2 */
 (function() {
   "use strict";
 
