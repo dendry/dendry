@@ -1,19 +1,31 @@
+var path = require('path');
 var should = require('should');
 // Disable errors from using the should library.
 /*jshint -W030 */
 
 var parse = require('../lib/parse_dry');
 
-describe("dry-file parsing", function() {
+describe("dry-file", function() {
+
   describe("filename", function() {
-    it("should set the id", function() {
+    it("requires a valid id component", function() {
+      parse.parse("foo$bar.dry", "\ncontent", function(err, result) {
+        (!!err).should.be.true;
+        err.toString().should.equal(
+          "Error: Cannot extract id or type from filename."
+        );
+        (result === undefined).should.be.true;
+      });
+    });
+
+    it("sets the id", function() {
       parse.parse("test.dry", "prop: foo", function(err, result) {
         (!!err).should.be.false;
         result.id.should.equal('test');
       });
     });
 
-    it("should set the type, if given", function() {
+    it("sets the type, if given", function() {
       parse.parse("test.type.dry", "prop: foo", function(err, result) {
         (!!err).should.be.false;
         result.id.should.equal('test');
@@ -29,7 +41,7 @@ describe("dry-file parsing", function() {
       });
     });
 
-    it("should cope with full paths", function() {
+    it("copes with full paths", function() {
       parse.parse("/tmp/foo/test.type.dry", "prop: foo", function(err, result) {
         (!!err).should.be.false;
         result.id.should.equal('test');
@@ -37,7 +49,7 @@ describe("dry-file parsing", function() {
       });
     });
 
-    it("should cope with any extension", function() {
+    it("copes with any extension", function() {
       parse.parse("test.type.bar", "prop: foo", function(err, result) {
         (!!err).should.be.false;
         result.id.should.equal('test');
@@ -82,21 +94,21 @@ describe("dry-file parsing", function() {
       });
     });
 
-    it("should allow type to be set if not inferred", function() {
+    it("allow type to be set if not inferred", function() {
       parse.parse("test.dry", "type: foo", function(err, result) {
         (!!err).should.be.false;
         result.type.should.equal('foo');
       });
     });
 
-    it("should allow a property to be split over two lines", function() {
+    it("allow a property to be split over two lines", function() {
       parse.parse("test.dry", "prop: foo\n\tbar", function(err, result) {
         (!!err).should.be.false;
         result.prop.should.equal('foo bar');
       });
     });
 
-    it("should allow a property to be split over multiple lines", function() {
+    it("allow a property to be split over multiple lines", function() {
       parse.parse("test.dry", "prop: foo\n\tbar\n  sun", function(err, result) {
         (!!err).should.be.false;
         result.prop.should.equal('foo bar sun');
@@ -132,35 +144,35 @@ describe("dry-file parsing", function() {
   // ----------------------------------------------------------------------
 
   describe("content", function() {
-    it("should allow multiple paragraphs", function() {
+    it("allows multiple paragraphs", function() {
       parse.parse("test.dry", "\nfoo\n\nbar", function(err, result) {
         (!!err).should.be.false;
         result.content.should.equal('foo\n\nbar');
       });
     });
 
-    it("should interpret apparent continuation lines as text", function() {
+    it("interprets apparent continuation lines as text", function() {
       parse.parse("test.dry", "\nfoo\n\tbar", function(err, result) {
         (!!err).should.be.false;
         result.content.should.equal('foo\n\tbar');
       });
     });
 
-    it("should interpret apparent option lines as text", function() {
+    it("interprets apparent option lines as text", function() {
       parse.parse("test.dry", "\nfoo\n- bar", function(err, result) {
         (!!err).should.be.false;
         result.content.should.equal('foo\n- bar');
       });
     });
 
-    it("should interpret apparent property lines as text", function() {
+    it("interprets apparent property lines as text", function() {
       parse.parse("test.dry", "\nfoo\nbar: foo", function(err, result) {
         (!!err).should.be.false;
         result.content.should.equal('foo\nbar: foo');
       });
     });
 
-    it("should end when a new section id is given", function() {
+    it("ends when a new section id is given", function() {
       parse.parse("test.dry", "\nfoo\n@bar", function(err, result) {
         (!!err).should.be.false;
         result.content.should.equal('foo');
@@ -169,7 +181,7 @@ describe("dry-file parsing", function() {
       });
     });
 
-    it("should end when an option block is given", function() {
+    it("ends when an option block is given", function() {
       parse.parse("test.dry", "\nfoo\n\n- @bar", function(err, result) {
         (!!err).should.be.false;
         result.content.should.equal('foo');
@@ -178,14 +190,14 @@ describe("dry-file parsing", function() {
       });
     });
 
-    it("should ignore extra blank lines", function() {
+    it("ignores extra blank lines", function() {
       parse.parse("test.dry", "\nfoo\n\n\nbar", function(err, result) {
         (!!err).should.be.false;
         result.content.should.equal('foo\n\nbar');
       });
     });
 
-    it("should ignore trailing blank lines", function() {
+    it("ignores trailing blank lines", function() {
       parse.parse("test.dry", "\nfoo\n\nbar\n\n\n", function(err, result) {
         (!!err).should.be.false;
         result.content.should.equal('foo\n\nbar');
@@ -284,7 +296,7 @@ describe("dry-file parsing", function() {
       });
     });
 
-    it("should allow property definitions", function() {
+    it("allow property definitions", function() {
       parse.parse("test.dry", "\n- foo:bar\n- #sun", function(err, result) {
         (!!err).should.be.false;
         result.options.options.length.should.equal(1);
@@ -293,7 +305,7 @@ describe("dry-file parsing", function() {
       });
     });
 
-    it("should allow interspersed property definitions", function() {
+    it("allow interspersed property definitions", function() {
       parse.parse(
         "test.dry", "\n- @cube\n- foo:bar\n- #sun",
         function(err, result) {
@@ -305,7 +317,7 @@ describe("dry-file parsing", function() {
         });
     });
 
-    it("should require properties to have a preceding hyphen", function() {
+    it("require properties to have a preceding hyphen", function() {
       parse.parse("test.dry", "\n- @cube\nfoo:bar", function(err, result) {
         (!!err).should.be.true;
         err.toString().should.equal(
@@ -315,6 +327,112 @@ describe("dry-file parsing", function() {
       });
     });
 
+    it("interpret a tag without a hyphen as a comment", function() {
+      parse.parse("test.dry", "\n- @cube\n#foo", function(err, result) {
+        (!!err).should.be.false;
+        result.options.options.length.should.equal(1);
+        result.options.options[0].id.should.equal('@cube');
+      });
+    });
+
+    it("interpret an id without a hyphen as a new section", function() {
+      parse.parse("test.dry", "\n- @cube\n@foo", function(err, result) {
+        (!!err).should.be.false;
+        result.options.options.length.should.equal(1);
+        result.options.options[0].id.should.equal('@cube');
+        result.sections.length.should.equal(1);
+        result.sections[0].id.should.equal('foo');
+      });
+    });
+
+    it("should not allow an id to be specified more than once", function() {
+      parse.parse("test.dry", "\n- @foo\n-@foo", function(err, result) {
+        (!!err).should.be.true;
+        err.toString().should.equal(
+          "Error: Line 3: Option with id/tag '@foo' already specified."
+        );
+        (result === undefined).should.be.true;
+      });
+    });
+
+    it("should not allow a tag to be specified more than once", function() {
+      parse.parse("test.dry", "\n- #foo\n-#foo", function(err, result) {
+        (!!err).should.be.true;
+        err.toString().should.equal(
+          "Error: Line 3: Option with id/tag '#foo' already specified."
+        );
+        (result === undefined).should.be.true;
+      });
+    });
 
   });
+
+  // ----------------------------------------------------------------------
+
+  describe("sections", function() {
+    it("can begin at the start of the file", function() {
+      parse.parse("test.dry", "@foo", function(err, result) {
+        (!!err).should.be.false;
+        result.content.should.equal('');
+        result.sections.length.should.equal(1);
+        result.sections[0].id.should.equal('foo');
+      });
+    });
+
+    it("require a valid id", function() {
+      parse.parse("test.dry", "\nContent\n@foo$bar", function(err, result) {
+        (!!err).should.be.true;
+        err.toString().should.equal(
+          "Error: Line 3: Malformed id 'foo$bar' "+
+          "(use letters, numbers, _ and - only)."
+        );
+        (result === undefined).should.be.true;
+      });
+    });
+
+    it("begin by interpreting following lines as properties", function() {
+      parse.parse("test.dry", "@foo\nsun:dock", function(err, result) {
+        (!!err).should.be.false;
+        result.sections.length.should.equal(1);
+        result.sections[0].id.should.equal('foo');
+        result.sections[0].sun.should.equal('dock');
+      });
+    });
+
+    it("should not allow an id to be reused more than once", function() {
+      parse.parse("test.dry", "@foo\n@foo", function(err, result) {
+        (!!err).should.be.true;
+        err.toString().should.equal(
+          "Error: Line 2: Section with id 'foo' already defined."
+        );
+        (result === undefined).should.be.true;
+      });
+    });
+
+    it("should not allow an id to match the top level id", function() {
+      parse.parse("test.dry", "@test", function(err, result) {
+        (!!err).should.be.true;
+        err.toString().should.equal(
+          "Error: Line 1: Section can't use the file id 'test'."
+        );
+        (result === undefined).should.be.true;
+      });
+    });
+
+  });
+
+  // ----------------------------------------------------------------------
+
+  describe("filesystem", function() {
+    it("should load and parse file", function() {
+      var fn = path.join(__dirname, 'files', 'parse_dry-test.type.dry');
+      parse.parseFile(fn, function(err, result) {
+        (!!err).should.be.false;
+        result.sections.length.should.equal(4);
+        result.sections[0].id.should.equal('new-id');
+        result.sections[0].options.options.length.should.equal(6);
+      });
+    });
+  });
+
 });

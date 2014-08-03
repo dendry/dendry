@@ -65,14 +65,14 @@ word.
 - #tag
 # either explicit @ links or tag links can be followed with an if
 # statement
-- @new-id if sunny > 1: The title of this link.
-- #tag if sunny > 2
+- @new-id2 if sunny > 1: The title of this link.
+- #tag2 if sunny > 2
 # These if statements are used to control if a set of links
 # appears. Each link is compiled into an object with id, view-if and
 # title members (the latter begin always underfined for tags), and
 # these appear in a list put in the 'options' property of the options
 # object.
-- @new-id if long-conditional > 1 and break-over-lines < 2 or
+- @new-id3 if long-conditional > 1 and break-over-lines < 2 or
     some-other-layout-issue: This option has continuation in
     both its conditional clause and its title. These should be
     handled properly.
