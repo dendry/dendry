@@ -52,7 +52,7 @@
 
   describe("gp-parser", function() {
     describe("tokenizer", function() {
-      it("should tokenize expression", function() {
+      it("should tokenize simple expression", function() {
         var rules = get_sample_token_rules();
         var tokenizer = new parse.Tokenizer(rules, false);
         tokenizer.run("foo < 2", function(err, tokens) {
@@ -126,14 +126,21 @@
       it("should match longest possible token", function() {
         var rules = get_sample_token_rules();
         var tokenizer = new parse.Tokenizer(rules, true);
-        tokenizer.run("and andy", function(err, tokens) {
+        tokenizer.run("and andy or for", function(err, tokens) {
           (!!err).should.be.false;
-          tokens.length.should.equal(2);
+          tokens.length.should.equal(4);
           tokens[0].token.should.equal('conjunction');
           tokens[1].token.should.equal('name');
+          tokens[2].token.should.equal('disjunction');
+          tokens[3].token.should.equal('name');
         });
       });
+    });
 
+    // ----------------------------------------------------------------------
+
+    describe("parser", function() {
+      // TODO
     });
   });
 
