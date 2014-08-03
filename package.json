@@ -36,7 +36,7 @@
   },
   "scripts": {
     "test": "./node_modules/.bin/istanbul test ./node_modules/.bin/_mocha",
-    "coverage": "./node_modules/coveralls/bin/coveralls.js<./coverage/lcov.info"
+    "upload-to-coveralls": "./node_modules/coveralls/bin/coveralls.js < ./coverage/lcov.info"
   },
   "bin": {
     "dendry": "lib/cli.js"
