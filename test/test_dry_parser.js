@@ -12,7 +12,7 @@
   // Disable errors from using the should library.
   /*jshint -W030 */
 
-  var parse = require('../lib/parse_dry');
+  var parse = require('../lib/dry_parser');
 
   describe("dry-file", function() {
 
@@ -447,10 +447,10 @@
 
     describe("filesystem", function() {
       it("should load and parse file", function() {
-        var fn = path.join(__dirname, 'files', 'test_parse_dry.test.dry');
+        var fn = path.join(__dirname, 'files', 'test_dry_parser.test.dry');
         parse.parseFile(fn, function(err, result) {
           (!!err).should.be.false;
-          result.id.should.equal('test_parse_dry');
+          result.id.should.equal('test_dry_parser');
           result.type.should.equal('test');
           result.sections.length.should.equal(4);
           result.sections[0].id.should.equal('new-id');
