@@ -120,22 +120,8 @@
   };
   
   describe("gp-parser", function() {
-    describe("parser", function() {
-      it("should parse a simple expression", function() {
-        var trules = get_sample_token_rules();
-        var prules = get_sample_parser_rules();
-        var tokenizer = new parse.Tokenizer(trules, false);
-        var parser = new parse.Parser(prules);
-        tokenizer.run("foo < 3", function(err, tokens) {
-          (!!err).should.be.false;
-          var result = parser.run(tokens, 'root', function(err, tree) {
-            (!!err).should.be.false;
-          });
-        });
-      });
-    });
-          
-    // ------------------------------------------------------------------
+    
+    // ----------------------------------------------------------------------
     
     describe("tokenizer", function() {
       it("should tokenize a simple expression", function() {
@@ -226,7 +212,52 @@
     // ----------------------------------------------------------------------
 
     describe("parser", function() {
-      // TODO
+      it("should parse a simple expression", function() {
+        var trules = get_sample_token_rules();
+        var prules = get_sample_parser_rules();
+        var tokenizer = new parse.Tokenizer(trules, false);
+        var parser = new parse.Parser(prules);
+        tokenizer.run("foo < 3", function(err, tokens) {
+          (!!err).should.be.false;
+          var result = parser.run(tokens, 'root', function(err, tree) {
+            (!!err).should.be.false;
+          });
+        });
+      });
+
+      it("can't parse from an unknown root", function() {
+        var trules = get_sample_token_rules();
+        var prules = get_sample_parser_rules();
+        var tokenizer = new parse.Tokenizer(trules, false);
+        var parser = new parse.Parser(prules);
+        tokenizer.run("foo < 3", function(err, tokens) {
+          (!!err).should.be.false;
+          var result = parser.run(tokens, 'unknown-root', function(err, tree) {
+            (!!err).should.be.true;
+            err.toString().should.equal(
+              "Error: No matching rules for that root.");
+            (tree === undefined).should.be.true;
+          });
+        });
+      });
+      
+      it("fails when given unreachable rules", function() {
+        var prules = get_sample_parser_rules();
+        prules.splice(7, 2);
+        (function() {
+          new parse.Parser(prules);
+        }).should.throw("Rule neg-bool-exp is never referenced.");
+      });
+      
+      it("fails when undefined rules are referenced", function() {
+        var prules = get_sample_parser_rules();
+        prules.splice(9, 2);
+        (function() {
+          new parse.Parser(prules);
+        }).should.throw(
+          "Non-terminal neg-bool-exp has no rule that can generate it.");
+      });
+
     });
   });
 
