@@ -258,6 +258,76 @@
           "Non-terminal neg-bool-exp has no rule that can generate it.");
       });
 
+      it("fails when a parse is ambiguous", function() {
+        var _pass = function(sequence, state) {
+          return sequence[0];
+        };
+        var _rule = parse.Parser.makeRule; // Convenience alias.
+        var prules = [
+          _rule(".root ::= .expression name", _pass),
+          _rule(".root ::= name name", _pass),
+          _rule(".expression ::= name", _pass),
+        ];
+        var trules = get_sample_token_rules();
+        var tokenizer = new parse.Tokenizer(trules, false);
+        var parser = new parse.Parser(prules);
+        tokenizer.run("foo bar", function(err, tokens) {
+          (!!err).should.be.false;
+          var result = parser.run(tokens, 'root', function(err, tree) {
+            (!!err).should.be.true;
+            err.toString().should.equal(
+              "Error: Content is ambiguous, 2 ways to parse it.");
+            (tree === undefined).should.be.true;
+          });
+        });
+      });
+
+      it("handles redundant rules", function() {
+        var _pass = function(sequence, state) {
+          return sequence[0];
+        };
+        var _rule = parse.Parser.makeRule; // Convenience alias.
+        var prules = [
+          _rule(".root ::= .expression", _pass),
+          _rule(".expression ::= name", _pass),
+          _rule(".expression ::= .value", _pass),
+          _rule(".value ::= name", _pass),
+        ];
+        var trules = get_sample_token_rules();
+        var tokenizer = new parse.Tokenizer(trules, false);
+        var parser = new parse.Parser(prules);
+        tokenizer.run("foo", function(err, tokens) {
+          (!!err).should.be.false;
+          var result = parser.run(tokens, 'root', function(err, tree) {
+            (!!err).should.be.false;
+          });
+        });
+      });
+
+      it("fails when no parse is possible", function() {
+        var _pass = function(sequence, state) {
+          return sequence[0];
+        };
+        var _rule = parse.Parser.makeRule; // Convenience alias.
+        var prules = [
+          _rule(".root ::= .expression name", _pass),
+          _rule(".root ::= name name", _pass),
+          _rule(".expression ::= name", _pass),
+        ];
+        var trules = get_sample_token_rules();
+        var tokenizer = new parse.Tokenizer(trules, false);
+        var parser = new parse.Parser(prules);
+        tokenizer.run("foo and", function(err, tokens) {
+          (!!err).should.be.false;
+          var result = parser.run(tokens, 'root', function(err, tree) {
+            (!!err).should.be.true;
+            err.toString().should.equal(
+              "Error: No valid way to parse this content.");
+            (tree === undefined).should.be.true;
+          });
+        });
+      });
+
     });
   });
 
