@@ -14,108 +14,66 @@
   var parse = require('../lib/gp_parser');
 
   var get_sample_token_rules = function() {
-    var TOKEN_CONJUNCTION = "conjunction";
-    var TOKEN_DISJUNCTION = "disjunction";
-    var TOKEN_NEGATION = "negation";
-    var TOKEN_BOOLEAN = "boolean";
-    var TOKEN_EQUALS = "equals";
-    var TOKEN_COMPARISON = "comparator";
-    var TOKEN_MODIFICATION_OPERATOR = "modification-operator";
-    var TOKEN_ADDITIVE_OPERATOR = "additive-operator";
-    var TOKEN_MULTIPLICATIVE_OPERATOR = "mult-operator";
-    var TOKEN_NUMBER = "number";
-    var TOKEN_NAME = "name";
-    var TOKEN_OPEN_PAREN = "open-paren";
-    var TOKEN_CLOSE_PAREN = "close-paren";
-    var TOKEN_COMMA = "comma";
-    var TOKEN_DOT = "dot";
     return [
-        {regex:/and|AND/, token:TOKEN_CONJUNCTION},
-        {regex:/or|OR/, token:TOKEN_DISJUNCTION},
-        {regex:/not|NOT/, token:TOKEN_NEGATION},
-        {regex:/true|TRUE/, token:TOKEN_BOOLEAN},
-        {regex:/false|FALSE/, token:TOKEN_BOOLEAN},
-        {regex:/\=/, token:TOKEN_EQUALS},
-        {regex:/<=|>=|<|>|!=/, token:TOKEN_COMPARISON},
-        {regex:/\+=|-=|\*=|\/=|:=/, token:TOKEN_MODIFICATION_OPERATOR},
-        {regex:/\+|-/, token:TOKEN_ADDITIVE_OPERATOR},
-        {regex:/\/|\*|%/, token:TOKEN_MULTIPLICATIVE_OPERATOR},
-        {regex:/(-)?([0-9]+(\.([0-9]+)?)?|\.[0-9]+)/, token:TOKEN_NUMBER},
-        {regex:/[a-zA-Z][\-a-zA-Z0-9_]*/, token:TOKEN_NAME},
-        {regex:/\(/, token:TOKEN_OPEN_PAREN},
-        {regex:/\)/, token:TOKEN_CLOSE_PAREN},
-        {regex:/,/, token:TOKEN_COMMA},
-        {regex:/\./, token:TOKEN_DOT},
+        {regex:/and|AND/, token:"conjunction"},
+        {regex:/or|OR/, token:"disjunction"},
+        {regex:/not|NOT/, token:"negation"},
+        {regex:/true|TRUE/, token:"boolean"},
+        {regex:/false|FALSE/, token:"boolean"},
+        {regex:/\=/, token:"equals"},
+        {regex:/<=|>=|<|>|!=/, token:"comparator"},
+        {regex:/\+=|-=|\*=|\/=|:=/, token:"modification-operator"},
+        {regex:/\+|-/, token:"additive-operator"},
+        {regex:/\/|\*|%/, token:"mult-operator"},
+        {regex:/(-)?([0-9]+(\.([0-9]+)?)?|\.[0-9]+)/, token:"number"},
+        {regex:/[a-zA-Z][\-a-zA-Z0-9_]*/, token:"name"},
+        {regex:/\(/, token:"open-paren"},
+        {regex:/\)/, token:"close-paren"},
+        {regex:/,/, token:"comma"},
+        {regex:/\./, token:"dot"},
         {regex:/\s+/, token:undefined} // Skipped - doesn't appear in tokens
     ];
   };
   
   var get_sample_parser_rules = function() {
-    var TYPE_BOOLEAN = 'true/false value';
-    var TYPE_NUMBER = 'number';
-    var TYPE_COMMAND = 'command';
-    var TYPE_FUNCTION = 'function';
-    var _pass = function(index) {
-        return function(sequence, state) {
-            return sequence[index];
-        };
+    var _rule = function(rule) {
+      return parse.Parser.makeRule(rule, function(sequence, _) {
+        return sequence[0];
+      });
     };
-    var _pass0 = _pass(0);
-    var _pass1 = _pass(1);
-    var _seq = function(sequence, state) { return sequence; };
-    var _valid_fn = function(sequence, state) {
-        return TYPE_FUNCTION;
-    };
-    var _bool = function(sequence, state) {
-        return TYPE_BOOLEAN;
-    };
-    var _number = function(sequence, state) {
-        return TYPE_NUMBER;
-    };
-    var _cmd = function(sequence, state) {
-        return TYPE_COMMAND;
-    };
-
-    var _rule = parse.Parser.makeRule; // Convenience alias.
     return [
-        _rule(".root ::= .expression", _pass0),
-        _rule(".root ::= .command", _pass0),
-        _rule(".expression ::= .function-call", _pass0),
-        _rule(".expression ::= .bool-exp", _pass0),
-        _rule(".expression ::= name", _number),
-        _rule(".bool-exp ::= .bool-exp conjunction .bool-exp", _bool),
-        _rule(".bool-exp ::= .bool-exp disjunction .bool-exp", _bool),
-        _rule(".bool-exp ::= negation .neg-bool-exp", _bool),
-        _rule(".bool-exp ::= .neg-bool-exp", _pass0),
-        _rule(".neg-bool-exp ::= open-paren .bool-exp close-paren", _pass1),
-        _rule(".neg-bool-exp ::= .comparison", _pass0),
-        _rule(".comparison ::= .arithmetic comparator .arithmetic", _bool),
-        _rule(".comparison ::= .arithmetic equals .arithmetic", _bool),
-        _rule(".comparison ::= boolean", _bool),
-        _rule(".arithmetic ::= .arithmetic additive-operator .arith-term",
-              _number),
-        _rule(".arithmetic ::= .arith-term", _pass0),
-        _rule(".arith-term ::= .arith-term mult-operator .arith-factor",
-              _number),
-        _rule(".arith-term ::= .arith-factor", _pass0),
-        _rule(".arith-factor ::= .quality", _pass0),
-        _rule(".arith-factor ::= number", _number),
-        _rule(".arith-factor ::= open-paren .arithmetic close-paren", _pass1),
-        _rule(".arith-factor ::= .function-call", _pass0),
-        _rule(".command ::= .quality modification-operator .arithmetic",
-              _cmd),
-        _rule(".command ::= .quality equals .arithmetic", _cmd),
-        _rule(".quality ::= quality dot name", _number),
-        _rule(".quality ::= name", _number),
-        _rule(".function-call ::= name open-paren close-paren", _valid_fn),
-        _rule(".function-call ::= name open-paren .arguments close-paren",
-              _valid_fn),
-        _rule(".arguments ::= .argument comma .arguments", function(seq, _) {
-            return [seq[0]].concat(seq.slice(2));
-        }),
-        _rule(".arguments ::= .argument",  _seq),
-        _rule(".argument ::= .expression", _pass0),
-        _rule(".argument ::= .arithmetic", _pass0)
+        _rule(".root ::= .expression"),
+        _rule(".root ::= .command"),
+        _rule(".expression ::= .function-call"),
+        _rule(".expression ::= .bool-exp"),
+        _rule(".expression ::= name"),
+        _rule(".bool-exp ::= .bool-exp conjunction .bool-exp"),
+        _rule(".bool-exp ::= .bool-exp disjunction .bool-exp"),
+        _rule(".bool-exp ::= negation .neg-bool-exp"),
+        _rule(".bool-exp ::= .neg-bool-exp"),
+        _rule(".neg-bool-exp ::= open-paren .bool-exp close-paren"),
+        _rule(".neg-bool-exp ::= .comparison"),
+        _rule(".comparison ::= .arithmetic comparator .arithmetic"),
+        _rule(".comparison ::= .arithmetic equals .arithmetic"),
+        _rule(".comparison ::= boolean"),
+        _rule(".arithmetic ::= .arithmetic additive-operator .arith-term"),
+        _rule(".arithmetic ::= .arith-term"),
+        _rule(".arith-term ::= .arith-term mult-operator .arith-factor"),
+        _rule(".arith-term ::= .arith-factor"),
+        _rule(".arith-factor ::= .quality"),
+        _rule(".arith-factor ::= number"),
+        _rule(".arith-factor ::= open-paren .arithmetic close-paren"),
+        _rule(".arith-factor ::= .function-call"),
+        _rule(".command ::= .quality modification-operator .arithmetic"),
+        _rule(".command ::= .quality equals .arithmetic"),
+        _rule(".quality ::= quality dot name"),
+        _rule(".quality ::= name"),
+        _rule(".function-call ::= name open-paren close-paren"),
+        _rule(".function-call ::= name open-paren .arguments close-paren"),
+        _rule(".arguments ::= .argument comma .arguments"),
+        _rule(".arguments ::= .argument"),
+        _rule(".argument ::= .expression"),
+        _rule(".argument ::= .arithmetic")
     ];
   };
   
@@ -282,14 +240,15 @@
       });
 
       it("fails when a parse is ambiguous", function(done) {
-        var _pass = function(sequence, state) {
-          return sequence[0];
+        var _rule = function(rule) {
+          return parse.Parser.makeRule(rule, function(sequence, _) {
+            return sequence[0];
+          });
         };
-        var _rule = parse.Parser.makeRule; // Convenience alias.
         var prules = [
-          _rule(".root ::= .expression name", _pass),
-          _rule(".root ::= name name", _pass),
-          _rule(".expression ::= name", _pass),
+          _rule(".root ::= .expression name"),
+          _rule(".root ::= name name"),
+          _rule(".expression ::= name"),
         ];
         var trules = get_sample_token_rules();
         var tokenizer = new parse.Tokenizer(trules, false);
@@ -307,15 +266,16 @@
       });
 
       it("handles redundant rules", function(done) {
-        var _pass = function(sequence, state) {
-          return sequence[0];
+        var _rule = function(rule) {
+          return parse.Parser.makeRule(rule, function(sequence, _) {
+            return sequence[0];
+          });
         };
-        var _rule = parse.Parser.makeRule; // Convenience alias.
         var prules = [
-          _rule(".root ::= .expression", _pass),
-          _rule(".expression ::= .value", _pass),
-          _rule(".expression ::= name", _pass),
-          _rule(".value ::= name", _pass),
+          _rule(".root ::= .expression"),
+          _rule(".expression ::= .value"),
+          _rule(".expression ::= name"),
+          _rule(".value ::= name"),
         ];
         var trules = get_sample_token_rules();
         var tokenizer = new parse.Tokenizer(trules, false);
@@ -333,13 +293,14 @@
       });
 
       it("fails when no parse is possible", function(done) {
-        var _pass = function(sequence, state) {
-          return sequence[0];
+        var _rule = function(rule) {
+          return parse.Parser.makeRule(rule, function(sequence, _) {
+            return sequence[0];
+          });
         };
-        var _rule = parse.Parser.makeRule; // Convenience alias.
         var prules = [
-          _rule(".root ::= .expression name", _pass),
-          _rule(".expression ::= name", _pass),
+          _rule(".root ::= .expression name"),
+          _rule(".expression ::= name"),
         ];
         var trules = get_sample_token_rules();
         var tokenizer = new parse.Tokenizer(trules, false);
