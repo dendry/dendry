@@ -124,7 +124,7 @@
     // ----------------------------------------------------------------------
     
     describe("tokenizer", function() {
-      it("should tokenize a simple expression", function() {
+      it("should tokenize a simple expression", function(done) {
         var rules = get_sample_token_rules();
         var tokenizer = new parse.Tokenizer(rules, false);
         tokenizer.run("foo < 2", function(err, tokens) {
@@ -136,10 +136,11 @@
           tokens[1].position.should.equal(4);
           tokens[2].token.should.equal('number');
           tokens[2].position.should.equal(6);
+          done();
         });
       });
 
-      it("should fail for an unknown token in the string", function() {
+      it("should fail for an unknown token in the string", function(done) {
         var rules = get_sample_token_rules();
         var tokenizer = new parse.Tokenizer(rules, false);
         tokenizer.run("foo $ 2", function(err, tokens) {
@@ -147,10 +148,11 @@
           err.toString().should.equal(
             "Error: Unrecognized content at 4.");
           (tokens === undefined).should.be.true;
+          done();
         });
       });
 
-      it("should fail for an unknown token at the end", function() {
+      it("should fail for an unknown token at the end", function(done) {
         var rules = get_sample_token_rules();
         var tokenizer = new parse.Tokenizer(rules, false);
         tokenizer.run("foo < 2 $", function(err, tokens) {
@@ -158,10 +160,11 @@
           err.toString().should.equal(
             "Error: Unrecognized content at 8.");
           (tokens === undefined).should.be.true;
+          done();
         });
       });
 
-      it("generates a null token for unknown content inside", function() {
+      it("generates a null token for unknown content inside", function(done) {
         var rules = get_sample_token_rules();
         var tokenizer = new parse.Tokenizer(rules, true);
         tokenizer.run("foo $ 2", function(err, tokens) {
@@ -174,10 +177,11 @@
           tokens[1].position.should.equal(4);
           tokens[2].token.should.equal('number');
           tokens[2].position.should.equal(6);
+          done();
         });
       });
 
-      it("generates a null token for unknown content at the end", function() {
+      it("generates a null token for unknown trailing content", function(done){
         var rules = get_sample_token_rules();
         var tokenizer = new parse.Tokenizer(rules, true);
         tokenizer.run("foo < 2 $", function(err, tokens) {
@@ -192,10 +196,11 @@
           (tokens[3].token === null).should.be.true;
           tokens[3].text.should.equal('$');
           tokens[3].position.should.equal(8);
+          done();
         });
       });
 
-      it("should match longest possible token", function() {
+      it("should match longest possible token", function(done) {
         var rules = get_sample_token_rules();
         var tokenizer = new parse.Tokenizer(rules, true);
         tokenizer.run("and andy or for", function(err, tokens) {
@@ -205,6 +210,7 @@
           tokens[1].token.should.equal('name');
           tokens[2].token.should.equal('disjunction');
           tokens[3].token.should.equal('name');
+          done();
         });
       });
     });
@@ -212,7 +218,7 @@
     // ----------------------------------------------------------------------
 
     describe("parser", function() {
-      it("should parse a simple expression", function() {
+      it("should parse a simple expression", function(done) {
         var trules = get_sample_token_rules();
         var prules = get_sample_parser_rules();
         var tokenizer = new parse.Tokenizer(trules, false);
@@ -221,11 +227,27 @@
           (!!err).should.be.false;
           var result = parser.run(tokens, 'root', function(err, tree) {
             (!!err).should.be.false;
+            done();
           });
         });
       });
 
-      it("can't parse from an unknown root", function() {
+      it("assumes a root of 'root'", function(done) {
+        var trules = get_sample_token_rules();
+        var prules = get_sample_parser_rules();
+        var tokenizer = new parse.Tokenizer(trules, false);
+        var parser = new parse.Parser(prules);
+        tokenizer.run("foo < 3", function(err, tokens) {
+          (!!err).should.be.false;
+          var result = parser.run(tokens, function(err, tree) {
+            (!!err).should.be.false;
+            tree.rule.name.should.equal('root');
+            done();
+          });
+        });
+      });
+
+      it("can't parse from an unknown root", function(done) {
         var trules = get_sample_token_rules();
         var prules = get_sample_parser_rules();
         var tokenizer = new parse.Tokenizer(trules, false);
@@ -237,6 +259,7 @@
             err.toString().should.equal(
               "Error: No matching rules for that root.");
             (tree === undefined).should.be.true;
+            done();
           });
         });
       });
@@ -258,7 +281,7 @@
           "Non-terminal neg-bool-exp has no rule that can generate it.");
       });
 
-      it("fails when a parse is ambiguous", function() {
+      it("fails when a parse is ambiguous", function(done) {
         var _pass = function(sequence, state) {
           return sequence[0];
         };
@@ -278,19 +301,20 @@
             err.toString().should.equal(
               "Error: Content is ambiguous, 2 ways to parse it.");
             (tree === undefined).should.be.true;
+            done();
           });
         });
       });
 
-      it("handles redundant rules", function() {
+      it("handles redundant rules", function(done) {
         var _pass = function(sequence, state) {
           return sequence[0];
         };
         var _rule = parse.Parser.makeRule; // Convenience alias.
         var prules = [
           _rule(".root ::= .expression", _pass),
-          _rule(".expression ::= name", _pass),
           _rule(".expression ::= .value", _pass),
+          _rule(".expression ::= name", _pass),
           _rule(".value ::= name", _pass),
         ];
         var trules = get_sample_token_rules();
@@ -300,18 +324,21 @@
           (!!err).should.be.false;
           var result = parser.run(tokens, 'root', function(err, tree) {
             (!!err).should.be.false;
+            var twoDown = tree.children[0].rule.children[0];
+            twoDown.type.should.equal('terminal');
+            twoDown.name.should.equal('name');
+            done();
           });
         });
       });
 
-      it("fails when no parse is possible", function() {
+      it("fails when no parse is possible", function(done) {
         var _pass = function(sequence, state) {
           return sequence[0];
         };
         var _rule = parse.Parser.makeRule; // Convenience alias.
         var prules = [
           _rule(".root ::= .expression name", _pass),
-          _rule(".root ::= name name", _pass),
           _rule(".expression ::= name", _pass),
         ];
         var trules = get_sample_token_rules();
@@ -324,6 +351,7 @@
             err.toString().should.equal(
               "Error: No valid way to parse this content.");
             (tree === undefined).should.be.true;
+            done();
           });
         });
       });
