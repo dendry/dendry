@@ -49,10 +49,96 @@
         {regex:/\s+/, token:undefined} // Skipped - doesn't appear in tokens
     ];
   };
+  
+  var get_sample_parser_rules = function() {
+    var TYPE_BOOLEAN = 'true/false value';
+    var TYPE_NUMBER = 'number';
+    var TYPE_COMMAND = 'command';
+    var TYPE_FUNCTION = 'function';
+    var _pass = function(index) {
+        return function(sequence, state) {
+            return sequence[index];
+        };
+    };
+    var _pass0 = _pass(0);
+    var _pass1 = _pass(1);
+    var _seq = function(sequence, state) { return sequence; };
+    var _valid_fn = function(sequence, state) {
+        return TYPE_FUNCTION;
+    };
+    var _bool = function(sequence, state) {
+        return TYPE_BOOLEAN;
+    };
+    var _number = function(sequence, state) {
+        return TYPE_NUMBER;
+    };
+    var _cmd = function(sequence, state) {
+        return TYPE_COMMAND;
+    };
 
+    var _rule = parse.Parser.makeRule; // Convenience alias.
+    return [
+        _rule(".root ::= .expression", _pass0),
+        _rule(".root ::= .command", _pass0),
+        _rule(".expression ::= .function-call", _pass0),
+        _rule(".expression ::= .bool-exp", _pass0),
+        _rule(".expression ::= name", _number),
+        _rule(".bool-exp ::= .bool-exp conjunction .bool-exp", _bool),
+        _rule(".bool-exp ::= .bool-exp disjunction .bool-exp", _bool),
+        _rule(".bool-exp ::= negation .neg-bool-exp", _bool),
+        _rule(".bool-exp ::= .neg-bool-exp", _pass0),
+        _rule(".neg-bool-exp ::= open-paren .bool-exp close-paren", _pass1),
+        _rule(".neg-bool-exp ::= .comparison", _pass0),
+        _rule(".comparison ::= .arithmetic comparator .arithmetic", _bool),
+        _rule(".comparison ::= .arithmetic equals .arithmetic", _bool),
+        _rule(".comparison ::= boolean", _bool),
+        _rule(".arithmetic ::= .arithmetic additive-operator .arith-term",
+              _number),
+        _rule(".arithmetic ::= .arith-term", _pass0),
+        _rule(".arith-term ::= .arith-term mult-operator .arith-factor",
+              _number),
+        _rule(".arith-term ::= .arith-factor", _pass0),
+        _rule(".arith-factor ::= .quality", _pass0),
+        _rule(".arith-factor ::= number", _number),
+        _rule(".arith-factor ::= open-paren .arithmetic close-paren", _pass1),
+        _rule(".arith-factor ::= .function-call", _pass0),
+        _rule(".command ::= .quality modification-operator .arithmetic",
+              _cmd),
+        _rule(".command ::= .quality equals .arithmetic", _cmd),
+        _rule(".quality ::= quality dot name", _number),
+        _rule(".quality ::= name", _number),
+        _rule(".function-call ::= name open-paren close-paren", _valid_fn),
+        _rule(".function-call ::= name open-paren .arguments close-paren",
+              _valid_fn),
+        _rule(".arguments ::= .argument comma .arguments", function(seq, _) {
+            return [seq[0]].concat(seq.slice(2));
+        }),
+        _rule(".arguments ::= .argument",  _seq),
+        _rule(".argument ::= .expression", _pass0),
+        _rule(".argument ::= .arithmetic", _pass0)
+    ];
+  };
+  
   describe("gp-parser", function() {
+    describe("parser", function() {
+      it("should parse a simple expression", function() {
+        var trules = get_sample_token_rules();
+        var prules = get_sample_parser_rules();
+        var tokenizer = new parse.Tokenizer(trules, false);
+        var parser = new parse.Parser(prules);
+        tokenizer.run("foo < 3", function(err, tokens) {
+          (!!err).should.be.false;
+          var result = parser.run(tokens, 'root', function(err, tree) {
+            (!!err).should.be.false;
+          });
+        });
+      });
+    });
+          
+    // ------------------------------------------------------------------
+    
     describe("tokenizer", function() {
-      it("should tokenize simple expression", function() {
+      it("should tokenize a simple expression", function() {
         var rules = get_sample_token_rules();
         var tokenizer = new parse.Tokenizer(rules, false);
         tokenizer.run("foo < 2", function(err, tokens) {
