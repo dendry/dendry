@@ -22,15 +22,15 @@
     "ncp": "0.6.x",
     "dive": "0.3.x",
     "async": "0.9.x",
-    "lodash": "~2.4.1"
+    "lodash": "2.4.x"
   },
   "devDependencies": {
     "mocha": "1.21.x",
     "should": "4.0.x",
     "jshint": "2.5.x",
     "mocha-jshint": "0.0.9",
-    "istanbul": "~0.3.0",
-    "coveralls": "~2.11.1"
+    "istanbul": "0.3.x",
+    "coveralls": "2.11.x"
   },
   "engines": {
     "node": ">= 0.10"

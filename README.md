@@ -2,7 +2,7 @@ Dendry
 ======
 
 [![Build Status](https://travis-ci.org/idmillington/dendry.svg?branch=master)](https://travis-ci.org/idmillington/dendry)
-[![Dependencies Status](https://david-dm.org/idmillington/dendry.svg)](https://david-dm.org/)
+[![Dependencies Status](https://david-dm.org/idmillington/dendry.svg)](https://david-dm.org/idmillington/dendry)
 [![Test Coverage](https://coveralls.io/repos/idmillington/dendry/badge.png?branch=master)](https://coveralls.io/r/idmillington/dendry)
 
 This is a new project aimed at developing a suite of command line
