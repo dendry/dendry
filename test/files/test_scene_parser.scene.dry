@@ -1,0 +1,14 @@
+title: The scene title
+tags: alpha, bravo
+
+This is the scene content.
+
+
+@foo
+
+This is section 'foo'.
+
+
+@bar
+
+This is section 'bar'.

@@ -49,14 +49,14 @@
       });
       
       it("should validate integers in range", function(done) {
-        parse.parseIntegerInRange("4", 0, 10, function(err, val) {
+        parse.makeEnsureIntegerInRange(0,10)("4", function(err, val) {
           val.should.equal(4);
           done();
         });
       });
 
       it("should reject non-integers with range", function(done) {
-        parse.parseIntegerInRange("bob", 0, 60, function(err, val) {
+        parse.makeEnsureIntegerInRange(0, 60)("bob", function(err, val) {
           (!!err).should.be.true;
           err.toString().should.equal("Error: Not a valid whole number.");
           (val === undefined).should.be.true;
@@ -65,7 +65,7 @@
       });
       
       it("should reject numbers outside range", function(done) {
-        parse.parseIntegerInRange("45", 0, 32, function(err, val) {
+        parse.makeEnsureIntegerInRange(0, 32)("45", function(err, val) {
           (!!err).should.be.true;
           err.toString().should.equal("Error: 45 is not in range 0-32.");
           (val === undefined).should.be.true;
@@ -74,7 +74,7 @@
       });
       
       it("supports half open range with minimum", function(done) {
-        parse.parseIntegerInRange("-45", 0, undefined, function(err, val) {
+        parse.makeEnsureIntegerInRange(0, undefined)("-45", function(err, val){
           (!!err).should.be.true;
           err.toString().should.equal("Error: -45 is not in range 0+.");
           (val === undefined).should.be.true;
@@ -82,7 +82,7 @@
         });
       });
       it("supports half open range with maximum", function(done) {
-        parse.parseIntegerInRange("45", undefined, 32, function(err, val) {
+        parse.makeEnsureIntegerInRange(undefined, 32)("45", function(err, val){
           (!!err).should.be.true;
           err.toString().should.equal("Error: 45 is not in range -32.");
           (val === undefined).should.be.true;
@@ -90,6 +90,36 @@
         });
       });
 
+    });
+
+    // ----------------------------------------------------------------------
+    
+    describe("equality enforcing", function() {
+      it("allows matches to pass", function(done) {
+        parse.makeEnsureEqualTo("foo")("foo", function(err, val) {
+          (!!err).should.be.false;
+          val.should.equal('foo');
+          done();
+        });
+      });
+
+      it("trims whitespace before match", function(done) {
+        parse.makeEnsureEqualTo("foo  ")("  foo", function(err, val) {
+          (!!err).should.be.false;
+          val.should.equal('foo');
+          done();
+        });
+      });
+
+      it("should reject mismatches", function(done) {
+        parse.makeEnsureEqualTo("foo")("bar", function(err, val) {
+          (!!err).should.be.true;
+          err.toString().should.equal(
+            "Error: Property must equal 'foo', 'bar' found instead.");
+          (val === undefined).should.be.true;
+          done();
+        });
+      });
     });
 
     // ----------------------------------------------------------------------
