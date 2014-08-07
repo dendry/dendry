@@ -113,6 +113,26 @@
         done();
       });
     });
+
+    it("can detect errors in options blocks", function(done) {
+      var content = "title: My Title\n\n- @foo\n- min:3";
+      parse.parseFromContent("foo.scene.dry", content, function(err, dry) {
+        (!!err).should.be.true;
+        err.toString().should.equal("Error: Unknown properties defined: min.");
+        (dry === undefined).should.be.true;
+        done();
+      });
+    });
+
+    it("can detect errors in sections", function(done) {
+      var content = "title: My Title\n\n@bar\nmin:3";
+      parse.parseFromContent("foo.scene.dry", content, function(err, dry) {
+        (!!err).should.be.true;
+        err.toString().should.equal("Error: Unknown properties defined: min.");
+        (dry === undefined).should.be.true;
+        done();
+      });
+    });
     
   });
 }());
