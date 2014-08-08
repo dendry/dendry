@@ -15,9 +15,9 @@
   var parse = require('../lib/scene_parser');
 
   describe("scene-parser", function() {
-    
+
     // ----------------------------------------------------------------------
-    
+
     it("should parse from raw content", function(done) {
       var content = "title: My Title\ntags: alpha, bravo";
       parse.parseFromContent("foo.scene.dry", content, function(err, dry) {
@@ -65,7 +65,7 @@
       parse.parseFromContent("foo.scene.dry", content, function(err, dry) {
         (!!err).should.be.true;
         err.toString().should.equal(
-          "Error: Unknown properties defined: label.");
+          "Error: Unknown properties: 'label'.");
         (dry === undefined).should.be.true;
         done();
       });
@@ -91,7 +91,7 @@
         done();
       });
     });
-    
+
     it("should load and parse scene file", function(done) {
       var fn = path.join(__dirname, 'files', 'test_scene_parser.scene.dry');
       parse.parseFromFile(fn, function(err, result) {
@@ -118,7 +118,7 @@
       var content = "title: My Title\n\n- @foo\n- min:3";
       parse.parseFromContent("foo.scene.dry", content, function(err, dry) {
         (!!err).should.be.true;
-        err.toString().should.equal("Error: Unknown properties defined: min.");
+        err.toString().should.equal("Error: Unknown properties: 'min'.");
         (dry === undefined).should.be.true;
         done();
       });
@@ -128,12 +128,11 @@
       var content = "title: My Title\n\n@bar\nmin:3";
       parse.parseFromContent("foo.scene.dry", content, function(err, dry) {
         (!!err).should.be.true;
-        err.toString().should.equal("Error: Unknown properties defined: min.");
+        err.toString().should.equal("Error: Unknown properties: 'min'.");
         (dry === undefined).should.be.true;
         done();
       });
     });
-    
+
   });
 }());
-
