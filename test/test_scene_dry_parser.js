@@ -86,7 +86,7 @@
       var content = "title: My Title\ntags: $nope";
       parse.parseFromContent("foo.scene.dry", content, function(err, dry) {
         (!!err).should.be.true;
-        err.toString().should.equal("Error: Tag 1 is not valid.");
+        err.toString().should.equal("Error: Tag 1 '$nope' is not valid.");
         (dry === undefined).should.be.true;
         done();
       });
