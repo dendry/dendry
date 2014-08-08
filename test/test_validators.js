@@ -11,36 +11,36 @@
   // Disable errors from using the should library.
   /*jshint -W030 */
 
-  var parse = require('../lib/prop_parser');
+  var validators = require('../lib/validators');
 
-  describe("prop-parser", function() {
+  describe("validators", function() {
 
     // ----------------------------------------------------------------------
 
-    describe("integer parsing", function() {
+    describe("integer validation", function() {
       it("should handle positive integers", function(done) {
-        parse.parseInteger("45", function(err, val) {
+        validators.validateInteger("45", function(err, val) {
           val.should.equal(45);
           done();
         });
       });
 
       it("should handle negative integers", function(done) {
-        parse.parseInteger("-45", function(err, val) {
+        validators.validateInteger("-45", function(err, val) {
           val.should.equal(-45);
           done();
         });
       });
 
       it("should convert floating point numbers to integers", function(done) {
-        parse.parseInteger("45.5", function(err, val) {
+        validators.validateInteger("45.5", function(err, val) {
           val.should.equal(45);
           done();
         });
       });
 
       it("should reject non-integers", function(done) {
-        parse.parseInteger("bob", function(err, val) {
+        validators.validateInteger("bob", function(err, val) {
           (!!err).should.be.true;
           err.toString().should.equal("Error: Not a valid whole number.");
           (val === undefined).should.be.true;
@@ -49,14 +49,14 @@
       });
 
       it("should validate integers in range", function(done) {
-        parse.makeEnsureIntegerInRange(0,10)("4", function(err, val) {
+        validators.makeEnsureIntegerInRange(0,10)("4", function(err, val) {
           val.should.equal(4);
           done();
         });
       });
 
       it("should reject non-integers with range", function(done) {
-        parse.makeEnsureIntegerInRange(0, 60)("bob", function(err, val) {
+        validators.makeEnsureIntegerInRange(0, 60)("bob", function(err, val) {
           (!!err).should.be.true;
           err.toString().should.equal("Error: Not a valid whole number.");
           (val === undefined).should.be.true;
@@ -65,7 +65,7 @@
       });
 
       it("should reject numbers outside range", function(done) {
-        parse.makeEnsureIntegerInRange(0, 32)("45", function(err, val) {
+        validators.makeEnsureIntegerInRange(0, 32)("45", function(err, val) {
           (!!err).should.be.true;
           err.toString().should.equal("Error: 45 is not in range 0-32.");
           (val === undefined).should.be.true;
@@ -74,7 +74,8 @@
       });
 
       it("supports half open range with minimum", function(done) {
-        parse.makeEnsureIntegerInRange(0, undefined)("-45", function(err, val){
+        var ensure = validators.makeEnsureIntegerInRange(0, undefined);
+        ensure("-45", function(err, val) {
           (!!err).should.be.true;
           err.toString().should.equal("Error: -45 is not in range 0+.");
           (val === undefined).should.be.true;
@@ -82,7 +83,8 @@
         });
       });
       it("supports half open range with maximum", function(done) {
-        parse.makeEnsureIntegerInRange(undefined, 32)("45", function(err, val){
+        var ensure = validators.makeEnsureIntegerInRange(undefined, 32);
+        ensure("45", function(err, val) {
           (!!err).should.be.true;
           err.toString().should.equal("Error: 45 is not in range -32.");
           (val === undefined).should.be.true;
@@ -96,7 +98,7 @@
 
     describe("equality enforcing", function() {
       it("allows matches to pass", function(done) {
-        parse.makeEnsureEqualTo("foo")("foo", function(err, val) {
+        validators.makeEnsureEqualTo("foo")("foo", function(err, val) {
           (!!err).should.be.false;
           val.should.equal('foo');
           done();
@@ -104,7 +106,7 @@
       });
 
       it("trims whitespace before match", function(done) {
-        parse.makeEnsureEqualTo("foo  ")("  foo", function(err, val) {
+        validators.makeEnsureEqualTo("foo  ")("  foo", function(err, val) {
           (!!err).should.be.false;
           val.should.equal('foo');
           done();
@@ -112,7 +114,7 @@
       });
 
       it("should reject mismatches", function(done) {
-        parse.makeEnsureEqualTo("foo")("bar", function(err, val) {
+        validators.makeEnsureEqualTo("foo")("bar", function(err, val) {
           (!!err).should.be.true;
           err.toString().should.equal(
             "Error: Property must equal 'foo', 'bar' found instead.");
@@ -124,9 +126,9 @@
 
     // ----------------------------------------------------------------------
 
-    describe("tag list parsing", function() {
+    describe("tag list validation", function() {
       it("handles hash prefix or no prefix", function(done) {
-        parse.parseTagList("alpha, #bravo", function(err, list) {
+        validators.validateTagList("alpha, #bravo", function(err, list) {
           (!!err).should.be.false;
           list.length.should.equal(2);
           list[0].should.equal('alpha');
@@ -135,18 +137,20 @@
         });
       });
       it("handles any valid separator", function(done) {
-        parse.parseTagList("alpha, bravo; charlie  delta", function(err,list) {
-          (!!err).should.be.false;
-          list.length.should.equal(4);
-          list[0].should.equal('alpha');
-          list[1].should.equal('bravo');
-          list[2].should.equal('charlie');
-          list[3].should.equal('delta');
-          done();
-        });
+        validators.validateTagList(
+          "alpha, bravo; charlie  delta",
+          function(err,list) {
+            (!!err).should.be.false;
+            list.length.should.equal(4);
+            list[0].should.equal('alpha');
+            list[1].should.equal('bravo');
+            list[2].should.equal('charlie');
+            list[3].should.equal('delta');
+            done();
+          });
       });
       it("supports single tags with trailing whitespace", function(done) {
-        parse.parseTagList("#alpha ", function(err, list) {
+        validators.validateTagList("#alpha ", function(err, list) {
           (!!err).should.be.false;
           list.length.should.equal(1);
           list[0].should.equal('alpha');
@@ -154,31 +158,33 @@
         });
       });
       it("should reject bad tags", function(done) {
-        parse.parseTagList("alpha, bravo, $charlie", function(err, list) {
-          (!!err).should.be.true;
-          err.toString().should.equal("Error: Tag 3 is not valid.");
-          (list === undefined).should.be.true;
-          done();
-        });
+        validators.validateTagList(
+          "alpha, bravo, $charlie",
+          function(err, list) {
+            (!!err).should.be.true;
+            err.toString().should.equal("Error: Tag 3 is not valid.");
+            (list === undefined).should.be.true;
+            done();
+          });
       });
 
     });
 
     // ----------------------------------------------------------------------
 
-    describe("schema parsing", function() {
+    describe("schema validation", function() {
       it("validates matching content", function(done) {
         var schema = {
-          foo: {required:true, clean:null},
-          bar: {required:true, clean:parse.makeEnsureEqualTo('bar')},
-          sun: {required:false, clean:null}
+          foo: {required:true, validate:null},
+          bar: {required:true, validate:validators.makeEnsureEqualTo('bar')},
+          sun: {required:false, validate:null}
         };
         var content = {
           foo: 'foo',
           bar: 'bar'
         };
-        var ensureMatches = parse.makeEnsureObjectMatchesSchema(schema);
-        ensureMatches(content, function(err, result) {
+        var ensure = validators.makeEnsureObjectMatchesSchema(schema);
+        ensure(content, function(err, result) {
           (!!err).should.be.false;
           result.should.eql(content);
           done();
@@ -187,14 +193,14 @@
 
       it("enforces required properties", function(done) {
         var schema = {
-          foo: {required:true, clean:null},
-          bar: {required:true, clean:parse.makeEnsureEqualTo('bar')}
+          foo: {required:true, validate:null},
+          bar: {required:true, validate:validators.makeEnsureEqualTo('bar')}
         };
         var content = {
           bar: 'bar'
         };
-        var ensureMatches = parse.makeEnsureObjectMatchesSchema(schema);
-        ensureMatches(content, function(err, result) {
+        var ensure = validators.makeEnsureObjectMatchesSchema(schema);
+        ensure(content, function(err, result) {
           (!!err).should.be.true;
           err.toString().should.equal(
             "Error: Required property 'foo' missing.");
@@ -205,14 +211,14 @@
 
       it("complains at additional properties", function(done) {
         var schema = {
-          foo: {required:true, clean:null},
+          foo: {required:true, validate:null},
         };
         var content = {
           foo: 'foo',
           bar: 'bar'
         };
-        var ensureMatches = parse.makeEnsureObjectMatchesSchema(schema);
-        ensureMatches(content, function(err, result) {
+        var ensure = validators.makeEnsureObjectMatchesSchema(schema);
+        ensure(content, function(err, result) {
           (!!err).should.be.true;
           err.toString().should.equal(
             "Error: Unknown properties: 'bar'.");
@@ -221,17 +227,17 @@
         });
       });
 
-      it("validates data using clean functions", function(done) {
+      it("validates data using validate functions", function(done) {
         var schema = {
-          foo: {required:true, clean:null},
-          bar: {required:true, clean:parse.makeEnsureEqualTo('bar')}
+          foo: {required:true, validate:null},
+          bar: {required:true, validate:validators.makeEnsureEqualTo('bar')}
         };
         var content = {
           foo: 'foo',
           bar: 'sun'
         };
-        var ensureMatches = parse.makeEnsureObjectMatchesSchema(schema);
-        ensureMatches(content, function(err, result) {
+        var ensure = validators.makeEnsureObjectMatchesSchema(schema);
+        ensure(content, function(err, result) {
           (!!err).should.be.true;
           err.toString().should.equal(
             "Error: Property must equal 'bar', 'sun' found instead.");
@@ -244,19 +250,19 @@
 
     // ----------------------------------------------------------------------
 
-    describe("list schema parsing", function() {
+    describe("list schema validation", function() {
       it("validates matching content", function(done) {
         var schema = {
-          foo: {required:true, clean:null},
-          bar: {required:false, clean:parse.makeEnsureEqualTo('bar')},
+          foo: {required:true, validate:null},
+          bar: {required:false, validate:validators.makeEnsureEqualTo('bar')},
         };
         var content = [
           {foo: 'foo', bar: 'bar'},
           {foo: 'sun'},
           {foo: 'dock', bar: 'bar'}
         ];
-        var ensureMatches = parse.makeEnsureListItemsMatchSchema(schema);
-        ensureMatches(content, function(err, result) {
+        var ensure = validators.makeEnsureListItemsMatchSchema(schema);
+        ensure(content, function(err, result) {
           (!!err).should.be.false;
           result.should.eql(content);
           done();
@@ -265,19 +271,19 @@
 
       it("raises an error if any element is invalid", function(done) {
         var schema = {
-          foo: {required:true, clean:null},
-          bar: {required:false, clean:parse.makeEnsureEqualTo('bar')},
+          foo: {required:true, validate:null},
+          bar: {required:false, validate:validators.makeEnsureEqualTo('bar')},
         };
         var content = [
           {foo: 'foo', bar: 'bar'},
           {foo: 'sun'},
-          {foo: 'dock', bar: 'trog'}
+          {foo: 'dock', bar: 'tro'}
         ];
-        var ensureMatches = parse.makeEnsureListItemsMatchSchema(schema);
-        ensureMatches(content, function(err, result) {
+        var ensure = validators.makeEnsureListItemsMatchSchema(schema);
+        ensure(content, function(err, result) {
           (!!err).should.be.true;
           err.toString().should.equal(
-            "Error: Property must equal 'bar', 'trog' found instead.");
+            "Error: Property must equal 'bar', 'tro' found instead.");
           (result === undefined).should.be.true;
           done();
         });
@@ -286,29 +292,29 @@
 
     // ----------------------------------------------------------------------
 
-    describe("id schema parsing", function() {
+    describe("id schema validation", function() {
       it("validates matching content", function(done) {
         var schemae = {
           'foo': {
-            id: {required:true, clean:null},
-            bar: {required:false, clean:parse.makeEnsureEqualTo('bar')},
+            id: {required:true, validate:null},
+            bar: {required:false, validate:validators.makeEnsureEqualTo('bar')},
           },
           'sun': {
-            id: {required:true, clean:null},
-            bar: {required:false, clean:parse.makeEnsureEqualTo('bar')},
+            id: {required:true, validate:null},
+            bar: {required:false, validate:validators.makeEnsureEqualTo('bar')},
           },
           'dock': {
-            id: {required:true, clean:null},
-            bar: {required:false, clean:parse.makeEnsureEqualTo('trog')},
+            id: {required:true, validate:null},
+            bar: {required:false, validate:validators.makeEnsureEqualTo('tro')},
           }
         };
         var content = [
           {id: 'foo', bar: 'bar'},
           {id: 'sun'},
-          {id: 'dock', bar: 'trog'}
+          {id: 'dock', bar: 'tro'}
         ];
-        var ensureMatches = parse.makeEnsureListItemsMatchSchemaById(schemae);
-        ensureMatches(content, function(err, result) {
+        var ensure = validators.makeEnsureListItemsMatchSchemaById(schemae);
+        ensure(content, function(err, result) {
           (!!err).should.be.false;
           result.should.eql(content);
           done();
@@ -318,21 +324,21 @@
       it("validates unknown id against default schema", function(done) {
         var schemae = {
           'foo': {
-            id: {required:true, clean:null},
-            bar: {required:false, clean:parse.makeEnsureEqualTo('bar')},
+            id: {required:true, validate:null},
+            bar: {required:false, validate:validators.makeEnsureEqualTo('bar')},
           },
           '$default': {
-            id: {required:true, clean:null},
-            bar: {required:false, clean:parse.makeEnsureEqualTo('trog')},
+            id: {required:true, validate:null},
+            bar: {required:false, validate:validators.makeEnsureEqualTo('tro')},
           }
         };
         var content = [
           {id: 'foo', bar: 'bar'},
           {id: 'sun'},
-          {id: 'dock', bar: 'trog'}
+          {id: 'dock', bar: 'tro'}
         ];
-        var ensureMatches = parse.makeEnsureListItemsMatchSchemaById(schemae);
-        ensureMatches(content, function(err, result) {
+        var ensure = validators.makeEnsureListItemsMatchSchemaById(schemae);
+        ensure(content, function(err, result) {
           (!!err).should.be.false;
           result.should.eql(content);
           done();
@@ -342,21 +348,21 @@
       it("fails with an unknown id", function(done) {
         var schemae = {
           'foo': {
-            id: {required:true, clean:null},
-            bar: {required:false, clean:parse.makeEnsureEqualTo('bar')},
+            id: {required:true, validate:null},
+            bar: {required:false, validate:validators.makeEnsureEqualTo('bar')},
           },
           'dock': {
-            id: {required:true, clean:null},
-            bar: {required:false, clean:parse.makeEnsureEqualTo('trog')},
+            id: {required:true, validate:null},
+            bar: {required:false, validate:validators.makeEnsureEqualTo('tro')},
           }
         };
         var content = [
           {id: 'foo', bar: 'bar'},
           {id: 'sun'},
-          {id: 'dock', bar: 'trog'}
+          {id: 'dock', bar: 'tro'}
         ];
-        var ensureMatches = parse.makeEnsureListItemsMatchSchemaById(schemae);
-        ensureMatches(content, function(err, result) {
+        var ensure = validators.makeEnsureListItemsMatchSchemaById(schemae);
+        ensure(content, function(err, result) {
           (!!err).should.be.true;
           err.toString().should.equal(
             "Error: Found an item with an unknown id 'sun'.");
@@ -368,12 +374,12 @@
       it("raises an error if any element is invalid", function(done) {
         var schemae = {
           'foo': {
-            id: {required:true, clean:null},
-            bar: {required:false, clean:parse.makeEnsureEqualTo('bar')},
+            id: {required:true, validate:null},
+            bar: {required:false, validate:validators.makeEnsureEqualTo('bar')},
           },
           '$default': {
-            id: {required:true, clean:null},
-            bar: {required:false, clean:parse.makeEnsureEqualTo('trog')},
+            id: {required:true, validate:null},
+            bar: {required:false, validate:validators.makeEnsureEqualTo('tro')},
           }
         };
         var content = [
@@ -381,11 +387,11 @@
           {id: 'sun'},
           {id: 'dock', bar: 'foo'}
         ];
-        var ensureMatches = parse.makeEnsureListItemsMatchSchemaById(schemae);
-        ensureMatches(content, function(err, result) {
+        var ensure = validators.makeEnsureListItemsMatchSchemaById(schemae);
+        ensure(content, function(err, result) {
           (!!err).should.be.true;
           err.toString().should.equal(
-            "Error: Property must equal 'trog', 'foo' found instead.");
+            "Error: Property must equal 'tro', 'foo' found instead.");
           (result === undefined).should.be.true;
           done();
         });
