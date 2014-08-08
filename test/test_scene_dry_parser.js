@@ -12,9 +12,9 @@
   // Disable errors from using the should library.
   /*jshint -W030 */
 
-  var parse = require('../lib/scene_parser');
+  var parse = require('../lib/scene_dry_parser');
 
-  describe("scene-parser", function() {
+  describe("?.scene.dry parser", function() {
 
     // ----------------------------------------------------------------------
 
