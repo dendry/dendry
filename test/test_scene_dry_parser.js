@@ -20,30 +20,30 @@
 
     it("should parse from raw content", function(done) {
       var content = "title: My Title\ntags: alpha, bravo";
-      parse.parseFromContent("foo.scene.dry", content, function(err, dry) {
+      parse.parseFromContent("foo.scene.dry", content, function(err, result) {
         (!!err).should.be.false;
-        dry.title.should.equal('My Title');
+        result.title.should.equal('My Title');
         done();
       });
     });
 
     it("handles parsing of sections", function(done) {
       var content = "title: My Title\n@bar";
-      parse.parseFromContent("foo.scene.dry", content, function(err, dry) {
+      parse.parseFromContent("foo.scene.dry", content, function(err, result) {
         (!!err).should.be.false;
-        dry.title.should.equal('My Title');
-        dry.sections.length.should.equal(1);
+        result.title.should.equal('My Title');
+        result.sections.length.should.equal(1);
         done();
       });
     });
 
     it("requires the type of content to be 'scene'", function(done) {
       var content = "title: My Title";
-      parse.parseFromContent("foo.quality.dry", content, function(err, dry) {
+      parse.parseFromContent("foo.quality.dry", content, function(err, result) {
         (!!err).should.be.true;
         err.toString().should.equal(
-          "Error: Property must equal 'scene', 'quality' found instead.");
-        (dry === undefined).should.be.true;
+          "Error: File type must equal 'scene', 'quality' found instead.");
+        (result === undefined).should.be.true;
         done();
       });
     });
@@ -51,43 +51,44 @@
     it("should enforce required properties", function(done) {
       var content = "title: My Title";
       // No 'type' inferred from filename.
-      parse.parseFromContent("foo.dry", content, function(err, dry) {
+      parse.parseFromContent("foo.dry", content, function(err, result) {
         (!!err).should.be.true;
         err.toString().should.equal(
           "Error: Required property 'type' missing.");
-        (dry === undefined).should.be.true;
+        (result === undefined).should.be.true;
         done();
       });
     });
 
     it("should reject unknown properties", function(done) {
       var content = "title: My Title\nlabel: foo";
-      parse.parseFromContent("foo.scene.dry", content, function(err, dry) {
+      parse.parseFromContent("foo.scene.dry", content, function(err, result) {
         (!!err).should.be.true;
         err.toString().should.equal(
-          "Error: Unknown properties: 'label'.");
-        (dry === undefined).should.be.true;
+          "Error: Unknown properties: 'label' (line 2).");
+        (result === undefined).should.be.true;
         done();
       });
     });
 
     it("should reject malformed dry files", function(done) {
       var content = "title: My Title\nfoo";
-      parse.parseFromContent("foo.scene.dry", content, function(err, dry) {
+      parse.parseFromContent("foo.scene.dry", content, function(err, result) {
         (!!err).should.be.true;
         err.toString().should.equal(
           "Error: Line 2: Invalid property definition.");
-        (dry === undefined).should.be.true;
+        (result === undefined).should.be.true;
         done();
       });
     });
 
     it("should reject malformed properties", function(done) {
       var content = "title: My Title\ntags: $nope";
-      parse.parseFromContent("foo.scene.dry", content, function(err, dry) {
+      parse.parseFromContent("foo.scene.dry", content, function(err, result) {
         (!!err).should.be.true;
-        err.toString().should.equal("Error: Tag 1 '$nope' is not valid.");
-        (dry === undefined).should.be.true;
+        err.toString().should.equal(
+          "Error: Line 2: Tag 1 '$nope' is not valid.");
+        (result === undefined).should.be.true;
         done();
       });
     });
@@ -116,20 +117,22 @@
 
     it("can detect errors in options blocks", function(done) {
       var content = "title: My Title\n\n- @foo\n- min:3";
-      parse.parseFromContent("foo.scene.dry", content, function(err, dry) {
+      parse.parseFromContent("foo.scene.dry", content, function(err, result) {
         (!!err).should.be.true;
-        err.toString().should.equal("Error: Unknown properties: 'min'.");
-        (dry === undefined).should.be.true;
+        err.toString().should.equal(
+          "Error: Unknown properties: 'min' (line 4).");
+        (result === undefined).should.be.true;
         done();
       });
     });
 
     it("can detect errors in sections", function(done) {
       var content = "title: My Title\n\n@bar\nmin:3";
-      parse.parseFromContent("foo.scene.dry", content, function(err, dry) {
+      parse.parseFromContent("foo.scene.dry", content, function(err, result) {
         (!!err).should.be.true;
-        err.toString().should.equal("Error: Unknown properties: 'min'.");
-        (dry === undefined).should.be.true;
+        err.toString().should.equal(
+          "Error: Unknown properties: 'min' (line 4).");
+        (result === undefined).should.be.true;
         done();
       });
     });

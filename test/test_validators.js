@@ -109,7 +109,7 @@
 
     describe("equality enforcing", function() {
       it("allows matches to pass", function(done) {
-        validators.makeEnsureEqualTo("foo")("foo", function(err, val) {
+        validators.makeEnsureEqualTo("P", "foo")("foo", function(err, val) {
           (!!err).should.be.false;
           val.should.equal('foo');
           done();
@@ -117,7 +117,7 @@
       });
 
       it("trims whitespace before match", function(done) {
-        validators.makeEnsureEqualTo("foo  ")("  foo", function(err, val) {
+        validators.makeEnsureEqualTo("P", "foo  ")("  foo", function(err, val) {
           (!!err).should.be.false;
           val.should.equal('foo');
           done();
@@ -125,10 +125,10 @@
       });
 
       it("should reject mismatches", function(done) {
-        validators.makeEnsureEqualTo("foo")("bar", function(err, val) {
+        validators.makeEnsureEqualTo("Prop", "foo")("bar", function(err, val) {
           (!!err).should.be.true;
           err.toString().should.equal(
-            "Error: Property must equal 'foo', 'bar' found instead.");
+            "Error: Prop must equal 'foo', 'bar' found instead.");
           (val === undefined).should.be.true;
           done();
         });
@@ -139,10 +139,10 @@
           $value: "bar",
           $line: 4
         };
-        validators.makeEnsureEqualTo("foo")(prop, function(err, val) {
+        validators.makeEnsureEqualTo("Prop", "foo")(prop, function(err, val) {
           (!!err).should.be.true;
           err.toString().should.equal(
-            "Error: Line 4: Property must equal 'foo', 'bar' found instead.");
+            "Error: Line 4: Prop must equal 'foo', 'bar' found instead.");
           (val === undefined).should.be.true;
           done();
         });
@@ -221,7 +221,8 @@
       it("validates matching content", function(done) {
         var schema = {
           foo: {required:true, validate:null},
-          bar: {required:true, validate:validators.makeEnsureEqualTo('bar')},
+          bar: {required:true,
+                validate:validators.makeEnsureEqualTo('Property', 'bar')},
           sun: {required:false, validate:null}
         };
         var content = {
@@ -239,7 +240,8 @@
       it("enforces required properties", function(done) {
         var schema = {
           foo: {required:true, validate:null},
-          bar: {required:true, validate:validators.makeEnsureEqualTo('bar')}
+          bar: {required:true,
+                validate:validators.makeEnsureEqualTo('Property', 'bar')}
         };
         var content = {
           bar: 'bar'
@@ -272,10 +274,29 @@
         });
       });
 
+      it("gives line numbers of additional properties", function(done) {
+        var schema = {
+          foo: {required:true, validate:null},
+        };
+        var content = {
+          foo: {$value:'foo', $line: 1},
+          bar: {$value:'bar', $line: 2}
+        };
+        var ensure = validators.makeEnsureObjectMatchesSchema(schema);
+        ensure(content, function(err, result) {
+          (!!err).should.be.true;
+          err.toString().should.equal(
+            "Error: Unknown properties: 'bar' (line 2).");
+          (result === undefined).should.be.true;
+          done();
+        });
+      });
+
       it("validates data using validate functions", function(done) {
         var schema = {
           foo: {required:true, validate:null},
-          bar: {required:true, validate:validators.makeEnsureEqualTo('bar')}
+          bar: {required:true,
+                validate:validators.makeEnsureEqualTo('Property', 'bar')}
         };
         var content = {
           foo: 'foo',
@@ -294,7 +315,8 @@
       it("should include line number in error, if available", function(done) {
         var schema = {
           foo: {required:true, validate:null},
-          bar: {required:true, validate:validators.makeEnsureEqualTo('bar')}
+          bar: {required:true,
+                validate:validators.makeEnsureEqualTo('Property', 'bar')}
         };
         var content = {
           foo: {$value:'foo', $line: 2},
@@ -318,7 +340,8 @@
       it("validates matching content", function(done) {
         var schema = {
           foo: {required:true, validate:null},
-          bar: {required:false, validate:validators.makeEnsureEqualTo('bar')},
+          bar: {required:false,
+                validate:validators.makeEnsureEqualTo('Property', 'bar')},
         };
         var content = [
           {foo: 'foo', bar: 'bar'},
@@ -336,7 +359,8 @@
       it("copes with items in the list having property data", function(done) {
         var schema = {
           foo: {required:true, validate:null},
-          bar: {required:false, validate:validators.makeEnsureEqualTo('bar')},
+          bar: {required:false,
+                validate:validators.makeEnsureEqualTo('Property', 'bar')},
         };
         var content = [
           {$value: {foo: 'foo', bar: {$value:'bar', $line:2}}, $line: 1},
@@ -356,7 +380,8 @@
       it("raises an error if any element is invalid", function(done) {
         var schema = {
           foo: {required:true, validate:null},
-          bar: {required:false, validate:validators.makeEnsureEqualTo('bar')},
+          bar: {required:false,
+                validate:validators.makeEnsureEqualTo('Property', 'bar')},
         };
         var content = [
           {foo: 'foo', bar: 'bar'},
@@ -376,7 +401,8 @@
       it("should include line number in error, if available ", function(done) {
         var schema = {
           foo: {required:true, validate:null},
-          bar: {required:false, validate:validators.makeEnsureEqualTo('bar')},
+          bar: {required:false,
+                validate:validators.makeEnsureEqualTo('Property', 'bar')},
         };
         var content = [
           {foo: 'foo', bar: 'bar'},
@@ -401,15 +427,18 @@
         var schemae = {
           'foo': {
             id: {required:true, validate:null},
-            bar: {required:false, validate:validators.makeEnsureEqualTo('bar')},
+            bar: {required:false,
+                  validate:validators.makeEnsureEqualTo('Property', 'bar')},
           },
           'sun': {
             id: {required:true, validate:null},
-            bar: {required:false, validate:validators.makeEnsureEqualTo('bar')},
+            bar: {required:false,
+                  validate:validators.makeEnsureEqualTo('Property', 'bar')},
           },
           'dock': {
             id: {required:true, validate:null},
-            bar: {required:false, validate:validators.makeEnsureEqualTo('tro')},
+            bar: {required:false,
+                  validate:validators.makeEnsureEqualTo('Property', 'tro')},
           }
         };
         var content = [
@@ -429,15 +458,18 @@
         var schemae = {
           'foo': {
             id: {required:true, validate:null},
-            bar: {required:false, validate:validators.makeEnsureEqualTo('bar')},
+            bar: {required:false,
+                  validate:validators.makeEnsureEqualTo('Property', 'bar')},
           },
           'sun': {
             id: {required:true, validate:null},
-            bar: {required:false, validate:validators.makeEnsureEqualTo('bar')},
+            bar: {required:false,
+                  validate:validators.makeEnsureEqualTo('Property', 'bar')},
           },
           'dock': {
             id: {required:true, validate:null},
-            bar: {required:false, validate:validators.makeEnsureEqualTo('tro')},
+            bar: {required:false,
+                  validate:validators.makeEnsureEqualTo('Property', 'tro')},
           }
         };
         var content = [
@@ -461,11 +493,13 @@
         var schemae = {
           'foo': {
             id: {required:true, validate:null},
-            bar: {required:false, validate:validators.makeEnsureEqualTo('bar')},
+            bar: {required:false,
+                  validate:validators.makeEnsureEqualTo('Property', 'bar')},
           },
           '$default': {
             id: {required:true, validate:null},
-            bar: {required:false, validate:validators.makeEnsureEqualTo('tro')},
+            bar: {required:false,
+                  validate:validators.makeEnsureEqualTo('Property', 'tro')},
           }
         };
         var content = [
@@ -485,11 +519,13 @@
         var schemae = {
           'foo': {
             id: {required:true, validate:null},
-            bar: {required:false, validate:validators.makeEnsureEqualTo('bar')},
+            bar: {required:false,
+                  validate:validators.makeEnsureEqualTo('Property', 'bar')},
           },
           'dock': {
             id: {required:true, validate:null},
-            bar: {required:false, validate:validators.makeEnsureEqualTo('tro')},
+            bar: {required:false,
+                  validate:validators.makeEnsureEqualTo('Property', 'tro')},
           }
         };
         var content = [
@@ -511,11 +547,13 @@
         var schemae = {
           'foo': {
             id: {required:true, validate:null},
-            bar: {required:false, validate:validators.makeEnsureEqualTo('bar')},
+            bar: {required:false,
+                  validate:validators.makeEnsureEqualTo('Property', 'bar')},
           },
           '$default': {
             id: {required:true, validate:null},
-            bar: {required:false, validate:validators.makeEnsureEqualTo('tro')},
+            bar: {required:false,
+                  validate:validators.makeEnsureEqualTo('Property', 'tro')},
           }
         };
         var content = [
@@ -537,11 +575,13 @@
         var schemae = {
           'foo': {
             id: {required:true, validate:null},
-            bar: {required:false, validate:validators.makeEnsureEqualTo('bar')},
+            bar: {required:false,
+                  validate:validators.makeEnsureEqualTo('Property', 'bar')},
           },
           '$default': {
             id: {required:true, validate:null},
-            bar: {required:false, validate:validators.makeEnsureEqualTo('tro')},
+            bar: {required:false,
+                  validate:validators.makeEnsureEqualTo('Property', 'tro')},
           }
         };
         var content = [
@@ -559,15 +599,45 @@
         });
       });
 
+      it("finds line number from list definition", function(done) {
+        var schemae = {
+          'foo': {
+            id: {required:true, validate:null},
+            bar: {required:false,
+                  validate:validators.makeEnsureEqualTo('Property', 'bar')},
+          },
+          'dock': {
+            id: {required:true, validate:null},
+            bar: {required:false,
+                  validate:validators.makeEnsureEqualTo('Property', 'tro')},
+          }
+        };
+        var content = {$value: [
+          {id: 'foo', bar: 'bar'},
+          {id: 'sun'},
+          {id: 'dock', bar: 'tro'}
+        ], $line:4};
+        var ensure = validators.makeEnsureListItemsMatchSchemaById(schemae);
+        ensure(content, function(err, result) {
+          (!!err).should.be.true;
+          err.toString().should.equal(
+            "Error: Line 4: Found an item with an unknown id 'sun'.");
+          (result === undefined).should.be.true;
+          done();
+        });
+      });
+
       it("finds line number from item definition", function(done) {
         var schemae = {
           'foo': {
             id: {required:true, validate:null},
-            bar: {required:false, validate:validators.makeEnsureEqualTo('bar')},
+            bar: {required:false,
+                  validate:validators.makeEnsureEqualTo('Property', 'bar')},
           },
           'dock': {
             id: {required:true, validate:null},
-            bar: {required:false, validate:validators.makeEnsureEqualTo('tro')},
+            bar: {required:false,
+                  validate:validators.makeEnsureEqualTo('Property', 'tro')},
           }
         };
         var content = [
@@ -589,11 +659,13 @@
         var schemae = {
           'foo': {
             id: {required:true, validate:null},
-            bar: {required:false, validate:validators.makeEnsureEqualTo('bar')},
+            bar: {required:false,
+                  validate:validators.makeEnsureEqualTo('Property', 'bar')},
           },
           'dock': {
             id: {required:true, validate:null},
-            bar: {required:false, validate:validators.makeEnsureEqualTo('tro')},
+            bar: {required:false,
+                  validate:validators.makeEnsureEqualTo('Property', 'tro')},
           }
         };
         var content = [
