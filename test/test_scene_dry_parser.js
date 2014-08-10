@@ -97,11 +97,28 @@
       var fn = path.join(__dirname, 'files', 'test_scene_parser.scene.dry');
       parse.parseFromFile(fn, function(err, result) {
         (!!err).should.be.false;
-        result.id.should.equal('test_scene_parser');
-        result.type.should.equal('scene');
-        result.tags.length.should.equal(2);
-        result.sections.length.should.equal(2);
-        result.sections[0].id.should.equal('foo');
+        result.should.eql({
+          id: "test_scene_parser",
+          type: "scene",
+          title: "The scene title",
+          tags: ["alpha", "bravo"],
+          content: "This is the scene content.",
+          options: {
+            options: [{id:"@foo", title:"The title for foo."},
+                      {id:"@bar"}],
+          },
+          sections: [{
+            id: "foo",
+            content: "This is section 'foo'."
+          },{
+            id: "bar",
+            title: "The Bar Scene",
+            content: "This is section 'bar'.",
+            options: {
+              options: [{id:"@foo", title:"Return to foo."}]
+            }
+          }]
+        });
         done();
       });
     });

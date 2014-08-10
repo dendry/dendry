@@ -13,7 +13,7 @@
 
   var parse = require('../lib/gp_parser');
 
-  var get_sample_token_rules = function() {
+  var getSampleTokenRules = function() {
     return [
         {regex:/and|AND/, token:"conjunction"},
         {regex:/or|OR/, token:"disjunction"},
@@ -34,8 +34,8 @@
         {regex:/\s+/, token:undefined} // Skipped - doesn't appear in tokens
     ];
   };
-  
-  var get_sample_parser_rules = function() {
+
+  var getSampleParserRules = function() {
     var _rule = function(rule) {
       return parse.Parser.makeRule(rule, function(sequence, _) {
         return sequence[0];
@@ -76,14 +76,14 @@
         _rule(".argument ::= .arithmetic")
     ];
   };
-  
+
   describe("gp-parser", function() {
-    
+
     // ----------------------------------------------------------------------
-    
+
     describe("tokenizer", function() {
       it("should tokenize a simple expression", function(done) {
-        var rules = get_sample_token_rules();
+        var rules = getSampleTokenRules();
         var tokenizer = new parse.Tokenizer(rules, false);
         tokenizer.run("foo < 2", function(err, tokens) {
           (!!err).should.be.false;
@@ -99,7 +99,7 @@
       });
 
       it("should fail for an unknown token in the string", function(done) {
-        var rules = get_sample_token_rules();
+        var rules = getSampleTokenRules();
         var tokenizer = new parse.Tokenizer(rules, false);
         tokenizer.run("foo $ 2", function(err, tokens) {
           (!!err).should.be.true;
@@ -111,7 +111,7 @@
       });
 
       it("should fail for an unknown token at the end", function(done) {
-        var rules = get_sample_token_rules();
+        var rules = getSampleTokenRules();
         var tokenizer = new parse.Tokenizer(rules, false);
         tokenizer.run("foo < 2 $", function(err, tokens) {
           (!!err).should.be.true;
@@ -123,7 +123,7 @@
       });
 
       it("generates a null token for unknown content inside", function(done) {
-        var rules = get_sample_token_rules();
+        var rules = getSampleTokenRules();
         var tokenizer = new parse.Tokenizer(rules, true);
         tokenizer.run("foo $ 2", function(err, tokens) {
           (!!err).should.be.false;
@@ -140,7 +140,7 @@
       });
 
       it("generates a null token for unknown trailing content", function(done){
-        var rules = get_sample_token_rules();
+        var rules = getSampleTokenRules();
         var tokenizer = new parse.Tokenizer(rules, true);
         tokenizer.run("foo < 2 $", function(err, tokens) {
           (!!err).should.be.false;
@@ -159,7 +159,7 @@
       });
 
       it("should match longest possible token", function(done) {
-        var rules = get_sample_token_rules();
+        var rules = getSampleTokenRules();
         var tokenizer = new parse.Tokenizer(rules, true);
         tokenizer.run("and andy or for", function(err, tokens) {
           (!!err).should.be.false;
@@ -177,8 +177,8 @@
 
     describe("parser", function() {
       it("should parse a simple expression", function(done) {
-        var trules = get_sample_token_rules();
-        var prules = get_sample_parser_rules();
+        var trules = getSampleTokenRules();
+        var prules = getSampleParserRules();
         var tokenizer = new parse.Tokenizer(trules, false);
         var parser = new parse.Parser(prules);
         tokenizer.run("foo < 3", function(err, tokens) {
@@ -191,8 +191,8 @@
       });
 
       it("assumes a root of 'root'", function(done) {
-        var trules = get_sample_token_rules();
-        var prules = get_sample_parser_rules();
+        var trules = getSampleTokenRules();
+        var prules = getSampleParserRules();
         var tokenizer = new parse.Tokenizer(trules, false);
         var parser = new parse.Parser(prules);
         tokenizer.run("foo < 3", function(err, tokens) {
@@ -206,8 +206,8 @@
       });
 
       it("can't parse from an unknown root", function(done) {
-        var trules = get_sample_token_rules();
-        var prules = get_sample_parser_rules();
+        var trules = getSampleTokenRules();
+        var prules = getSampleParserRules();
         var tokenizer = new parse.Tokenizer(trules, false);
         var parser = new parse.Parser(prules);
         tokenizer.run("foo < 3", function(err, tokens) {
@@ -221,17 +221,17 @@
           });
         });
       });
-      
+
       it("fails when given unreachable rules", function() {
-        var prules = get_sample_parser_rules();
+        var prules = getSampleParserRules();
         prules.splice(7, 2);
         (function() {
           new parse.Parser(prules);
         }).should.throw("Rule neg-bool-exp is never referenced.");
       });
-      
+
       it("fails when undefined rules are referenced", function() {
-        var prules = get_sample_parser_rules();
+        var prules = getSampleParserRules();
         prules.splice(9, 2);
         (function() {
           new parse.Parser(prules);
@@ -250,7 +250,7 @@
           _rule(".root ::= name name"),
           _rule(".expression ::= name"),
         ];
-        var trules = get_sample_token_rules();
+        var trules = getSampleTokenRules();
         var tokenizer = new parse.Tokenizer(trules, false);
         var parser = new parse.Parser(prules);
         tokenizer.run("foo bar", function(err, tokens) {
@@ -277,7 +277,7 @@
           _rule(".expression ::= name"),
           _rule(".value ::= name"),
         ];
-        var trules = get_sample_token_rules();
+        var trules = getSampleTokenRules();
         var tokenizer = new parse.Tokenizer(trules, false);
         var parser = new parse.Parser(prules);
         tokenizer.run("foo", function(err, tokens) {
@@ -302,7 +302,7 @@
           _rule(".root ::= .expression name"),
           _rule(".expression ::= name"),
         ];
-        var trules = get_sample_token_rules();
+        var trules = getSampleTokenRules();
         var tokenizer = new parse.Tokenizer(trules, false);
         var parser = new parse.Parser(prules);
         tokenizer.run("foo and", function(err, tokens) {
