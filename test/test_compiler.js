@@ -58,7 +58,6 @@
         game.tagLookup.alpha.should.eql(["root", "foo"]);
         game.tagLookup.bravo.should.eql(["root"]);
         game.tagLookup.charlie.should.eql(["foo"]);
-        console.log(JSON.stringify(game, null, 4));
         done();
       });
     });

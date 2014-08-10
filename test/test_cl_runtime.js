@@ -7,6 +7,7 @@
 (function() {
   "use strict";
 
+  var _ = require('lodash');
   var prompt = require('prompt');
   var assert = require('assert');
   var should = require('should');
@@ -34,7 +35,8 @@
       var inputs = this.inputs[this.currentIndex];
       // Allow functions in the list of inputs to be run (for mid-game testing).
       while(_.isFunction(inputs)) {
-        if (!inputs()) return callback(new Error("Function failed."));
+        inputs();
+        this.currentIndex++;
         inputs = this.inputs[this.currentIndex];
       }
       var result = {};
@@ -58,13 +60,13 @@
           "root": {
             id: "root",
             content: "This is the root content.",
-            options: [{id:"foo", title:"The Foo"}]
+            options: {options:[{id:"foo", title:"The Foo"}]}
           },
           "foo": {
             id: "foo",
             content: "This is the foo content.",
-            options: [{id:null, title:"Quit"},
-                      {id:"root", title:"Return"}]
+            options: {options:[{id:null, title:"Quit"},
+                               {id:"root", title:"Return"}]}
           }
         }
       };
@@ -83,13 +85,21 @@
       var game = getTestGame();
       var out = new OutputAccumulator();
       var pin = new PredeterminedInput([
-        {choice:'1'}, {choice:'2'}, {choice:'1'}, {choice:'1'}
+        {choice:'1'},
+        function() {
+          clint.gameState.getCurrentScene().id.should.equal('foo');
+        },
+        {choice:'2'},
+        function() {
+          clint.gameState.getCurrentScene().id.should.equal('root');
+        },
+        {choice:'1'}, {choice:'1'}
       ]);
       var clint =  new clruntime.CommandLineRuntimeInterface(game, out, pin);
       clint.run(function(err) {
         (!!err).should.be.false;
         clint.gameState.isGameOver().should.be.true;
-        pin.currentIndex.should.equal(4);
+        pin.currentIndex.should.equal(6);
         done();
       });
     });

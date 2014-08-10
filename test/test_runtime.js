@@ -98,9 +98,9 @@
           scenes: {
             "root": {
               id: "root",
-              options: [
+              options: { options:[
                 {id:"foo", title:"To the Foo"}
-              ]
+              ]}
             },
             "foo": {id: "foo"}
           }
@@ -120,9 +120,9 @@
           scenes: {
             "root": {
               id: "root",
-              options: [
+              options: { options:[
                 {id:"foo", title:"To the Foo"}
-              ]
+              ]}
             }
           }
         };
@@ -154,9 +154,9 @@
             "root": {
               id: "root",
               content: "This is the root content.",
-              options: [
+              options: { options:[
                 {id:"foo", title:"To the Foo"}
-              ]
+              ]}
             }
           }
         };
