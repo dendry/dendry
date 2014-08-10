@@ -32,6 +32,11 @@
     PredeterminedInput.prototype.start = function() {};
     PredeterminedInput.prototype.get = function(schemae, callback) {
       var inputs = this.inputs[this.currentIndex];
+      // Allow functions in the list of inputs to be run (for mid-game testing).
+      while(_.isFunction(inputs)) {
+        if (!inputs()) return callback(new Error("Function failed."));
+        inputs = this.inputs[this.currentIndex];
+      }
       var result = {};
       for (var i = 0; i < schemae.length; ++i) {
         var schema = schemae[i];
@@ -74,7 +79,7 @@
       clint.prompt.should.equal(prompt);
     });
 
-    it("should run a simple game.", function(done) {
+    it("should run a simple game", function(done) {
       var game = getTestGame();
       var out = new OutputAccumulator();
       var pin = new PredeterminedInput([
@@ -89,20 +94,18 @@
       });
     });
 
-    describe("dummy objects", function() {
-      it("should fail with non-conforming data.", function(done) {
-        var game = getTestGame();
-        var out = new OutputAccumulator();
-        var pin = new PredeterminedInput([
-          {choice:'1'}, {choice:'x'}
-        ]);
-        var clint =  new clruntime.CommandLineRuntimeInterface(game, out, pin);
-        clint.run(function(err) {
-          (!!err).should.be.true;
-          err.toString().should.equal(
-            "Error: Value 'x' for 'choice' doesn't conform.");
-          done();
-        });
+    it("should fail if prompt fails", function(done) {
+      var game = getTestGame();
+      var out = new OutputAccumulator();
+      var pin = new PredeterminedInput([
+        {choice:'1'}, {choice:'x'}
+      ]);
+      var clint =  new clruntime.CommandLineRuntimeInterface(game, out, pin);
+      clint.run(function(err) {
+        (!!err).should.be.true;
+        err.toString().should.equal(
+          "Error: Value 'x' for 'choice' doesn't conform.");
+        done();
       });
     });
 
