@@ -60,13 +60,13 @@
           "root": {
             id: "root",
             content: "This is the root content.",
-            options: {options:[{id:"foo", title:"The Foo"}]}
+            options: {options:[{id:"@foo", title:"The Foo"}]}
           },
           "foo": {
             id: "foo",
             content: "This is the foo content.",
             options: {options:[{id:null, title:"Quit"},
-                               {id:"root", title:"Return"}]}
+                               {id:"@root", title:"Return"}]}
           }
         }
       };

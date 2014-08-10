@@ -31,7 +31,7 @@
       ];
       compiler.compile(info, listOfScenes, function(err, game) {
         (!!err).should.be.false;
-        game.sceneLookup.foo.title.should.equal('The Foo');
+        game.scenes.foo.title.should.equal('The Foo');
         done();
       });
     });
@@ -55,9 +55,9 @@
       ];
       compiler.compile(info, listOfScenes, function(err, game) {
         (!!err).should.be.false;
-        game.tagLookup.alpha.should.eql(["root", "foo"]);
-        game.tagLookup.bravo.should.eql(["root"]);
-        game.tagLookup.charlie.should.eql(["foo"]);
+        game.tagLookup.alpha.should.eql({root: true, foo: true});
+        game.tagLookup.bravo.should.eql({root: true});
+        game.tagLookup.charlie.should.eql({foo: true});
         done();
       });
     });
