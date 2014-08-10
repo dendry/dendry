@@ -15,17 +15,6 @@
 
   describe("runtime", function() {
 
-    var getTestGame = function() {
-      return {
-        scenes: {
-          "root": {
-            id: "root",
-            content: "This is the root content."
-          }
-        }
-      };
-    };
-
     // ---------------------------------------------------------------------
 
     describe("scene", function() {
