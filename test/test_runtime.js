@@ -26,10 +26,10 @@
           }
         };
         var runtimeInterface = new runtime.NullRuntimeInterface();
-        var interaction = new runtime.Interaction(runtimeInterface, game);
-        interaction.beginGame();
-        interaction.getCurrentScene().id.should.equal('root');
-        interaction.isGameOver().should.be.false;
+        var gameState = new runtime.GameState(runtimeInterface, game);
+        gameState.beginGame();
+        gameState.getCurrentScene().id.should.equal('root');
+        gameState.isGameOver().should.be.false;
       });
 
       it("should allow game to be terminated", function() {
@@ -39,10 +39,10 @@
           }
         };
         var runtimeInterface = new runtime.NullRuntimeInterface();
-        var interaction = new runtime.Interaction(runtimeInterface, game);
-        interaction.beginGame().gameOver();
-        interaction.isGameOver().should.be.true;
-        (interaction.getCurrentScene() === null).should.be.true;
+        var gameState = new runtime.GameState(runtimeInterface, game);
+        gameState.beginGame().gameOver();
+        gameState.isGameOver().should.be.true;
+        (gameState.getCurrentScene() === null).should.be.true;
       });
 
       it("should start at an explicit scene, if given", function() {
@@ -54,9 +54,9 @@
           }
         };
         var runtimeInterface = new runtime.NullRuntimeInterface();
-        var interaction = new runtime.Interaction(runtimeInterface, game);
-        interaction.beginGame().display();
-        interaction.getCurrentScene().id.should.equal('foo');
+        var gameState = new runtime.GameState(runtimeInterface, game);
+        gameState.beginGame().display();
+        gameState.getCurrentScene().id.should.equal('foo');
       });
     });
 
@@ -71,9 +71,9 @@
           }
         };
         var runtimeInterface = new runtime.NullRuntimeInterface();
-        var interaction = new runtime.Interaction(runtimeInterface, game);
-        interaction.beginGame().goToScene('foo');
-        var opts = interaction.getCurrentOptions();
+        var gameState = new runtime.GameState(runtimeInterface, game);
+        gameState.beginGame().goToScene('foo');
+        var opts = gameState.getCurrentOptions();
         opts.length.should.equal(1);
         opts[0].id.should.equal('root');
         opts[0].title.should.equal('Scene Complete');
@@ -87,9 +87,9 @@
           }
         };
         var runtimeInterface = new runtime.NullRuntimeInterface();
-        var interaction = new runtime.Interaction(runtimeInterface, game);
-        interaction.beginGame();
-        var opts = interaction.getCurrentOptions();
+        var gameState = new runtime.GameState(runtimeInterface, game);
+        gameState.beginGame();
+        var opts = gameState.getCurrentOptions();
         opts.length.should.equal(0);
       });
 
@@ -106,13 +106,13 @@
           }
         };
         var runtimeInterface = new runtime.NullRuntimeInterface();
-        var interaction = new runtime.Interaction(runtimeInterface, game);
-        interaction.beginGame();
-        interaction.getCurrentScene().id.should.equal('root');
-        var opts = interaction.getCurrentOptions();
+        var gameState = new runtime.GameState(runtimeInterface, game);
+        gameState.beginGame();
+        gameState.getCurrentScene().id.should.equal('root');
+        var opts = gameState.getCurrentOptions();
         opts.length.should.equal(1);
-        interaction.choose(0);
-        interaction.getCurrentScene().id.should.equal('foo');
+        gameState.choose(0);
+        gameState.getCurrentScene().id.should.equal('foo');
       });
 
       it("can't choose an invalid option", function() {
@@ -127,10 +127,10 @@
           }
         };
         var runtimeInterface = new runtime.NullRuntimeInterface();
-        var interaction = new runtime.Interaction(runtimeInterface, game);
-        interaction.beginGame();
-        var opts = interaction.getCurrentOptions();
-        (function() { interaction.choose(1); }).should.throw(
+        var gameState = new runtime.GameState(runtimeInterface, game);
+        gameState.beginGame();
+        var opts = gameState.getCurrentOptions();
+        (function() { gameState.choose(1); }).should.throw(
           "No option at index 1, only 1 options are available."
         );
       });
@@ -161,8 +161,8 @@
           }
         };
         var runtimeInterface = new TestRuntimeInterface();
-        var interaction = new runtime.Interaction(runtimeInterface, game);
-        interaction.beginGame().display();
+        var gameState = new runtime.GameState(runtimeInterface, game);
+        gameState.beginGame().display();
         runtimeInterface.content.length.should.equal(1);
         runtimeInterface.content[0].should.equal("This is the root content.");
         runtimeInterface.options.length.should.equal(1);
@@ -178,8 +178,8 @@
           }
         };
         var runtimeInterface = new TestRuntimeInterface();
-        var interaction = new runtime.Interaction(runtimeInterface, game);
-        interaction.beginGame().display();
+        var gameState = new runtime.GameState(runtimeInterface, game);
+        gameState.beginGame().display();
         runtimeInterface.content.length.should.equal(0);
       });
 
@@ -190,8 +190,8 @@
           }
         };
         var runtimeInterface = new TestRuntimeInterface();
-        var interaction = new runtime.Interaction(runtimeInterface, game);
-        interaction.beginGame().gameOver().display();
+        var gameState = new runtime.GameState(runtimeInterface, game);
+        gameState.beginGame().gameOver().display();
         runtimeInterface.content.length.should.equal(1);
         runtimeInterface.content[0].should.equal("Game Over");
       });
