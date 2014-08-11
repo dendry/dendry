@@ -56,6 +56,8 @@
 
     var getTestGame = function() {
       return {
+        title: "The Game",
+        author: "The Author",
         scenes: {
           "root": {
             id: "root",
