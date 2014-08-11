@@ -1,0 +1,43 @@
+{
+  "title": "Test Game",
+  "author": "Jo Doe",
+  "scenes": {
+    "alpha": {
+      "id": "alpha",
+      "type": "scene",
+      "title": "Alpha Scene",
+      "tags": [
+        "top"
+      ],
+      "content": "This is alpha scene."
+    },
+    "bravo": {
+      "id": "bravo",
+      "type": "scene",
+      "title": "Bravo Scene",
+      "tags": [
+        "top"
+      ],
+      "content": "This is bravo scene."
+    },
+    "root": {
+      "id": "root",
+      "type": "scene",
+      "title": "The Game",
+      "options": {
+        "options": [
+          {
+            "id": "#top"
+          }
+        ]
+      },
+      "content": "This is the game, and here are the choices of scenes for you."
+    }
+  },
+  "tagLookup": {
+    "top": {
+      "alpha": true,
+      "bravo": true
+    }
+  }
+}
