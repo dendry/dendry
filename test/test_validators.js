@@ -256,6 +256,44 @@
         });
       });
 
+      it("removes removable properties", function(done) {
+        var schema = {
+          foo: {required:true, validate:null},
+          bar: {remove:true}
+        };
+        var content = {
+          foo: 'foo',
+          bar: 'bar'
+        };
+        var ensure = validators.makeEnsureObjectMatchesSchema(schema);
+        ensure(content, function(err, result) {
+          (!!err).should.be.false;
+          result.foo.should.equal('foo');
+          (result.bar === undefined).should.be.true;
+          done();
+        });
+      });
+
+      it("removes removable properties after validation", function(done) {
+        var schema = {
+          foo: {required:true, validate:null},
+          bar: {remove:true, validate:validators.validateInteger},
+          sun: {remove:true, validate:validators.validateInteger}
+        };
+        var content = {
+          foo: 'foo',
+          bar: '2',
+          sun: 'sun',
+        };
+        var ensure = validators.makeEnsureObjectMatchesSchema(schema);
+        ensure(content, function(err, result) {
+          (!!err).should.be.true;
+          err.toString().should.equal("Error: Not a valid whole number.");
+          (result === undefined).should.be.true;
+          done();
+        });
+      });
+
       it("complains at additional properties", function(done) {
         var schema = {
           foo: {required:true, validate:null},
