@@ -26,7 +26,6 @@
       var gameState = new runtime.GameState(runtimeInterface, game);
       gameState.beginGame().gameOver();
       gameState.isGameOver().should.be.true;
-      (gameState.getCurrentScene() === null).should.be.true;
     });
 
     // ---------------------------------------------------------------------
@@ -59,7 +58,6 @@
         var gameState = new runtime.GameState(runtimeInterface, game);
         gameState.beginGame().choose(0);
         gameState.isGameOver().should.be.true;
-        (gameState.getCurrentScene() === null).should.be.true;
       });
 
       it("terminates if the root has no choices", function() {
@@ -72,7 +70,6 @@
         var gameState = new runtime.GameState(runtimeInterface, game);
         gameState.beginGame();
         gameState.isGameOver().should.be.true;
-        (gameState.getCurrentScene() === null).should.be.true;
       });
 
 
