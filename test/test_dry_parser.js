@@ -126,6 +126,17 @@
         });
       });
 
+      it("should camel case property names", function(done) {
+        parseFromContent(
+          "test.dry", "prop-one: foo\nprop-two:\tbar",
+          function(err, result){
+            (!!err).should.be.false;
+            propval(result.propOne).should.equal('foo');
+            propval(result.propTwo).should.equal('bar');
+            done();
+          });
+      });
+
       it("allow a property to be split over two lines", function(done) {
         parseFromContent("test.dry", "prop: foo\n\tbar", function(err, result){
           (!!err).should.be.false;

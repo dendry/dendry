@@ -115,7 +115,8 @@
             title: "The Bar Scene",
             content: "This is section 'bar'.",
             options: {
-              options: [{id:"@foo", title:"Return to foo."}]
+              options: [{id:"@foo", title:"Return to foo."},
+                        {id:"game-over", title:"End the game."}]
             }
           }]
         });

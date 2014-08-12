@@ -9,6 +9,7 @@
       "tags": [
         "top"
       ],
+      "maxVisits": 1,
       "content": "This is alpha scene."
     },
     "bravo": {

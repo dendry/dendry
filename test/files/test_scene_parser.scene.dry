@@ -18,3 +18,4 @@ title: The Bar Scene
 This is section 'bar'.
 
 - @foo: Return to foo.
+- game-over: End the game.

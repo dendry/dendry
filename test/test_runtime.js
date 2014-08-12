@@ -90,7 +90,8 @@
         var gameState = new runtime.GameState(runtimeInterface, game);
         gameState.beginGame();
         var choices = gameState.getCurrentChoices();
-        choices.length.should.equal(0);
+        choices.length.should.equal(1);
+        choices[0].id.should.equal("$gameOver");
       });
 
       it("can choose an choice and have it change scene", function() {
@@ -188,6 +189,12 @@
               options: { options:[
                 {id:"@foo", title:"To the Foo"}
               ]}
+            },
+            "foo": {
+              id: "foo",
+              options: { options:[
+                {id:"@root", title:"Back to the Root"}
+              ]}
             }
           }
         };
@@ -197,6 +204,41 @@
         (function() { gameState.choose(1); }).should.throw(
           "No choice at index 1, only 1 choices are available."
         );
+      });
+
+      it("removes a choice visited too much", function() {
+        var game = {
+          scenes: {
+            "root": {
+              id: "root",
+              options: { options:[
+                {id:"@foo", title:"To the Foo"},
+                {id:"@bar", title:"To the Bar"}
+              ]}
+            },
+            "foo": {
+              id: "foo",
+              maxVisits: 1,
+              options: { options:[
+                {id:"@root", title:"Back to the Root"}
+              ]}
+            },
+            "bar": {
+              id: "bar",
+              options: { options:[
+                {id:"@root", title:"Back to the Root"}
+              ]}
+            }
+          }
+        };
+        var runtimeInterface = new runtime.NullRuntimeInterface();
+        var gameState = new runtime.GameState(runtimeInterface, game);
+        gameState.beginGame();
+        gameState.getCurrentScene().id.should.equal('root');
+        gameState.getCurrentChoices().length.should.equal(2);
+        gameState.choose(0).choose(0);
+        gameState.getCurrentScene().id.should.equal('root');
+        gameState.getCurrentChoices().length.should.equal(1);
       });
     });
 
@@ -220,8 +262,9 @@
               content: "This is the root content.",
               options: { options:[
                 {id:"@foo", title:"To the Foo"}
-              ]}
-            }
+              ]},
+            },
+            "foo": {id:"foo"}
           }
         };
         var runtimeInterface = new TestRuntimeInterface();

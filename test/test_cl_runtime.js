@@ -67,7 +67,7 @@
           "foo": {
             id: "foo",
             content: "This is the foo content.",
-            options: {options:[{id:null, title:"Quit"},
+            options: {options:[{id:"game-over", title:"Quit"},
                                {id:"@root", title:"Return"}]}
           }
         }
