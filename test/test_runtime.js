@@ -72,7 +72,6 @@
         gameState.isGameOver().should.be.true;
       });
 
-
       it("should start at an explicit scene, if given", function() {
         var game = {
           firstScene: "foo",
@@ -80,6 +79,19 @@
             "root": {id: "root", content:"Root content"},
             "foo": {id: "foo", content:"Foo content",
                     options:{options:[{id:"@root", title:"Root"}]}}
+          }
+        };
+        var runtimeInterface = new runtime.NullRuntimeInterface();
+        var gameState = new runtime.GameState(runtimeInterface, game);
+        gameState.beginGame().display();
+        gameState.getCurrentScene().id.should.equal('foo');
+      });
+
+      it("should honor goto, if given", function() {
+        var game = {
+          scenes: {
+            "root": {id: "root", content:"Root content", goTo:"foo"},
+            "foo": {id: "foo", content:"Foo content"}
           }
         };
         var runtimeInterface = new runtime.NullRuntimeInterface();
@@ -308,7 +320,7 @@
         this.choices.push(choices);
       };
 
-      it("displays the initial scene content when first run", function() {
+      it("displays the initial scene content when first begun", function() {
         var game = {
           scenes: {
             "root": {
@@ -323,7 +335,7 @@
         };
         var runtimeInterface = new TestRuntimeInterface();
         var gameState = new runtime.GameState(runtimeInterface, game);
-        gameState.beginGame().display();
+        gameState.beginGame();
         runtimeInterface.content.length.should.equal(1);
         runtimeInterface.content[0].should.equal("This is the root content.");
         runtimeInterface.choices.length.should.equal(1);
@@ -341,21 +353,54 @@
         };
         var runtimeInterface = new TestRuntimeInterface();
         var gameState = new runtime.GameState(runtimeInterface, game);
-        gameState.beginGame().display();
+        gameState.beginGame();
         runtimeInterface.content.length.should.equal(0);
       });
 
       it("displays game over if we're done", function() {
         var game = {
           scenes: {
-            "root": {id: "root"}
+            "root": {id:"root", options:{options:[{id:"@foo", title:"Foo"}]}},
+            "foo": {id:"foo", content:"Foo content"}
           }
         };
         var runtimeInterface = new TestRuntimeInterface();
         var gameState = new runtime.GameState(runtimeInterface, game);
-        gameState.beginGame().gameOver().display();
+        gameState.beginGame().gameOver();
         runtimeInterface.content.length.should.equal(1);
         runtimeInterface.content[0].should.equal("Game Over");
+      });
+
+      it("displays game over scene content", function() {
+        var game = {
+          scenes: {
+            "root": {id:"root", options:{options:[{id:"@foo", title:"Foo"}]}},
+            "foo": {id:"foo", content:"Foo content", gameOver:true}
+          }
+        };
+        var runtimeInterface = new TestRuntimeInterface();
+        var gameState = new runtime.GameState(runtimeInterface, game);
+        gameState.beginGame().choose(0);
+        runtimeInterface.content.length.should.equal(2);
+        runtimeInterface.content[0].should.equal("Foo content");
+        runtimeInterface.content[1].should.equal("Game Over");
+        gameState.isGameOver().should.be.true;
+      });
+
+      it("displays content from scene with go-to", function() {
+        var game = {
+          scenes: {
+            "root": {id:"root", options:{options:[{id:"@foo", title:"Foo"}]}},
+            "foo": {id:"foo", content:"Foo content", goTo:"bar"},
+            "bar": {id:"bar", content:"Bar content"}
+          }
+        };
+        var runtimeInterface = new TestRuntimeInterface();
+        var gameState = new runtime.GameState(runtimeInterface, game);
+        gameState.beginGame().choose(0);
+        runtimeInterface.content.length.should.equal(2);
+        runtimeInterface.content[0].should.equal("Foo content");
+        runtimeInterface.content[1].should.equal("Bar content");
       });
     });
   });
