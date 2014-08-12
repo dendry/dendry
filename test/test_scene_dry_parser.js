@@ -109,14 +109,15 @@
           },
           sections: [{
             id: "foo",
+            gameOver: true,
             content: "This is section 'foo'."
           },{
             id: "bar",
             title: "The Bar Scene",
             content: "This is section 'bar'.",
+            maxVisits: 1,
             options: {
-              options: [{id:"@foo", title:"Return to foo."},
-                        {id:"game-over", title:"End the game."}]
+              options: [{id:"@foo", title:"Return to foo."}]
             }
           }]
         });

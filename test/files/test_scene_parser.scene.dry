@@ -8,14 +8,15 @@ This is the scene content.
 
 
 @foo
+game-over: true
 
 This is section 'foo'.
 
 
 @bar
 title: The Bar Scene
+max-visits: 1
 
 This is section 'bar'.
 
 - @foo: Return to foo.
-- game-over: End the game.

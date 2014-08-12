@@ -15,6 +15,40 @@
 
   describe("validators", function() {
 
+    describe("boolean validation", function() {
+      var trues = ['true', 'T', 'YES', 'y', 'OK', '1', '-1'];
+      trues.forEach(function(name) {
+        it("should handle value "+name+" as true", function(done) {
+          validators.validateBoolean(name, function(err, val) {
+            (!!err).should.be.false;
+            val.should.be.true;
+            done();
+          });
+        });
+      });
+
+      var falses = ['False', 'F', 'no', 'N', '0'];
+      falses.forEach(function(name) {
+        it("should handle value "+name+" as false", function(done) {
+          validators.validateBoolean(name, function(err, val) {
+            (!!err).should.be.false;
+            val.should.be.false;
+            done();
+          });
+        });
+      });
+
+      it("should fail for other values", function(done) {
+        validators.validateBoolean("bob", function(err, val) {
+          (!!err).should.be.true;
+          err.toString().should.equal("Error: Not a valid yes/no value.");
+          (val === undefined).should.be.true;
+          done();
+        });
+      });
+
+    });
+
     // ----------------------------------------------------------------------
 
     describe("integer validation", function() {

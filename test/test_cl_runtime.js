@@ -62,13 +62,18 @@
           "root": {
             id: "root",
             content: "This is the root content.",
-            options: {options:[{id:"@foo", title:"The Foo"}]}
+            options: {options:[{id:"@foo", title:"The Foo"},
+                               {id:"@bar", title:"The Bar"}]}
           },
           "foo": {
             id: "foo",
             content: "This is the foo content.",
-            options: {options:[{id:"game-over", title:"Quit"},
-                               {id:"@root", title:"Return"}]}
+            options: {options:[{id:"@root", title:"Return"}]}
+          },
+          "bar": {
+            id: "bar",
+            content: "This is the bar content.",
+            gameOver: true
           }
         }
       };
@@ -91,17 +96,17 @@
         function() {
           clint.gameState.getCurrentScene().id.should.equal('foo');
         },
-        {choice:'2'},
+        {choice:'1'},
         function() {
           clint.gameState.getCurrentScene().id.should.equal('root');
         },
-        {choice:'1'}, {choice:'1'}
+        {choice:'2'}
       ]);
       var clint =  new clruntime.CommandLineRuntimeInterface(game, out, pin);
       clint.run(function(err) {
         (!!err).should.be.false;
         clint.gameState.isGameOver().should.be.true;
-        pin.currentIndex.should.equal(6);
+        pin.currentIndex.should.equal(5);
         done();
       });
     });

@@ -15,6 +15,20 @@
 
   describe("runtime", function() {
 
+    it("should allow game to be terminated", function() {
+      var game = {
+        scenes: {
+          "root": {id: "root", options:{options:[{id:'@foo', title:'Foo'}]}},
+            "foo": {id: "foo"}
+        }
+      };
+      var runtimeInterface = new runtime.NullRuntimeInterface();
+      var gameState = new runtime.GameState(runtimeInterface, game);
+      gameState.beginGame().gameOver();
+      gameState.isGameOver().should.be.true;
+      (gameState.getCurrentScene() === null).should.be.true;
+    });
+
     // ---------------------------------------------------------------------
 
     describe("scene", function() {
@@ -22,7 +36,9 @@
       it("should start at the root scene", function() {
         var game = {
           scenes: {
-            "root": {id: "root"}
+            "root": {id: "root", content:"Root content",
+                    options:{options:[{id:"@foo", title:"Foo"}]}},
+            "foo": {id: "foo", content:"Foo content"}
           }
         };
         var runtimeInterface = new runtime.NullRuntimeInterface();
@@ -32,7 +48,21 @@
         gameState.isGameOver().should.be.false;
       });
 
-      it("should allow game to be terminated", function() {
+      it("should explicitly allow game to be terminated", function() {
+        var game = {
+          scenes: {
+            "root": {id: "root", options:{options:[{id:'@foo', title:'Foo'}]}},
+            "foo": {id: "foo", gameOver:true}
+          }
+        };
+        var runtimeInterface = new runtime.NullRuntimeInterface();
+        var gameState = new runtime.GameState(runtimeInterface, game);
+        gameState.beginGame().choose(0);
+        gameState.isGameOver().should.be.true;
+        (gameState.getCurrentScene() === null).should.be.true;
+      });
+
+      it("terminates if the root has no choices", function() {
         var game = {
           scenes: {
             "root": {id: "root"}
@@ -40,17 +70,19 @@
         };
         var runtimeInterface = new runtime.NullRuntimeInterface();
         var gameState = new runtime.GameState(runtimeInterface, game);
-        gameState.beginGame().gameOver();
+        gameState.beginGame();
         gameState.isGameOver().should.be.true;
         (gameState.getCurrentScene() === null).should.be.true;
       });
+
 
       it("should start at an explicit scene, if given", function() {
         var game = {
           firstScene: "foo",
           scenes: {
             "root": {id: "root", content:"Root content"},
-            "foo": {id: "foo", content:"Foo content"}
+            "foo": {id: "foo", content:"Foo content",
+                    options:{options:[{id:"@root", title:"Root"}]}}
           }
         };
         var runtimeInterface = new runtime.NullRuntimeInterface();
@@ -90,8 +122,7 @@
         var gameState = new runtime.GameState(runtimeInterface, game);
         gameState.beginGame();
         var choices = gameState.getCurrentChoices();
-        choices.length.should.equal(1);
-        choices[0].id.should.equal("$gameOver");
+        (choices === null).should.be.true;
       });
 
       it("can choose an choice and have it change scene", function() {
@@ -240,6 +271,32 @@
         gameState.getCurrentScene().id.should.equal('root');
         gameState.getCurrentChoices().length.should.equal(1);
       });
+
+      it("ends the game when no valid choices remain", function() {
+        var game = {
+          scenes: {
+            "root": {
+              id: "root",
+              options: { options:[
+                {id:"@foo", title:"To the Foo"}
+              ]}
+            },
+            "foo": {
+              id: "foo",
+              maxVisits: 1,
+              options: { options:[
+                {id:"@root", title:"Back to the Root"}
+              ]}
+            }
+          }
+        };
+        var runtimeInterface = new runtime.NullRuntimeInterface();
+        var gameState = new runtime.GameState(runtimeInterface, game);
+        gameState.beginGame();
+        gameState.getCurrentChoices().length.should.equal(1);
+        gameState.choose(0).choose(0);
+        gameState.isGameOver().should.be.true;
+      });
     });
 
     describe("display", function() {
@@ -281,7 +338,8 @@
       it("displays no content if a scene has no content", function() {
         var game = {
           scenes: {
-            "root": {id: "root"}
+            "root": {id: "root", options:{options:[{id:'@foo', title:'Foo'}]}},
+            "foo": {id: "foo"}
           }
         };
         var runtimeInterface = new TestRuntimeInterface();

@@ -21,6 +21,16 @@
       ],
       "content": "This is bravo scene."
     },
+    "gamma": {
+      "id": "gamma",
+      "type": "scene",
+      "title": "Gamma Scene (for Exiting)",
+      "tags": [
+        "top"
+      ],
+      "gameOver": true,
+      "content": "This is gamma scene."
+    },
     "root": {
       "id": "root",
       "type": "scene",
@@ -38,7 +48,8 @@
   "tagLookup": {
     "top": {
       "alpha": true,
-      "bravo": true
+      "bravo": true,
+      "gamma": true
     }
   }
 }
