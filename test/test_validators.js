@@ -51,6 +51,41 @@
 
     // ----------------------------------------------------------------------
 
+    describe("id validation", function() {
+      var ok = ['alpha', 'BraVo', 'char-lie', 'delta ', "e_cho"];
+      ok.forEach(function(name) {
+        it("should validate id "+name, function(done) {
+          validators.validateId(name, function(err, val) {
+            (!!err).should.be.false;
+            val.should.equal(name.trim());
+            done();
+          });
+        });
+      });
+
+      it("should strip at-sign", function(done) {
+        validators.validateId("@alpha", function(err, val) {
+          (!!err).should.be.false;
+          val.should.equal("alpha");
+          done();
+        });
+      });
+
+      var notOk = ['a b c', 'one/two', 'one.two'];
+      notOk.forEach(function(name) {
+        it("should fail to validate id "+name, function(done) {
+          validators.validateId(name, function(err, val) {
+            (!!err).should.be.true;
+            err.toString().should.equal("Error: Not a valid id.");
+            (val === undefined).should.be.true;
+            done();
+          });
+        });
+      });
+    });
+
+    // ----------------------------------------------------------------------
+
     describe("integer validation", function() {
       it("should handle positive integers", function(done) {
         validators.validateInteger("45", function(err, val) {

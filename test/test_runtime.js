@@ -83,7 +83,7 @@
         };
         var runtimeInterface = new runtime.NullRuntimeInterface();
         var gameState = new runtime.GameState(runtimeInterface, game);
-        gameState.beginGame().display();
+        gameState.beginGame();
         gameState.getCurrentScene().id.should.equal('foo');
       });
 
@@ -96,7 +96,7 @@
         };
         var runtimeInterface = new runtime.NullRuntimeInterface();
         var gameState = new runtime.GameState(runtimeInterface, game);
-        gameState.beginGame().display();
+        gameState.beginGame();
         gameState.getCurrentScene().id.should.equal('foo');
       });
     });

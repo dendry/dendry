@@ -16,6 +16,7 @@ This is section 'foo'.
 @bar
 title: The Bar Scene
 max-visits: 1
+go-to: foo
 
 This is section 'bar'.
 

@@ -93,6 +93,24 @@
       });
     });
 
+    it("should cope with go-to", function(done) {
+      var content = "title: My Title\ngo-to: root";
+      parse.parseFromContent("foo.scene.dry", content, function(err, result) {
+        (!!err).should.be.false;
+        result.goTo.should.equal('root');
+        done();
+      });
+    });
+
+    it("should cope with game-over", function(done) {
+      var content = "title: My Title\ngame-over: y";
+      parse.parseFromContent("foo.scene.dry", content, function(err, result) {
+        (!!err).should.be.false;
+        result.gameOver.should.be.true;
+        done();
+      });
+    });
+
     it("should load and parse scene file", function(done) {
       var fn = path.join(__dirname, 'files', 'test_scene_parser.scene.dry');
       parse.parseFromFile(fn, function(err, result) {
@@ -115,6 +133,7 @@
             id: "bar",
             title: "The Bar Scene",
             content: "This is section 'bar'.",
+            goTo: "foo",
             maxVisits: 1,
             options: {
               options: [{id:"@foo", title:"Return to foo."}]
