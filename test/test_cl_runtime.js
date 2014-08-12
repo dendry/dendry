@@ -61,6 +61,7 @@
         scenes: {
           "root": {
             id: "root",
+            newPage: true,
             content: "This is the root content.",
             options: {options:[{id:"@foo", title:"The Foo"},
                                {id:"@bar", title:"The Bar"}]}

@@ -111,6 +111,15 @@
       });
     });
 
+    it("should cope with new page", function(done) {
+      var content = "title: My Title\nnew-page: y";
+      parse.parseFromContent("foo.scene.dry", content, function(err, result) {
+        (!!err).should.be.false;
+        result.newPage.should.be.true;
+        done();
+      });
+    });
+
     it("should load and parse scene file", function(done) {
       var fn = path.join(__dirname, 'files', 'test_scene_parser.scene.dry');
       parse.parseFromFile(fn, function(err, result) {

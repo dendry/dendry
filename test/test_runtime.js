@@ -35,7 +35,7 @@
       it("should start at the root scene", function() {
         var game = {
           scenes: {
-            "root": {id: "root", content:"Root content",
+            "root": {id: "root", content:"Root content", newPage: true,
                     options:{options:[{id:"@foo", title:"Foo"}]}},
             "foo": {id: "foo", content:"Foo content"}
           }
@@ -312,12 +312,17 @@
       var TestRuntimeInterface = function() {
         this.content = [];
         this.choices = [];
+        this.page = 0;
       };
       TestRuntimeInterface.prototype.displayContent = function(content) {
         this.content.push(content);
       };
       TestRuntimeInterface.prototype.displayChoices = function(choices) {
         this.choices.push(choices);
+      };
+      TestRuntimeInterface.prototype.newPage = function() {
+        this.content = [];
+        this.page++;
       };
 
       it("displays the initial scene content when first begun", function() {
@@ -355,6 +360,27 @@
         var gameState = new runtime.GameState(runtimeInterface, game);
         gameState.beginGame();
         runtimeInterface.content.length.should.equal(0);
+      });
+
+      it("clears the page when a new-page scene is found", function() {
+        var game = {
+          scenes: {
+            "root": {id: "root", content: "Root content",
+                     newPage: true,
+                     options:{options:[{id:'@foo', title:'Foo'}]}},
+            "foo": {id: "foo", content: "Foo content"}
+          }
+        };
+        var runtimeInterface = new TestRuntimeInterface();
+        var gameState = new runtime.GameState(runtimeInterface, game);
+        gameState.beginGame();
+        runtimeInterface.content.length.should.equal(1);
+        gameState.choose(0);
+        runtimeInterface.content.length.should.equal(2);
+        runtimeInterface.page.should.equal(1);
+        gameState.choose(0);
+        runtimeInterface.content.length.should.equal(1);
+        runtimeInterface.page.should.equal(2);
       });
 
       it("displays game over if we're done", function() {
