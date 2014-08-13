@@ -1,0 +1,18 @@
+<html>
+  <head>
+    <title>{{game.title}} - {{game.author}}</title>
+    <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+    <script>{{{ code }}}</script>
+    <script>$(function() {
+      $("#content").on("click", "ul.choices li", function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        $("a", this).click();
+        return false;
+      });
+    });</script>
+  </head>
+  <body>
+    <div id='content' style='border: 1px solid black'></div>
+  </body>
+</html>

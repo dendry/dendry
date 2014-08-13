@@ -324,6 +324,7 @@
         this.content = [];
         this.page++;
       };
+      TestRuntimeInterface.prototype.removeChoices = function() {};
 
       it("displays the initial scene content when first begun", function() {
         var game = {
