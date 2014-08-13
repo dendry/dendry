@@ -314,6 +314,7 @@
         this.choices = [];
         this.page = 0;
       };
+      runtime.RuntimeInterface.isParentOf(TestRuntimeInterface);
       TestRuntimeInterface.prototype.displayContent = function(content) {
         this.content.push(content);
       };
@@ -324,7 +325,6 @@
         this.content = [];
         this.page++;
       };
-      TestRuntimeInterface.prototype.removeChoices = function() {};
 
       it("displays the initial scene content when first begun", function() {
         var game = {
