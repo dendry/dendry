@@ -14,7 +14,7 @@
   // Disable errors from using the should library.
   /*jshint -W030 */
 
-  var clruntime = require('../lib/cl_runtime');
+  var cliruntime = require('../lib/cli_runtime');
 
   describe("command-line run", function() {
 
@@ -84,7 +84,7 @@
 
     it("should default to command line output/input", function() {
       var game = getTestGame();
-      var clint =  new clruntime.CommandLineRuntimeInterface(game);
+      var clint =  new cliruntime.CommandLineRuntimeInterface(game);
       clint.console.should.equal(console);
       clint.prompt.should.equal(prompt);
     });
@@ -103,7 +103,7 @@
         },
         {choice:'2'}
       ]);
-      var clint =  new clruntime.CommandLineRuntimeInterface(game, out, pin);
+      var clint =  new cliruntime.CommandLineRuntimeInterface(game, out, pin);
       clint.run(function(err) {
         (!!err).should.be.false;
         clint.gameState.isGameOver().should.be.true;
@@ -118,7 +118,7 @@
       var pin = new PredeterminedInput([
         {choice:'1'}, {choice:'x'}
       ]);
-      var clint =  new clruntime.CommandLineRuntimeInterface(game, out, pin);
+      var clint =  new cliruntime.CommandLineRuntimeInterface(game, out, pin);
       clint.run(function(err) {
         (!!err).should.be.true;
         err.toString().should.equal(
