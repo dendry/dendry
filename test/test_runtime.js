@@ -314,7 +314,7 @@
         this.choices = [];
         this.page = 0;
       };
-      runtime.RuntimeInterface.isParentOf(TestRuntimeInterface);
+      runtime.RuntimeInterface.makeParentOf(TestRuntimeInterface);
       TestRuntimeInterface.prototype.displayContent = function(content) {
         this.content.push(content);
       };
