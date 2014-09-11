@@ -38,6 +38,15 @@
         });
       });
 
+      it("sets a nested id", function(done) {
+        parseFromContent(
+          "foo.bar.type.dry", "prop: foo", function(err, result) {
+            (!!err).should.be.false;
+            propval(result.id).should.equal('foo.bar');
+            done();
+          });
+      });
+
       it("sets the type, if given", function(done) {
         parseFromContent("test.type.dry", "prop: foo", function(err, result) {
           (!!err).should.be.false;
@@ -227,7 +236,7 @@
           (!!err).should.be.false;
           propval(result.content).should.equal('foo');
           propval(result.sections).length.should.equal(1);
-          propval(propval(result.sections[0]).id).should.equal('bar');
+          propval(propval(result.sections[0]).id).should.equal('test.bar');
           done();
         });
       });
@@ -314,6 +323,26 @@
             optval(result, 1, 'title').should.equal('The title');
             done();
           });
+      });
+
+      it("can have a qualified id", function(done) {
+        parseFromContent("test.dry", "\n- @foo.bar", function(err, result) {
+          (!!err).should.be.false;
+          result.options.options.length.should.equal(1);
+          optval(result, 0, 'id').should.equal('@foo.bar');
+          done();
+        });
+      });
+
+      it("cannot have a two part tag", function(done) {
+        parseFromContent("test.dry", "\n- #foo.bar", function(err, result) {
+          (!!err).should.be.true;
+          err.toString().should.equal(
+            "Error: Line 2: Invalid property or option definition."
+          );
+          (result === undefined).should.be.true;
+          done();
+        });
       });
 
       it("can have a condition", function(done) {
@@ -421,7 +450,7 @@
           result.options.options.length.should.equal(1);
           optval(result, 0, 'id').should.equal('@cube');
           result.sections.length.should.equal(1);
-          secval(result, 0, 'id').should.equal('foo');
+          secval(result, 0, 'id').should.equal('test.foo');
           done();
         });
       });
@@ -473,7 +502,7 @@
           (!!err).should.be.false;
           result.content.should.equal('');
           result.sections.length.should.equal(1);
-          secval(result, 0, 'id').should.equal('foo');
+          secval(result, 0, 'id').should.equal('test.foo');
           done();
         });
       });
@@ -496,7 +525,7 @@
         parseFromContent("test.dry", "@foo\nsun:dock", function(err, result) {
           (!!err).should.be.false;
           result.sections.length.should.equal(1);
-          secval(result, 0, 'id').should.equal('foo');
+          secval(result, 0, 'id').should.equal('test.foo');
           secval(result, 0, 'sun').should.equal('dock');
           done();
         });
@@ -536,7 +565,7 @@
           result.id.should.equal('test_dry_parser');
           result.type.should.equal('test');
           result.sections.length.should.equal(4);
-          secval(result, 0, 'id').should.equal('new-id');
+          secval(result, 0, 'id').should.equal('test_dry_parser.new-id');
           secval(result, 0, 'options').options.length.should.equal(6);
           done();
         });

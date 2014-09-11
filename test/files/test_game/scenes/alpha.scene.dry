@@ -3,3 +3,14 @@ tags: top
 max-visits: 1
 
 This is alpha scene.
+
+- @alpha.one: Alpha subscene one.
+- @two: Alpha subscene two.
+
+@one
+
+This is alpha subscene one.
+
+@two
+
+This is alpha subscene two.

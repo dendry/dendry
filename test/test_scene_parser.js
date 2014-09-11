@@ -135,11 +135,11 @@
                       {id:"@bar"}],
           },
           sections: [{
-            id: "foo",
+            id: "test_scene_parser.foo",
             gameOver: true,
             content: "This is section 'foo'."
           },{
-            id: "bar",
+            id: "test_scene_parser.bar",
             title: "The Bar Scene",
             content: "This is section 'bar'.",
             goTo: "foo",
