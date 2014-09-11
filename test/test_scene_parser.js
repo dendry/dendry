@@ -102,6 +102,33 @@
       });
     });
 
+    it("should cope with compound go-to", function(done) {
+      var content = "title: My Title\ngo-to: foo.bar";
+      parse.parseFromContent("foo.scene.dry", content, function(err, result) {
+        (!!err).should.be.false;
+        result.goTo.should.equal('foo.bar');
+        done();
+      });
+    });
+
+    it("should cope with relative go-to", function(done) {
+      var content = "title: My Title\ngo-to: ..foo.bar";
+      parse.parseFromContent("foo.scene.dry", content, function(err, result) {
+        (!!err).should.be.false;
+        result.goTo.should.equal('..foo.bar');
+        done();
+      });
+    });
+
+    it("should cope with prefixed go-to", function(done) {
+      var content = "title: My Title\ngo-to: @foo";
+      parse.parseFromContent("foo.scene.dry", content, function(err, result) {
+        (!!err).should.be.false;
+        result.goTo.should.equal('foo');
+        done();
+      });
+    });
+
     it("should cope with game-over", function(done) {
       var content = "title: My Title\ngame-over: y";
       parse.parseFromContent("foo.scene.dry", content, function(err, result) {

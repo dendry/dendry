@@ -221,6 +221,100 @@
         });
       });
 
+      it("should select outer scene with id", function(done) {
+        var info = {title: "My Game", author: "Jo Doe"};
+        var listOfScenes = [
+          {id: "root", title:"Root scene", content:"Root content",
+           sections: [
+             {id: "root.one", title:"One", content:"One.", goTo:"root"},
+             {id: "root.root", title:"Two", content:"Two."}
+           ]}
+        ];
+        compiler.compile(info, listOfScenes, function(err, game) {
+          (!!err).should.be.false;
+          game.scenes["root.one"].goTo.should.equal("root");
+          done();
+        });
+      });
+
+      it("should honor relative goto", function(done) {
+        var info = {title: "My Game", author: "Jo Doe"};
+        var listOfScenes = [
+          {id: "root", title:"Root scene", content:"Root content",
+           sections: [
+             {id: "root.one", title:"One", content:"One.", goTo:"..root"},
+             {id: "root.root", title:"Two", content:"Two."}
+           ]}
+        ];
+        compiler.compile(info, listOfScenes, function(err, game) {
+          (!!err).should.be.false;
+          game.scenes["root.one"].goTo.should.equal("root.root");
+          done();
+        });
+      });
+
+      it("should allow relative goto to access ancestors", function(done) {
+        var info = {title: "My Game", author: "Jo Doe"};
+        var listOfScenes = [
+          {id: "root", title:"Root", content:""},
+          {id: "one", title:"A", content:""},
+          {id: "root.one", title:"B", content:""},
+          {id: "root.test", title:"Test", content:"", goTo:".one",
+           sections: [
+             {id: "one", title:"C", content:"", goTo:"..one"},
+             {id: "two", title:"Two", content:"", goTo:"...one"},
+             {id: "three", title:"Three", content:"", goTo:"....one"},
+           ]}
+        ];
+        compiler.compile(info, listOfScenes, function(err, game) {
+          (!!err).should.be.false;
+          game.scenes["root.test"].goTo.should.equal("root.test.one");
+          game.scenes["root.test.one"].goTo.should.equal("root.test.one");
+          game.scenes["root.test.two"].goTo.should.equal("root.one");
+          game.scenes["root.test.three"].goTo.should.equal("one");
+          done();
+        });
+      });
+
+      it("should allow pure relative goto to access ancestors", function(done) {
+        var info = {title: "My Game", author: "Jo Doe"};
+        var listOfScenes = [
+          {id: "root", title:"Root", content:""},
+          {id: "root.test", title:"Test", content:"", goTo:"..",
+           sections: [
+             {id: "one", title:"C", content:"", goTo:"."},
+             {id: "two", title:"Two", content:"", goTo:".."},
+             {id: "three", title:"Three", content:"", goTo:"..."},
+           ]}
+        ];
+        compiler.compile(info, listOfScenes, function(err, game) {
+          (!!err).should.be.false;
+          game.scenes["root.test"].goTo.should.equal("root");
+          game.scenes["root.test.one"].goTo.should.equal("root.test.one");
+          game.scenes["root.test.two"].goTo.should.equal("root.test");
+          game.scenes["root.test.three"].goTo.should.equal("root");
+          done();
+        });
+      });
+
+      it("relative goto cannot traverse too far", function(done) {
+        var info = {title: "My Game", author: "Jo Doe"};
+        var listOfScenes = [
+          {id: "root", title:"Root", content:""},
+          {id: "root.test", title:"Test", content:"",
+           sections: [
+             {id: "one", title:"C", content:"", goTo:".....one"},
+           ]}
+        ];
+        compiler.compile(info, listOfScenes, function(err, game) {
+          (!!err).should.be.true;
+          err.toString().should.equal(
+            "Error: Can't go up 4 levels from 'root.test.one'."
+          );
+          done();
+        });
+      });
+
       it("should fail if there's no matching goto id", function(done) {
         var info = {title: "My Game", author: "Jo Doe"};
         var listOfScenes = [
@@ -234,6 +328,24 @@
           (!!err).should.be.true;
           err.toString().should.equal(
             "Error: Couldn't find an id matching 'three' in 'root.one'."
+          );
+          done();
+        });
+      });
+
+      it("should fail if there's no matching ancestor id", function(done) {
+        var info = {title: "My Game", author: "Jo Doe"};
+        var listOfScenes = [
+          {id: "root", title:"Root scene", content:"Root content",
+           sections: [
+             {id: "root.one", title:"One", content:"One.", goTo:"..three"},
+             {id: "root.two", title:"Two", content:"Two."}
+           ]}
+        ];
+        compiler.compile(info, listOfScenes, function(err, game) {
+          (!!err).should.be.true;
+          err.toString().should.equal(
+            "Error: Couldn't find an id matching '..three' in 'root.one'."
           );
           done();
         });

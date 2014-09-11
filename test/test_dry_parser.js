@@ -334,6 +334,15 @@
         });
       });
 
+      it("can have a relative id", function(done) {
+        parseFromContent("test.dry", "\n- @..foo.bar", function(err, result) {
+          (!!err).should.be.false;
+          result.options.options.length.should.equal(1);
+          optval(result, 0, 'id').should.equal('@..foo.bar');
+          done();
+        });
+      });
+
       it("cannot have a two part tag", function(done) {
         parseFromContent("test.dry", "\n- #foo.bar", function(err, result) {
           (!!err).should.be.true;

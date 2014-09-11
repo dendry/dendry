@@ -52,7 +52,8 @@
     // ----------------------------------------------------------------------
 
     describe("id validation", function() {
-      var ok = ['alpha', 'BraVo', 'char-lie', 'delta ', "e_cho"];
+      var ok = ['alpha', 'BraVo', 'char-lie', 'delta ', "e_cho",
+                "one.two", "one.two.three"];
       ok.forEach(function(name) {
         it("should validate id "+name, function(done) {
           validators.validateId(name, function(err, val) {
@@ -71,12 +72,46 @@
         });
       });
 
-      var notOk = ['a b c', 'one/two', 'one.two'];
+      var notOk = ['a b c', 'one/two', 'one:two', '..', '.one.two'];
       notOk.forEach(function(name) {
         it("should fail to validate id "+name, function(done) {
           validators.validateId(name, function(err, val) {
             (!!err).should.be.true;
             err.toString().should.equal("Error: Not a valid id.");
+            (val === undefined).should.be.true;
+            done();
+          });
+        });
+      });
+    });
+
+    describe("relative id validation", function() {
+      var ok = ['alpha', 'BraVo', 'char-lie', 'delta ', "e_cho",
+                "one.two", "one.two.three", '..', '.one.two'];
+      ok.forEach(function(name) {
+        it("should validate relative id "+name, function(done) {
+          validators.validateRelativeId(name, function(err, val) {
+            (!!err).should.be.false;
+            val.should.equal(name.trim());
+            done();
+          });
+        });
+      });
+
+      it("should strip at-sign", function(done) {
+        validators.validateRelativeId("@.alpha", function(err, val) {
+          (!!err).should.be.false;
+          val.should.equal(".alpha");
+          done();
+        });
+      });
+
+      var notOk = ['a b c', 'one/two', 'one:two'];
+      notOk.forEach(function(name) {
+        it("should fail to validate relative id "+name, function(done) {
+          validators.validateRelativeId(name, function(err, val) {
+            (!!err).should.be.true;
+            err.toString().should.equal("Error: Not a valid relative id.");
             (val === undefined).should.be.true;
             done();
           });
