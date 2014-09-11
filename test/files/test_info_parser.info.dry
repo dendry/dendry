@@ -1,0 +1,6 @@
+title: The game title
+author: The game author
+first-scene: foo
+
+# We shouldn't see this line in the output.
+This is the introductory content.
