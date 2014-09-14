@@ -41,7 +41,9 @@
       it("should fail for other values", function(done) {
         validators.validateBoolean("bob", function(err, val) {
           (!!err).should.be.true;
-          err.toString().should.equal("Error: Not a valid yes/no value.");
+          err.toString().should.equal(
+            "Error: 'bob' is not a valid yes/no value."
+          );
           (val === undefined).should.be.true;
           done();
         });
@@ -77,7 +79,7 @@
         it("should fail to validate id "+name, function(done) {
           validators.validateId(name, function(err, val) {
             (!!err).should.be.true;
-            err.toString().should.equal("Error: Not a valid id.");
+            err.toString().should.equal("Error: '"+name+"' is not a valid id.");
             (val === undefined).should.be.true;
             done();
           });
@@ -111,7 +113,9 @@
         it("should fail to validate relative id "+name, function(done) {
           validators.validateRelativeId(name, function(err, val) {
             (!!err).should.be.true;
-            err.toString().should.equal("Error: Not a valid relative id.");
+            err.toString().should.equal(
+              "Error: '"+name+"' is not a valid relative id."
+            );
             (val === undefined).should.be.true;
             done();
           });
@@ -146,7 +150,9 @@
       it("should reject non-integers", function(done) {
         validators.validateInteger("bob", function(err, val) {
           (!!err).should.be.true;
-          err.toString().should.equal("Error: Not a valid whole number.");
+          err.toString().should.equal(
+            "Error: 'bob' is not a valid whole number."
+          );
           (val === undefined).should.be.true;
           done();
         });
@@ -156,7 +162,7 @@
         validators.validateInteger({$value:"bob", $line:4}, function(err, val) {
           (!!err).should.be.true;
           err.toString().should.equal(
-            "Error: Line 4: Not a valid whole number.");
+            "Error: Line 4: 'bob' is not a valid whole number.");
           (val === undefined).should.be.true;
           done();
         });
@@ -172,7 +178,9 @@
       it("should reject non-integers with range", function(done) {
         validators.makeEnsureIntegerInRange(0, 60)("bob", function(err, val) {
           (!!err).should.be.true;
-          err.toString().should.equal("Error: Not a valid whole number.");
+          err.toString().should.equal(
+            "Error: 'bob' is not a valid whole number."
+          );
           (val === undefined).should.be.true;
           done();
         });
@@ -392,7 +400,9 @@
         var ensure = validators.makeEnsureObjectMatchesSchema(schema);
         ensure(content, function(err, result) {
           (!!err).should.be.true;
-          err.toString().should.equal("Error: Not a valid whole number.");
+          err.toString().should.equal(
+            "Error: 'sun' is not a valid whole number."
+          );
           (result === undefined).should.be.true;
           done();
         });

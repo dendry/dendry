@@ -87,7 +87,7 @@
       parse.parseFromContent("info.dry", content, function(err, result) {
         (!!err).should.be.true;
         err.toString().should.equal(
-          "Error: Not a valid id.");
+          "Error: '$nope' is not a valid id.");
         (result === undefined).should.be.true;
         done();
       });

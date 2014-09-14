@@ -319,8 +319,8 @@
       });
 
       var fail = [
-        {context:"", id:"$a", err:"Not a valid relative id."},
-        {context:"..foo", id:"a", err:"Not a valid id."},
+        {context:"", id:"$a", err:"'$a' is not a valid relative id."},
+        {context:"..foo", id:"a", err:"'..foo' is not a valid id."},
         {context:"", id:".", err:"Relative id '.' requires context."},
         {context:"", id:"..", err:"Relative id '..' requires context."},
         {context:"foo", id:"..", err:"Context is not deep enough."},
