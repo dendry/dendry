@@ -128,7 +128,7 @@
       });
     });
 
-    describe("id inheritance", function() {
+    describe("id resolution in compiler", function() {
       it("should set nested id, if not already nested", function(done) {
         var info = {title: "My Game", author: "Jo Doe"};
         var listOfScenes = [
@@ -144,6 +144,22 @@
           (!!game.scenes.two).should.be.false;
           (!!game.scenes["root.one"]).should.not.be.false;
           (!!game.scenes["root.two"]).should.not.be.false;
+          done();
+        });
+      });
+
+      it("should inherit parent id in goto", function(done) {
+        var info = {title: "My Game", author: "Jo Doe"};
+        var listOfScenes = [
+          {id: "root", title:"Root scene", content:"Root content",
+           sections: [
+             {id: "root.one", title:"One", content:"One.", goTo:"two"},
+             {id: "root.two", title:"Two", content:"Two."}
+           ]}
+        ];
+        compiler.compile(info, listOfScenes, function(err, game) {
+          (!!err).should.be.false;
+          game.scenes["root.one"].goTo.should.equal("root.two");
           done();
         });
       });
@@ -205,116 +221,6 @@
         });
       });
 
-      it("should inherit parent id in goto", function(done) {
-        var info = {title: "My Game", author: "Jo Doe"};
-        var listOfScenes = [
-          {id: "root", title:"Root scene", content:"Root content",
-           sections: [
-             {id: "root.one", title:"One", content:"One.", goTo:"two"},
-             {id: "root.two", title:"Two", content:"Two."}
-           ]}
-        ];
-        compiler.compile(info, listOfScenes, function(err, game) {
-          (!!err).should.be.false;
-          game.scenes["root.one"].goTo.should.equal("root.two");
-          done();
-        });
-      });
-
-      it("should select outer scene with id", function(done) {
-        var info = {title: "My Game", author: "Jo Doe"};
-        var listOfScenes = [
-          {id: "root", title:"Root scene", content:"Root content",
-           sections: [
-             {id: "root.one", title:"One", content:"One.", goTo:"root"},
-             {id: "root.root", title:"Two", content:"Two."}
-           ]}
-        ];
-        compiler.compile(info, listOfScenes, function(err, game) {
-          (!!err).should.be.false;
-          game.scenes["root.one"].goTo.should.equal("root");
-          done();
-        });
-      });
-
-      it("should honor relative goto", function(done) {
-        var info = {title: "My Game", author: "Jo Doe"};
-        var listOfScenes = [
-          {id: "root", title:"Root scene", content:"Root content",
-           sections: [
-             {id: "root.one", title:"One", content:"One.", goTo:"..root"},
-             {id: "root.root", title:"Two", content:"Two."}
-           ]}
-        ];
-        compiler.compile(info, listOfScenes, function(err, game) {
-          (!!err).should.be.false;
-          game.scenes["root.one"].goTo.should.equal("root.root");
-          done();
-        });
-      });
-
-      it("should allow relative goto to access ancestors", function(done) {
-        var info = {title: "My Game", author: "Jo Doe"};
-        var listOfScenes = [
-          {id: "root", title:"Root", content:""},
-          {id: "one", title:"A", content:""},
-          {id: "root.one", title:"B", content:""},
-          {id: "root.test", title:"Test", content:"", goTo:".one",
-           sections: [
-             {id: "one", title:"C", content:"", goTo:"..one"},
-             {id: "two", title:"Two", content:"", goTo:"...one"},
-             {id: "three", title:"Three", content:"", goTo:"....one"},
-           ]}
-        ];
-        compiler.compile(info, listOfScenes, function(err, game) {
-          (!!err).should.be.false;
-          game.scenes["root.test"].goTo.should.equal("root.test.one");
-          game.scenes["root.test.one"].goTo.should.equal("root.test.one");
-          game.scenes["root.test.two"].goTo.should.equal("root.one");
-          game.scenes["root.test.three"].goTo.should.equal("one");
-          done();
-        });
-      });
-
-      it("should allow pure relative goto to access ancestors", function(done) {
-        var info = {title: "My Game", author: "Jo Doe"};
-        var listOfScenes = [
-          {id: "root", title:"Root", content:""},
-          {id: "root.test", title:"Test", content:"", goTo:"..",
-           sections: [
-             {id: "one", title:"C", content:"", goTo:"."},
-             {id: "two", title:"Two", content:"", goTo:".."},
-             {id: "three", title:"Three", content:"", goTo:"..."},
-           ]}
-        ];
-        compiler.compile(info, listOfScenes, function(err, game) {
-          (!!err).should.be.false;
-          game.scenes["root.test"].goTo.should.equal("root");
-          game.scenes["root.test.one"].goTo.should.equal("root.test.one");
-          game.scenes["root.test.two"].goTo.should.equal("root.test");
-          game.scenes["root.test.three"].goTo.should.equal("root");
-          done();
-        });
-      });
-
-      it("relative goto cannot traverse too far", function(done) {
-        var info = {title: "My Game", author: "Jo Doe"};
-        var listOfScenes = [
-          {id: "root", title:"Root", content:""},
-          {id: "root.test", title:"Test", content:"",
-           sections: [
-             {id: "one", title:"C", content:"", goTo:".....one"},
-           ]}
-        ];
-        compiler.compile(info, listOfScenes, function(err, game) {
-          (!!err).should.be.true;
-          err.toString().should.equal(
-            "Error: Can't go up 4 levels from 'root.test.one'."
-          );
-          done();
-        });
-      });
-
       it("should fail if there's no matching goto id", function(done) {
         var info = {title: "My Game", author: "Jo Doe"};
         var listOfScenes = [
@@ -372,7 +278,65 @@
         });
       });
 
+      it("should pass on resolution errors", function(done) {
+        var info = {title: "My Game", author: "Jo Doe"};
+        var listOfScenes = [
+          {id: "root", title:"Root scene", content:"Root content",
+           sections: [
+             {id: "root.one", title:"One", content:"One.", goTo:"....root"},
+             {id: "root.two", title:"Two", content:"Two."}
+           ]}
+        ];
+        compiler.compile(info, listOfScenes, function(err, game) {
+          (!!err).should.be.true;
+          err.toString().should.equal("Error: Context is not deep enough.");
+          done();
+        });
+      });
+
     }); // end id inheritance
+
+    describe("id resolution", function() {
+      var ok = [
+        {context:"foo", id:"a", order:["foo.a", "a"]},
+        {context:"foo.bar", id:"a.b", order:["foo.bar.a.b", "foo.a.b", "a.b"]},
+        {context:"foo.bar", id:".a.b", order:["a.b"]}, // ?
+        {context:"foo.bar", id:"..a.b", order:["foo.a.b"]},
+        {context:"foo.bar", id:"...a.b", order:["a.b"]},
+        {context:"foo.bar", id:".", order:["foo.bar"]},
+        {context:"foo.bar", id:"..", order:["foo"]},
+        {context:"", id:"a.b", order:["a.b"]}
+      ];
+      _.each(ok, function(case_) {
+        var id = case_.id;
+        var context = case_.context;
+        var order = case_.order;
+        it("should resolve '"+id+"' in '"+context+"' to "+order.join(', '),
+           function() {
+             var candidates = compiler.getCandidateAbsoluteIds(context, id);
+             candidates.should.eql(order);
+           });
+      });
+
+      var fail = [
+        {context:"", id:"$a", err:"Not a valid relative id."},
+        {context:"..foo", id:"a", err:"Not a valid id."},
+        {context:"", id:".", err:"Relative id '.' requires context."},
+        {context:"", id:"..", err:"Relative id '..' requires context."},
+        {context:"foo", id:"..", err:"Context is not deep enough."},
+        {context:"foo.bar", id:"...", err:"Context is not deep enough."},
+        {context:"foo.bar", id:"....a.b", err:"Context is not deep enough."}
+      ];
+      _.each(fail, function(case_) {
+        var id = case_.id;
+        var context = case_.context;
+        it("should fail to resolve '"+id+"' in '"+context+"'", function() {
+          (function() {
+            compiler.getCandidateAbsoluteIds(context, id);
+          }).should.throw(case_.err);
+        });
+      });
+    }); // end id resolution
 
   });
 }());
