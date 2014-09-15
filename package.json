@@ -6,12 +6,12 @@
     "interactive fiction"
   ],
   "author": "Ian Millington <idmillington@gmail.com>",
-  "homepage": "https://github.com/idmillington/dendry",
+  "homepage": "https://github.com/dendry/dendry",
   "repository": {
     "type": "git",
-    "url": "git://github.com/idmillington/dendry.git"
+    "url": "git://github.com/dendry/dendry.git"
   },
-  "bugs": "https://github.com/idmillington/dendry/issues",
+  "bugs": "https://github.com/dendry/dendry/issues",
   "license": "MIT",
   "main": "lib/dendry.js",
   "dependencies": {
