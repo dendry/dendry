@@ -281,6 +281,33 @@
         gameState.getCurrentChoices().length.should.equal(1);
       });
 
+      it("honors view-if checks when compiling choices", function() {
+        var game = {
+          scenes: {
+            "root": {
+              id: "root",
+              options: { options:[
+                {id:"@foo", title:"To the Foo"},
+                {id:"@bar", title:"To the Bar"}
+              ]}
+            },
+            "foo": {
+              id: "foo",
+              viewIf: function(state, Q) { return false; }
+            },
+            "bar": {
+              id: "bar",
+              viewIf: function(state, Q) { return true; }
+            }
+          }
+        };
+        var runtimeInterface = new runtime.NullRuntimeInterface();
+        var gameState = new runtime.GameState(runtimeInterface, game);
+        gameState.beginGame();
+        gameState.getCurrentScene().id.should.equal('root');
+        gameState.getCurrentChoices().length.should.equal(1);
+      });
+
       it("ends the game when no valid choices remain", function() {
         var game = {
           scenes: {

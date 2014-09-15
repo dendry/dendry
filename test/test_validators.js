@@ -346,6 +346,70 @@
 
     // ----------------------------------------------------------------------
 
+    describe("magic/logic validation", function() {
+      it("validates magic predicate", function(done) {
+        validators.validatePredicate(
+          "{! return true; !}",
+          function(err, result) {
+            (!!err).should.be.false;
+            result(null, null).should.be.true;
+            done();
+          });
+      });
+
+      it("disallows other content with magic predicate", function(done) {
+        validators.validatePredicate(
+          "{! return true; !} true",
+          function(err, result) {
+            (!!err).should.be.true;
+            err.toString().should.equal(
+              "Error: Magic in a predicate must have no other "+
+              "content surrounding it."
+            );
+            done();
+          });
+      });
+
+      it("passes on magic eval errors", function(done) {
+        validators.validatePredicate(
+          "{! case 4; !}",
+          function(err, result) {
+            (!!err).should.be.true;
+            err.toString().should.equal(
+              "Error: SyntaxError: Unexpected token case"
+            );
+            done();
+          });
+      });
+
+      it("disallows multiple magic in a predicate", function(done) {
+        validators.validatePredicate(
+          "{! return true; !} {! return false !}",
+          function(err, result) {
+            (!!err).should.be.true;
+            err.toString().should.equal(
+              "Error: Magic in a predicate must have no other "+
+              "content surrounding it."
+            );
+            done();
+          });
+      });
+
+      it("disallows logic in a predicate (Logic is TODO)", function(done) {
+        validators.validatePredicate(
+          "return false",
+          function(err, result) {
+            (!!err).should.be.true;
+            err.toString().should.equal(
+              "Error: Logic is not currently supported, use Magic."
+            );
+            done();
+          });
+      });
+    });
+
+    // ----------------------------------------------------------------------
+
     describe("schema validation", function() {
       it("validates matching content", function(done) {
         var schema = {

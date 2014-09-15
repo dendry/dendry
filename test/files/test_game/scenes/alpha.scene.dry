@@ -2,6 +2,9 @@ title: Alpha Scene
 tags: top
 max-visits: 1
 order: 10
+view-if: {!
+         return Q.get('foo') > 1;
+         !}
 
 This is alpha scene.
 
