@@ -198,6 +198,42 @@
 
     // ----------------------------------------------------------------------
 
+    describe("magic", function() {
+      it("parses magic in properties", function(done) {
+        var content = "foo: {! return true; !}\nbar: 2";
+        parseFromContent("test.dry", content, function(err, result) {
+          (!!err).should.be.false;
+          propval(result.foo).should.equal("{! return true; !}");
+          propval(result.bar).should.equal("2");
+          done();
+        });
+      });
+
+      it("allows magic to span lines without indent", function(done) {
+        var content = "foo: {!\nreturn true;\n!} \nbar: 2";
+        parseFromContent("test.dry", content, function(err, result) {
+          if (err) console.error(err);
+          (!!err).should.be.false;
+          propval(result.foo).should.equal("{!\nreturn true;\n!}");
+          propval(result.bar).should.equal("2");
+          done();
+        });
+      });
+
+      it("allows multiple magic blocks in property", function(done) {
+        var content = "foo: {!\nreturn true;\n!}\n  {!\na=0; !}\nbar: 2";
+        parseFromContent("test.dry", content, function(err, result) {
+          if (err) console.error(err);
+          (!!err).should.be.false;
+          propval(result.foo).should.equal("{!\nreturn true;\n!} {!\na=0; !}");
+          propval(result.bar).should.equal("2");
+          done();
+        });
+      });
+    });
+
+    // ----------------------------------------------------------------------
+
     describe("content", function() {
       it("allows multiple paragraphs", function(done) {
         parseFromContent("test.dry", "\nfoo\n\nbar", function(err, result) {
