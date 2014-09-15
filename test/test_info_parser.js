@@ -65,7 +65,7 @@
       parse.parseFromContent("info.dry", content, function(err, result) {
         (!!err).should.be.true;
         err.toString().should.equal(
-          "Error: Unknown properties: 'label' (line 3).");
+          "Error: Unknown properties: 'label' (info.dry line 3).");
         (result === undefined).should.be.true;
         done();
       });
@@ -76,7 +76,7 @@
       parse.parseFromContent("info.dry", content, function(err, result) {
         (!!err).should.be.true;
         err.toString().should.equal(
-          "Error: Line 3: Invalid property definition.");
+          "Error: info.dry line 3: Invalid property definition.");
         (result === undefined).should.be.true;
         done();
       });

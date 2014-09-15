@@ -65,7 +65,7 @@
       parse.parseFromContent("foo.scene.dry", content, function(err, result) {
         (!!err).should.be.true;
         err.toString().should.equal(
-          "Error: Unknown properties: 'label' (line 2).");
+          "Error: Unknown properties: 'label' (foo.scene.dry line 2).");
         (result === undefined).should.be.true;
         done();
       });
@@ -76,7 +76,7 @@
       parse.parseFromContent("foo.scene.dry", content, function(err, result) {
         (!!err).should.be.true;
         err.toString().should.equal(
-          "Error: Line 2: Invalid property definition.");
+          "Error: foo.scene.dry line 2: Invalid property definition.");
         (result === undefined).should.be.true;
         done();
       });
@@ -87,7 +87,7 @@
       parse.parseFromContent("foo.scene.dry", content, function(err, result) {
         (!!err).should.be.true;
         err.toString().should.equal(
-          "Error: Line 2: Tag 1 '$nope' is not valid.");
+          "Error: foo.scene.dry line 2: Tag 1 '$nope' is not valid.");
         (result === undefined).should.be.true;
         done();
       });
@@ -194,7 +194,7 @@
       parse.parseFromContent("foo.scene.dry", content, function(err, result) {
         (!!err).should.be.true;
         err.toString().should.equal(
-          "Error: Unknown properties: 'min' (line 4).");
+          "Error: Unknown properties: 'min' (foo.scene.dry line 4).");
         (result === undefined).should.be.true;
         done();
       });
@@ -205,7 +205,7 @@
       parse.parseFromContent("foo.scene.dry", content, function(err, result) {
         (!!err).should.be.true;
         err.toString().should.equal(
-          "Error: Unknown properties: 'min' (line 4).");
+          "Error: Unknown properties: 'min' (foo.scene.dry line 4).");
         (result === undefined).should.be.true;
         done();
       });

@@ -159,13 +159,26 @@
       });
 
       it("should include line number in error, if available", function(done) {
-        validators.validateInteger({$value:"bob", $line:4}, function(err, val) {
+        var prop = {$value:"bob", $line:4};
+        validators.validateInteger(prop, function(err, val) {
           (!!err).should.be.true;
           err.toString().should.equal(
             "Error: Line 4: 'bob' is not a valid whole number.");
           (val === undefined).should.be.true;
           done();
         });
+      });
+
+      it("should include line number and file in error, if available",
+         function(done) {
+           var prop = {$value:"bob", $file:"test.dry", $line:4};
+           validators.validateInteger(prop, function(err, val) {
+             (!!err).should.be.true;
+             err.toString().should.equal(
+               "Error: test.dry line 4: 'bob' is not a valid whole number.");
+             (val === undefined).should.be.true;
+             done();
+           });
       });
 
       it("should validate integers in range", function(done) {
@@ -249,12 +262,15 @@
       it("should include line number in error, if available", function(done) {
         var prop = {
           $value: "bar",
+          $file:"test.dry",
           $line: 4
         };
         validators.makeEnsureEqualTo("Prop", "foo")(prop, function(err, val) {
           (!!err).should.be.true;
           err.toString().should.equal(
-            "Error: Line 4: Prop must equal 'foo', 'bar' found instead.");
+            "Error: test.dry line 4: "+
+            "Prop must equal 'foo', 'bar' found instead."
+          );
           (val === undefined).should.be.true;
           done();
         });
@@ -312,6 +328,7 @@
       it("should include line number in error, if available", function(done) {
         var prop = {
           $value: "alpha, bravo, $charlie",
+          $file:"test.dry",
           $line: 4
         };
         validators.validateTagList(
@@ -319,7 +336,7 @@
           function(err, list) {
             (!!err).should.be.true;
             err.toString().should.equal(
-              "Error: Line 4: Tag 3 '$charlie' is not valid.");
+              "Error: test.dry line 4: Tag 3 '$charlie' is not valid.");
             (list === undefined).should.be.true;
             done();
           });
@@ -431,14 +448,14 @@
           foo: {required:true, validate:null},
         };
         var content = {
-          foo: {$value:'foo', $line: 1},
-          bar: {$value:'bar', $line: 2}
+          foo: {$value:'foo', $file:"test.dry", $line: 1},
+          bar: {$value:'bar', $file:"test.dry", $line: 2}
         };
         var ensure = validators.makeEnsureObjectMatchesSchema(schema);
         ensure(content, function(err, result) {
           (!!err).should.be.true;
           err.toString().should.equal(
-            "Error: Unknown properties: 'bar' (line 2).");
+            "Error: Unknown properties: 'bar' (test.dry line 2).");
           (result === undefined).should.be.true;
           done();
         });
@@ -471,14 +488,16 @@
                 validate:validators.makeEnsureEqualTo('Property', 'bar')}
         };
         var content = {
-          foo: {$value:'foo', $line: 2},
-          bar: {$value:'sun', $line: 4}
+          foo: {$value:'foo', $file:"test.dry", $line: 2},
+          bar: {$value:'sun', $file:"test.dry", $line: 4}
         };
         var ensure = validators.makeEnsureObjectMatchesSchema(schema);
         ensure(content, function(err, result) {
           (!!err).should.be.true;
           err.toString().should.equal(
-            "Error: Line 4: Property must equal 'bar', 'sun' found instead.");
+            "Error: test.dry line 4: "+
+            "Property must equal 'bar', 'sun' found instead."
+          );
           (result === undefined).should.be.true;
           done();
         });
@@ -559,13 +578,15 @@
         var content = [
           {foo: 'foo', bar: 'bar'},
           {foo: 'sun'},
-          {foo: 'dock', bar: {$value:'tro', $line: 4}}
+          {foo: 'dock', bar: {$value:'tro', $file:"test.dry", $line: 4}}
         ];
         var ensure = validators.makeEnsureListItemsMatchSchema(schema);
         ensure(content, function(err, result) {
           (!!err).should.be.true;
           err.toString().should.equal(
-            "Error: Line 4: Property must equal 'bar', 'tro' found instead.");
+            "Error: test.dry line 4: "+
+            "Property must equal 'bar', 'tro' found instead."
+          );
           (result === undefined).should.be.true;
           done();
         });
@@ -739,13 +760,15 @@
         var content = [
           {id: 'foo', bar: 'bar'},
           {id: 'sun'},
-          {id: 'dock', bar: {$value:'foo', $line:4}}
+          {id: 'dock', bar: {$value:'foo', $file:"test.dry", $line:4}}
         ];
         var ensure = validators.makeEnsureListItemsMatchSchemaById(schemae);
         ensure(content, function(err, result) {
           (!!err).should.be.true;
           err.toString().should.equal(
-            "Error: Line 4: Property must equal 'tro', 'foo' found instead.");
+            "Error: test.dry line 4: "+
+            "Property must equal 'tro', 'foo' found instead."
+          );
           (result === undefined).should.be.true;
           done();
         });
@@ -768,12 +791,12 @@
           {id: 'foo', bar: 'bar'},
           {id: 'sun'},
           {id: 'dock', bar: 'tro'}
-        ], $line:4};
+        ], $file:"test.dry", $line:4};
         var ensure = validators.makeEnsureListItemsMatchSchemaById(schemae);
         ensure(content, function(err, result) {
           (!!err).should.be.true;
           err.toString().should.equal(
-            "Error: Line 4: Found an item with an unknown id 'sun'.");
+            "Error: test.dry line 4: Found an item with an unknown id 'sun'.");
           (result === undefined).should.be.true;
           done();
         });
@@ -794,14 +817,14 @@
         };
         var content = [
           {id: 'foo', bar: 'bar'},
-          {$value: {id: 'sun'}, $line:4},
+          {$value: {id: 'sun'}, $file:"test.dry", $line:4},
           {id: 'dock', bar: 'tro'}
         ];
         var ensure = validators.makeEnsureListItemsMatchSchemaById(schemae);
         ensure(content, function(err, result) {
           (!!err).should.be.true;
           err.toString().should.equal(
-            "Error: Line 4: Found an item with an unknown id 'sun'.");
+            "Error: test.dry line 4: Found an item with an unknown id 'sun'.");
           (result === undefined).should.be.true;
           done();
         });
@@ -822,14 +845,14 @@
         };
         var content = [
           {id: 'foo', bar: 'bar'},
-          {id: {$value:'sun', $line:4}},
+          {id: {$value:'sun', $file:"test.dry", $line:4}},
           {id: 'dock', bar: 'tro'}
         ];
         var ensure = validators.makeEnsureListItemsMatchSchemaById(schemae);
         ensure(content, function(err, result) {
           (!!err).should.be.true;
           err.toString().should.equal(
-            "Error: Line 4: Found an item with an unknown id 'sun'.");
+            "Error: test.dry line 4: Found an item with an unknown id 'sun'.");
           (result === undefined).should.be.true;
           done();
         });

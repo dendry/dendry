@@ -95,7 +95,7 @@
           parseFromContent("test.dry", name+": foo", function(err, result) {
             (!!err).should.be.true;
             err.toString().should.equal(
-              "Error: Line 1: Property '"+name+"' is a reserved name."
+              "Error: test.dry line 1: Property '"+name+"' is a reserved name."
             );
             (result === undefined).should.be.true;
             done();
@@ -109,7 +109,7 @@
           function(err, result) {
             (!!err).should.be.true;
             err.toString().should.equal(
-              "Error: Line 2: Property 'prop' is already defined."
+              "Error: test.dry line 2: Property 'prop' is already defined."
             );
             (result === undefined).should.be.true;
             done();
@@ -120,7 +120,7 @@
         parseFromContent("test.type.dry", "type: foo", function(err, result) {
           (!!err).should.be.true;
           err.toString().should.equal(
-            "Error: Line 1: Property 'type' is already defined."
+            "Error: test.type.dry line 1: Property 'type' is already defined."
           );
           (result === undefined).should.be.true;
           done();
@@ -171,7 +171,7 @@
             function(err, result) {
               (!!err).should.be.true;
               err.toString().should.equal(
-                "Error: Line 2: Invalid property definition."
+                "Error: test.dry line 2: Invalid property definition."
               );
               (result === undefined).should.be.true;
               done();
@@ -304,7 +304,7 @@
         parseFromContent("test.dry", "\n- $foo", function(err, result) {
           (!!err).should.be.true;
           err.toString().should.equal(
-            "Error: Line 2: Invalid property or option definition."
+            "Error: test.dry line 2: Invalid property or option definition."
           );
           (result === undefined).should.be.true;
           done();
@@ -347,7 +347,7 @@
         parseFromContent("test.dry", "\n- #foo.bar", function(err, result) {
           (!!err).should.be.true;
           err.toString().should.equal(
-            "Error: Line 2: Invalid property or option definition."
+            "Error: test.dry line 2: Invalid property or option definition."
           );
           (result === undefined).should.be.true;
           done();
@@ -386,7 +386,7 @@
         parseFromContent("test.dry", "\n- @foo\n\nbar", function(err, result) {
           (!!err).should.be.true;
           err.toString().should.equal(
-            "Error: Line 4: Found content after an options block."
+            "Error: test.dry line 4: Found content after an options block."
           );
           (result === undefined).should.be.true;
           done();
@@ -399,7 +399,7 @@
           function(err, result) {
             (!!err).should.be.true;
             err.toString().should.equal(
-              "Error: Line 4: Found content after an options block."
+              "Error: test.dry line 4: Found content after an options block."
             );
             (result === undefined).should.be.true;
             done();
@@ -437,7 +437,7 @@
           function(err, result) {
             (!!err).should.be.true;
             err.toString().should.equal(
-              "Error: Line 3: Hyphens are required in an option block."
+              "Error: test.dry line 3: Hyphens are required in an option block."
             );
             (result === undefined).should.be.true;
             done();
@@ -471,7 +471,8 @@
             function(err, result) {
               (!!err).should.be.true;
               err.toString().should.equal(
-                "Error: Line 3: Option with id/tag '@foo' already specified."
+                "Error: test.dry line 3: "+
+                "Option with id/tag '@foo' already specified."
               );
               (result === undefined).should.be.true;
               done();
@@ -495,7 +496,8 @@
             function(err, result) {
               (!!err).should.be.true;
               err.toString().should.equal(
-                "Error: Line 3: Option with id/tag '#foo' already specified."
+                "Error: test.dry line 3: "+
+                "Option with id/tag '#foo' already specified."
               );
               (result === undefined).should.be.true;
               done();
@@ -522,7 +524,7 @@
           function(err, result) {
             (!!err).should.be.true;
             err.toString().should.equal(
-              "Error: Line 3: Malformed id 'foo$bar' "+
+              "Error: test.dry line 3: Malformed id 'foo$bar' "+
                 "(use letters, numbers, _ and - only)."
             );
             (result === undefined).should.be.true;
@@ -544,7 +546,7 @@
         parseFromContent("test.dry", "@foo\n@foo", function(err, result) {
           (!!err).should.be.true;
           err.toString().should.equal(
-            "Error: Line 2: Section with id 'foo' already defined."
+            "Error: test.dry line 2: Section with id 'foo' already defined."
           );
           (result === undefined).should.be.true;
           done();
@@ -555,7 +557,7 @@
         parseFromContent("test.dry", "@test", function(err, result) {
           (!!err).should.be.true;
           err.toString().should.equal(
-            "Error: Line 1: Section can't use the file id 'test'."
+            "Error: test.dry line 1: Section can't use the file id 'test'."
           );
           (result === undefined).should.be.true;
           done();
