@@ -7,9 +7,11 @@
 (function() {
   "use strict";
 
+  var _ = require('lodash');
   var should = require('should');
   // Disable errors from using the should library.
   /*jshint -W030 */
+
 
   var runtime = require('../lib/runtime');
 
@@ -26,6 +28,41 @@
       var gameState = new runtime.GameState(runtimeInterface, game);
       gameState.beginGame().gameOver();
       gameState.isGameOver().should.be.true;
+    });
+
+    // ---------------------------------------------------------------------
+
+    describe("loading game", function() {
+      it("should load a functionless JSON file", function(done) {
+        var json = '{"title":"The Title", "author":"The Author"}';
+        runtime.convertJSONToGame(json, function(err, game) {
+          (!!err).should.be.false;
+          game.title.should.equal("The Title");
+          game.author.should.equal("The Author");
+          done();
+        });
+      });
+
+      it("should convert function definitions into functions", function(done) {
+        var json = '{"title":"The Title", "fun":{"$code":"return true;"}}';
+        runtime.convertJSONToGame(json, function(err, game) {
+          (!!err).should.be.false;
+          game.title.should.equal("The Title");
+          _.isFunction(game.fun).should.be.true;
+          game.fun().should.be.true;
+          done();
+        });
+      });
+
+      it("should report malformed JSON", function(done) {
+        var json = '{"title":"The Title", "author":a}';
+        runtime.convertJSONToGame(json, function(err, game) {
+          (!!err).should.be.true;
+          err.toString().should.equal("SyntaxError: Unexpected token a");
+          done();
+        });
+      });
+
     });
 
     // ---------------------------------------------------------------------
