@@ -232,6 +232,68 @@
         choices.length.should.equal(2);
       });
 
+      it("orders choices correctly", function() {
+        var game = {
+          scenes: {
+            "root": {
+              id: "root",
+              options: { options:[
+                {id:"@foo", title:"Foo Link"},
+                {id:"@bar", title:"Bar Link"},
+                {id:"@sun", title:"Sun Link"},
+                {id:"@dock", title:"Dock Link"},
+                {id:"@trog", title:"Trog Link"},
+              ]}
+            },
+            "foo": {id: "foo", title: "The Foo", order:3},
+            "bar": {id: "bar", title: "The Bar", order:1},
+            "sun": {id: "sun", title: "The Sun", order:5},
+            "dock": {id: "dock", title: "The Dock", order:2},
+            "trog": {id: "trog", title: "The Trog", order:4}
+          },
+          tagLookup: {}
+        };
+        var runtimeInterface = new runtime.NullRuntimeInterface();
+        var gameState = new runtime.GameState(runtimeInterface, game);
+        gameState.beginGame();
+        var choices = gameState.getCurrentChoices();
+        choices.length.should.equal(5);
+        _.map(choices, function(choice) { return choice.title; }).should.eql([
+          "Bar Link",
+          "Dock Link",
+          "Foo Link",
+          "Trog Link",
+          "Sun Link"
+        ]);
+      });
+
+
+      it("overrides tag choices with explicit choice", function() {
+        var game = {
+          scenes: {
+            "root": {
+              id: "root",
+              options: { options:[
+                {id:"#alpha"},
+                {id:"@foo", title:"Foo Link"}
+              ]}
+            },
+            "foo": {id: "foo", title: "The Foo"},
+            "bar": {id: "bar", title: "The Bar"}
+          },
+          tagLookup: {
+            alpha: {foo:true, bar:true}
+          }
+        };
+        var runtimeInterface = new runtime.NullRuntimeInterface();
+        var gameState = new runtime.GameState(runtimeInterface, game);
+        gameState.beginGame();
+        var choices = gameState.getCurrentChoices();
+        choices.length.should.equal(2);
+        var which = (choices[0].id === 'foo') ? 0 : 1;
+        choices[which].title.should.equal("Foo Link");
+      });
+
       it("doesn't override explicit choices from a tag", function() {
         var game = {
           scenes: {
@@ -406,12 +468,18 @@
         var runtimeInterface = new TestRuntimeInterface();
         var gameState = new runtime.GameState(runtimeInterface, game);
         gameState.beginGame();
+
+        // We should have recieved one set of content, the root content.
         runtimeInterface.content.length.should.equal(1);
         runtimeInterface.content[0].should.equal("This is the root content.");
+
+        // We should have received one set of choices, and it should have one
+        // choice.
         runtimeInterface.choices.length.should.equal(1);
-        runtimeInterface.choices[0].should.eql(
-          [{id:"foo", title:"To the Foo"}]
-        );
+        var choices = runtimeInterface.choices[0];
+        choices.length.should.equal(1);
+        choices[0].id.should.equal('foo');
+        choices[0].title.should.equal("To the Foo");
       });
 
       it("displays no content if a scene has no content", function() {
