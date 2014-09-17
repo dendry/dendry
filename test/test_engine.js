@@ -32,6 +32,27 @@
 
     // ---------------------------------------------------------------------
 
+    describe("random numbers", function() {
+      it("should allow a sequence to be restored from seed", function() {
+        var i;
+        var random = new engine.Random.fromTime();
+        for (i = 0; i < 100; ++i) random.random(); // Burn off some numbers.
+
+        var seed = random.getSeed();
+        var target = [];
+        for (i = 0; i < 100; ++i) target.push(random.random());
+
+        // Restore the seed.
+        random = new engine.Random.fromSeed(seed);
+        var repeated = [];
+        for (i = 0; i < 100; ++i) repeated.push(random.random());
+
+        repeated.should.eql(target);
+      });
+    });
+
+    // ---------------------------------------------------------------------
+
     describe("loading game", function() {
       it("should load a functionless JSON file", function(done) {
         var json = '{"title":"The Title", "author":"The Author"}';
