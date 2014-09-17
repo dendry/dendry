@@ -125,6 +125,29 @@
 
     // ----------------------------------------------------------------------
 
+    describe("float validation", function() {
+      it("should handle simple floats", function(done) {
+        validators.validateFloat("45.25", function(err, val) {
+          val.should.equal(45.25);
+          done();
+        });
+      });
+
+      it("should reject non-floats", function(done) {
+        validators.validateFloat("bob", function(err, val) {
+          (!!err).should.be.true;
+          err.toString().should.equal(
+            "Error: 'bob' is not a valid number."
+          );
+          (val === undefined).should.be.true;
+          done();
+        });
+      });
+
+    });
+
+    // ----------------------------------------------------------------------
+
     describe("integer validation", function() {
       it("should handle positive integers", function(done) {
         validators.validateInteger("45", function(err, val) {

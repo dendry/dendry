@@ -147,6 +147,16 @@
       });
     });
 
+    it("should parse priority and frequency", function(done) {
+      var content = "title: My Title\npriority: 1.2\nfrequency: 1.2";
+      parse.parseFromContent("foo.scene.dry", content, function(err, result) {
+        (!!err).should.be.false;
+        result.priority.should.equal(1);
+        result.frequency.should.equal(1.2);
+        done();
+      });
+    });
+
     it("should load and parse scene file", function(done) {
       var fn = path.join(__dirname, 'files', 'test_scene_parser.scene.dry');
       parse.parseFromFile(fn, function(err, result) {
@@ -185,6 +195,15 @@
       parse.parseFromFile(fn, function(err, result) {
         (!!err).should.be.true;
         (result === undefined).should.be.true;
+        done();
+      });
+    });
+
+    it("validates options properties", function(done) {
+      var content = "title: My Title\n\n- @foo\n- min-choices:3";
+      parse.parseFromContent("foo.scene.dry", content, function(err, result) {
+        (!!err).should.be.false;
+        result.options.minChoices.should.equal(3);
         done();
       });
     });
