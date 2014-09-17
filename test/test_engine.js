@@ -577,7 +577,7 @@
         dendryEngine.getCurrentChoices().length.should.equal(1);
       });
 
-      it("honors view-if checks when compiling choices", function() {
+      it("honors scene view-if checks when compiling choices", function() {
         var game = {
           scenes: {
             "root": {
@@ -589,19 +589,50 @@
             },
             "foo": {
               id: "foo",
-              viewIf: function(state, Q) { return false; }
+              viewIf: function(engine, state, Q) { return false; }
             },
             "bar": {
               id: "bar",
-              viewIf: function(state, Q) { return true; }
+              viewIf: function(engine, state, Q) { return true; }
             }
           }
         };
         var ui = new engine.NullUserInterface();
         var dendryEngine = new engine.DendryEngine(ui, game);
         dendryEngine.beginGame();
-        dendryEngine.getCurrentScene().id.should.equal('root');
-        dendryEngine.getCurrentChoices().length.should.equal(1);
+        var choices = dendryEngine.getCurrentChoices();
+        choices.length.should.equal(1);
+        choices[0].id.should.equal('bar');
+      });
+
+      it("honors option view-if checks when compiling choices", function() {
+        var game = {
+          scenes: {
+            "root": {
+              id: "root",
+              options: { options:[
+                {
+                  id:"@foo",
+                  title:"To the Foo",
+                  viewIf: function(engine, state, Q) { return false; }
+                },
+                {
+                  id:"@bar",
+                  title:"To the Bar",
+                  viewIf: function(engine, state, Q) { return true; }
+                }
+              ]}
+            },
+            "foo": {id: "foo"},
+            "bar": {id: "bar"}
+          }
+        };
+        var ui = new engine.NullUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame();
+        var choices = dendryEngine.getCurrentChoices();
+        choices.length.should.equal(1);
+        choices[0].id.should.equal('bar');
       });
 
       it("ends the game when no valid choices remain", function() {

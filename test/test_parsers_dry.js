@@ -390,17 +390,71 @@
         });
       });
 
-      it("can have a condition", function(done) {
+      it("can have a condition defined in logic", function(done) {
         parseFromContent(
           "test.dry", "\n- @foo\n- @bar if condition",
           function(err, result) {
             (!!err).should.be.false;
             result.options.options.length.should.equal(2);
             optval(result, 0, 'id').should.equal('@foo');
+            (optval(result, 0, 'title') === undefined).should.be.true;
             (optval(result, 0, 'viewIf') === undefined).should.be.true;
             optval(result, 1, 'id').should.equal('@bar');
             (optval(result, 1, 'title') === undefined).should.be.true;
             optval(result, 1, 'viewIf').should.equal('condition');
+            done();
+          });
+      });
+
+      it("can have a condition defined in magic", function(done) {
+        parseFromContent(
+          "test.dry", "\n- @foo\n- @bar if {! return true !}",
+          function(err, result) {
+            (!!err).should.be.false;
+            result.options.options.length.should.equal(2);
+            optval(result, 0, 'id').should.equal('@foo');
+            (optval(result, 0, 'title') === undefined).should.be.true;
+            (optval(result, 0, 'viewIf') === undefined).should.be.true;
+            optval(result, 1, 'id').should.equal('@bar');
+            (optval(result, 1, 'title') === undefined).should.be.true;
+            optval(result, 1, 'viewIf').should.equal('{! return true !}');
+            done();
+          });
+      });
+
+      it("can have a colon in the magic of its condition", function(done) {
+        parseFromContent(
+          "test.dry", "\n- @foo\n- @bar if {! var a = {a:true}; return a.a; !}",
+          function(err, result) {
+            (!!err).should.be.false;
+            result.options.options.length.should.equal(2);
+            optval(result, 0, 'id').should.equal('@foo');
+            (optval(result, 0, 'title') === undefined).should.be.true;
+            (optval(result, 0, 'viewIf') === undefined).should.be.true;
+            optval(result, 1, 'id').should.equal('@bar');
+            (optval(result, 1, 'title') === undefined).should.be.true;
+            optval(result, 1, 'viewIf').should.equal(
+              '{! var a = {a:true}; return a.a; !}'
+            );
+            done();
+          });
+      });
+
+      it("can have line breaks in the magic of its condition", function(done) {
+        parseFromContent(
+          "test.dry",
+          "\n- @foo\n- @bar if {!\nvar a = {a:true};\nreturn a.a;\n!}: Title",
+          function(err, result) {
+            (!!err).should.be.false;
+            result.options.options.length.should.equal(2);
+            optval(result, 0, 'id').should.equal('@foo');
+            (optval(result, 0, 'title') === undefined).should.be.true;
+            (optval(result, 0, 'viewIf') === undefined).should.be.true;
+            optval(result, 1, 'id').should.equal('@bar');
+            optval(result, 1, 'title').should.equal('Title');
+            optval(result, 1, 'viewIf').should.equal(
+              '{!\nvar a = {a:true};\nreturn a.a;\n!}'
+            );
             done();
           });
       });
