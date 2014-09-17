@@ -140,6 +140,60 @@
 
     // ---------------------------------------------------------------------
 
+    describe("actions", function() {
+      it(
+        "should call on-arrival, on-display and on-departure appropriately",
+        function() {
+          var rootArrival = 0;
+          var rootDisplay = 0;
+          var rootDeparture = 0;
+          var fooArrival = 0;
+          var fooDisplay = 0;
+          var fooDeparture = 0;
+          var game = {
+            scenes: {
+              "root": {
+                id: "root",
+                onArrival: [function() {rootArrival++;}],
+                onDisplay: [function() {rootDisplay++;}],
+                onDeparture: [function() {rootDeparture++;}]
+              },
+              "foo": {
+                id: "foo",
+                onArrival: [function() {fooArrival++;}],
+                onDisplay: [function() {fooDisplay++;}],
+                onDeparture: [function() {fooDeparture++;}]
+              }
+            }
+          };
+          var check = function(rootArrivalTarget, rootDisplayTarget,
+                               rootDepartureTarget, fooArrivalTarget,
+                               fooDisplayTarget, fooDepartureTarget) {
+            rootArrival.should.equal(rootArrivalTarget);
+            rootDisplay.should.equal(rootDisplayTarget);
+            rootDeparture.should.equal(rootDepartureTarget);
+            fooArrival.should.equal(fooArrivalTarget);
+            fooDisplay.should.equal(fooDisplayTarget);
+            fooDeparture.should.equal(fooDepartureTarget);
+          };
+          var runtimeInterface = new runtime.NullRuntimeInterface();
+          var gameState = new runtime.GameState(runtimeInterface, game);
+          gameState.beginGame();
+          check(1,1,0, 0,0,0);
+
+          gameState.goToScene('foo');
+          check(1,1,1, 1,1,0);
+
+          gameState.displaySceneContent();
+          check(1,1,1, 1,2,0);
+
+          gameState.goToScene(gameState.getRootSceneId());
+          check(2,2,1, 1,2,1);
+        });
+    });
+
+    // ---------------------------------------------------------------------
+
     describe("choices", function() {
       it("should give a default choice if none is available", function() {
         var game = {

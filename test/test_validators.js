@@ -346,7 +346,7 @@
 
     // ----------------------------------------------------------------------
 
-    describe("magic/logic validation", function() {
+    describe("predicate magic/logic", function() {
       it("validates magic predicate", function(done) {
         validators.validatePredicate(
           "{! return true; !}",
@@ -395,13 +395,76 @@
           });
       });
 
-      it("disallows logic in a predicate (Logic is TODO)", function(done) {
+      it("disallows logic (Logic is TODO)", function(done) {
         validators.validatePredicate(
           "return false",
           function(err, result) {
             (!!err).should.be.true;
             err.toString().should.equal(
-              "Error: Logic is not currently supported, use Magic."
+              "Error: Logic is not currently supported, use Magic"
+            );
+            done();
+          });
+      });
+    });
+
+    // ----------------------------------------------------------------------
+
+    describe("actions magic/logic", function() {
+      it("validates magic actions", function(done) {
+        validators.validateActions(
+          "{! Q.foo = 1; !}",
+          function(err, actions) {
+            (!!err).should.be.false;
+
+            actions.length.should.equal(1);
+
+            var Q = {foo:0};
+            actions[0](null, null, Q);
+            Q.foo.should.equal(1);
+
+            done();
+          });
+      });
+
+      it("validates multiple actions", function(done) {
+        validators.validateActions(
+          "{! Q.foo = 1; !} {! Q.foo += 2 !}",
+          function(err, actions) {
+            if (err) console.error(err);
+            (!!err).should.be.false;
+
+            actions.length.should.equal(2);
+
+            var Q = {foo:0};
+            actions[0](null, null, Q);
+            Q.foo.should.equal(1);
+            actions[1](null, null, Q);
+            Q.foo.should.equal(3);
+
+            done();
+          });
+      });
+
+      it("passes on  magic eval errors", function(done) {
+        validators.validateActions(
+          "{! case 4; !}",
+          function(err, result) {
+            (!!err).should.be.true;
+            err.toString().should.equal(
+              "Error: SyntaxError: Unexpected token case in chunk 1"
+            );
+            done();
+          });
+      });
+
+      it("disallows logic (Logic is TODO)", function(done) {
+        validators.validateActions(
+          "{! Q.foo = 1 !} foo += 2 {! Q.foo += 3 !}",
+          function(err, result) {
+            (!!err).should.be.true;
+            err.toString().should.equal(
+              "Error: Logic is not currently supported, use Magic in chunk 2"
             );
             done();
           });
