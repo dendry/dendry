@@ -413,7 +413,7 @@
             "root": {
               id: "root",
               options: {
-                minChoices: 2,
+                minChoices: 3,
                 maxChoices: 3,
                 options:[
                   {id:"@foo", title:"Foo Link"},
@@ -424,9 +424,9 @@
                 ]
               }
             },
-            "foo": {id: "foo", title: "The Foo", priority:1, order:1},
-            "bar": {id: "bar", title: "The Bar", priority:1, order:2},
-            "sun": {id: "sun", title: "The Sun", priority:2, order:3},
+            "foo": {id: "foo", title: "The Foo", priority:2, order:1},
+            "bar": {id: "bar", title: "The Bar", priority:2, order:2},
+            "sun": {id: "sun", title: "The Sun", priority:1, order:3},
             "dock": {id: "dock", title: "The Dock", priority:1, order:4},
             "trog": {id: "trog", title: "The Trog", priority:1, order:5}
           },
@@ -437,11 +437,11 @@
         gameState.beginGame();
         var choices = gameState.getCurrentChoices();
         choices.length.should.equal(3);
-
-        // We should have the sun, whatever else.
-        var ids = {};
-        _.each(choices, function(choice) { ids[choice.id] = true; });
-        (ids.sun !== undefined).should.be.true;
+        // First two should always be the higher priority options, the
+        // other can be anything (they're first because of their order
+        // value, not because of their priority).
+        choices[0].id.should.equal('foo');
+        choices[1].id.should.equal('bar');
       });
 
       it("overrides tag choices with explicit choice", function() {
