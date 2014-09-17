@@ -22,7 +22,7 @@
     "async": "0.9.x",
     "lodash": "2.4.x",
     "dive": "0.3.x",
-    "browserify": "5.9.x",
+    "browserify": "5.11.x",
     "uglify-js": "2.4.x",
     "mkdirp": "0.5.x"
   },
