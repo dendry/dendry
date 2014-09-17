@@ -13,9 +13,9 @@
   /*jshint -W030 */
 
 
-  var runtime = require('../lib/runtime');
+  var engine = require('../lib/engine');
 
-  describe("runtime", function() {
+  describe("dendry engine", function() {
 
     it("should allow game to be terminated", function() {
       var game = {
@@ -24,10 +24,10 @@
             "foo": {id: "foo"}
         }
       };
-      var runtimeInterface = new runtime.NullRuntimeInterface();
-      var gameState = new runtime.GameState(runtimeInterface, game);
-      gameState.beginGame().gameOver();
-      gameState.isGameOver().should.be.true;
+      var ui = new engine.NullUserInterface();
+      var dendryEngine = new engine.DendryEngine(ui, game);
+      dendryEngine.beginGame().gameOver();
+      dendryEngine.isGameOver().should.be.true;
     });
 
     // ---------------------------------------------------------------------
@@ -35,7 +35,7 @@
     describe("loading game", function() {
       it("should load a functionless JSON file", function(done) {
         var json = '{"title":"The Title", "author":"The Author"}';
-        runtime.convertJSONToGame(json, function(err, game) {
+        engine.convertJSONToGame(json, function(err, game) {
           (!!err).should.be.false;
           game.title.should.equal("The Title");
           game.author.should.equal("The Author");
@@ -45,7 +45,7 @@
 
       it("should convert function definitions into functions", function(done) {
         var json = '{"title":"The Title", "fun":{"$code":"return true;"}}';
-        runtime.convertJSONToGame(json, function(err, game) {
+        engine.convertJSONToGame(json, function(err, game) {
           (!!err).should.be.false;
           game.title.should.equal("The Title");
           _.isFunction(game.fun).should.be.true;
@@ -56,7 +56,7 @@
 
       it("should report malformed JSON", function(done) {
         var json = '{"title":"The Title", "author":a}';
-        runtime.convertJSONToGame(json, function(err, game) {
+        engine.convertJSONToGame(json, function(err, game) {
           (!!err).should.be.true;
           err.toString().should.equal("SyntaxError: Unexpected token a");
           done();
@@ -77,11 +77,11 @@
             "foo": {id: "foo", content:"Foo content"}
           }
         };
-        var runtimeInterface = new runtime.NullRuntimeInterface();
-        var gameState = new runtime.GameState(runtimeInterface, game);
-        gameState.beginGame();
-        gameState.getCurrentScene().id.should.equal('root');
-        gameState.isGameOver().should.be.false;
+        var ui = new engine.NullUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame();
+        dendryEngine.getCurrentScene().id.should.equal('root');
+        dendryEngine.isGameOver().should.be.false;
       });
 
       it("should explicitly allow game to be terminated", function() {
@@ -91,10 +91,10 @@
             "foo": {id: "foo", gameOver:true}
           }
         };
-        var runtimeInterface = new runtime.NullRuntimeInterface();
-        var gameState = new runtime.GameState(runtimeInterface, game);
-        gameState.beginGame().choose(0);
-        gameState.isGameOver().should.be.true;
+        var ui = new engine.NullUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame().choose(0);
+        dendryEngine.isGameOver().should.be.true;
       });
 
       it("terminates if the root has no choices", function() {
@@ -103,10 +103,10 @@
             "root": {id: "root"}
           }
         };
-        var runtimeInterface = new runtime.NullRuntimeInterface();
-        var gameState = new runtime.GameState(runtimeInterface, game);
-        gameState.beginGame();
-        gameState.isGameOver().should.be.true;
+        var ui = new engine.NullUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame();
+        dendryEngine.isGameOver().should.be.true;
       });
 
       it("should start at an explicit scene, if given", function() {
@@ -118,10 +118,10 @@
                     options:{options:[{id:"@root", title:"Root"}]}}
           }
         };
-        var runtimeInterface = new runtime.NullRuntimeInterface();
-        var gameState = new runtime.GameState(runtimeInterface, game);
-        gameState.beginGame();
-        gameState.getCurrentScene().id.should.equal('foo');
+        var ui = new engine.NullUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame();
+        dendryEngine.getCurrentScene().id.should.equal('foo');
       });
 
       it("should honor goto, if given", function() {
@@ -131,10 +131,10 @@
             "foo": {id: "foo", content:"Foo content"}
           }
         };
-        var runtimeInterface = new runtime.NullRuntimeInterface();
-        var gameState = new runtime.GameState(runtimeInterface, game);
-        gameState.beginGame();
-        gameState.getCurrentScene().id.should.equal('foo');
+        var ui = new engine.NullUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame();
+        dendryEngine.getCurrentScene().id.should.equal('foo');
       });
     });
 
@@ -176,22 +176,22 @@
             fooDisplay.should.equal(fooDisplayTarget);
             fooDeparture.should.equal(fooDepartureTarget);
           };
-          var runtimeInterface = new runtime.NullRuntimeInterface();
-          var gameState = new runtime.GameState(runtimeInterface, game);
-          gameState.beginGame();
+          var ui = new engine.NullUserInterface();
+          var dendryEngine = new engine.DendryEngine(ui, game);
+          dendryEngine.beginGame();
           check(1,1,0, 0,0,0);
 
-          gameState.goToScene('foo');
+          dendryEngine.goToScene('foo');
           check(1,1,1, 1,1,0);
 
-          gameState.displaySceneContent();
+          dendryEngine.displaySceneContent();
           check(1,1,1, 1,2,0);
 
-          gameState.goToScene(gameState.getRootSceneId());
+          dendryEngine.goToScene(dendryEngine.getRootSceneId());
           check(2,2,1, 1,2,1);
 
           // Go to the scene without transitioning.
-          gameState.goToScene('foo', true);
+          dendryEngine.goToScene('foo', true);
           check(2,2,1, 1,3,1);
         });
 
@@ -207,9 +207,9 @@
             },
           }
         };
-        var runtimeInterface = new runtime.NullRuntimeInterface();
-        var gameState = new runtime.GameState(runtimeInterface, game);
-        gameState.beginGame();
+        var ui = new engine.NullUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame();
         rootDisplay.should.equal(1);
       });
     });
@@ -224,10 +224,10 @@
             "foo": {id: "foo"}
           }
         };
-        var runtimeInterface = new runtime.NullRuntimeInterface();
-        var gameState = new runtime.GameState(runtimeInterface, game);
-        gameState.beginGame().goToScene('foo');
-        var choices = gameState.getCurrentChoices();
+        var ui = new engine.NullUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame().goToScene('foo');
+        var choices = dendryEngine.getCurrentChoices();
         choices.length.should.equal(1);
         choices[0].id.should.equal('root');
         choices[0].title.should.equal('Scene Complete');
@@ -240,10 +240,10 @@
             "foo": {id: "foo"}
           }
         };
-        var runtimeInterface = new runtime.NullRuntimeInterface();
-        var gameState = new runtime.GameState(runtimeInterface, game);
-        gameState.beginGame();
-        var choices = gameState.getCurrentChoices();
+        var ui = new engine.NullUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame();
+        var choices = dendryEngine.getCurrentChoices();
         (choices === null).should.be.true;
       });
 
@@ -259,14 +259,14 @@
             "foo": {id: "foo"}
           }
         };
-        var runtimeInterface = new runtime.NullRuntimeInterface();
-        var gameState = new runtime.GameState(runtimeInterface, game);
-        gameState.beginGame();
-        gameState.getCurrentScene().id.should.equal('root');
-        var choices = gameState.getCurrentChoices();
+        var ui = new engine.NullUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame();
+        dendryEngine.getCurrentScene().id.should.equal('root');
+        var choices = dendryEngine.getCurrentChoices();
         choices.length.should.equal(1);
-        gameState.choose(0);
-        gameState.getCurrentScene().id.should.equal('foo');
+        dendryEngine.choose(0);
+        dendryEngine.getCurrentScene().id.should.equal('foo');
       });
 
       it("should use the scene title if no option title is given", function() {
@@ -279,10 +279,10 @@
             "foo": {id: "foo", title: "The Foo"}
           }
         };
-        var runtimeInterface = new runtime.NullRuntimeInterface();
-        var gameState = new runtime.GameState(runtimeInterface, game);
-        gameState.beginGame();
-        var choices = gameState.getCurrentChoices();
+        var ui = new engine.NullUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame();
+        var choices = dendryEngine.getCurrentChoices();
         choices.length.should.equal(1);
         choices[0].title.should.equal("The Foo");
       });
@@ -301,10 +301,10 @@
             alpha: {foo:true, bar:true}
           }
         };
-        var runtimeInterface = new runtime.NullRuntimeInterface();
-        var gameState = new runtime.GameState(runtimeInterface, game);
-        gameState.beginGame();
-        var choices = gameState.getCurrentChoices();
+        var ui = new engine.NullUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame();
+        var choices = dendryEngine.getCurrentChoices();
         choices.length.should.equal(2);
       });
 
@@ -329,10 +329,10 @@
           },
           tagLookup: {}
         };
-        var runtimeInterface = new runtime.NullRuntimeInterface();
-        var gameState = new runtime.GameState(runtimeInterface, game);
-        gameState.beginGame();
-        var choices = gameState.getCurrentChoices();
+        var ui = new engine.NullUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame();
+        var choices = dendryEngine.getCurrentChoices();
         _.map(choices, function(choice) { return choice.title; }).should.eql([
           "Bar Link",
           "Dock Link",
@@ -363,10 +363,10 @@
           },
           tagLookup: {}
         };
-        var runtimeInterface = new runtime.NullRuntimeInterface();
-        var gameState = new runtime.GameState(runtimeInterface, game);
-        gameState.beginGame();
-        var choices = gameState.getCurrentChoices();
+        var ui = new engine.NullUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame();
+        var choices = dendryEngine.getCurrentChoices();
         choices.length.should.equal(1);
         choices[0].title.should.equal("Sun Link");
       });
@@ -396,10 +396,10 @@
           },
           tagLookup: {}
         };
-        var runtimeInterface = new runtime.NullRuntimeInterface();
-        var gameState = new runtime.GameState(runtimeInterface, game);
-        gameState.beginGame();
-        var choices = gameState.getCurrentChoices();
+        var ui = new engine.NullUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame();
+        var choices = dendryEngine.getCurrentChoices();
         _.map(choices, function(choice) { return choice.title; }).should.eql([
           "Sun Link",
           "Dock Link",
@@ -432,10 +432,10 @@
           },
           tagLookup: {}
         };
-        var runtimeInterface = new runtime.NullRuntimeInterface();
-        var gameState = new runtime.GameState(runtimeInterface, game);
-        gameState.beginGame();
-        var choices = gameState.getCurrentChoices();
+        var ui = new engine.NullUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame();
+        var choices = dendryEngine.getCurrentChoices();
         choices.length.should.equal(3);
         // First two should always be the higher priority options, the
         // other can be anything (they're first because of their order
@@ -461,10 +461,10 @@
             alpha: {foo:true, bar:true}
           }
         };
-        var runtimeInterface = new runtime.NullRuntimeInterface();
-        var gameState = new runtime.GameState(runtimeInterface, game);
-        gameState.beginGame();
-        var choices = gameState.getCurrentChoices();
+        var ui = new engine.NullUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame();
+        var choices = dendryEngine.getCurrentChoices();
         choices.length.should.equal(2);
         var which = (choices[0].id === 'foo') ? 0 : 1;
         choices[which].title.should.equal("Foo Link");
@@ -487,10 +487,10 @@
             alpha: {foo:true, bar:true}
           }
         };
-        var runtimeInterface = new runtime.NullRuntimeInterface();
-        var gameState = new runtime.GameState(runtimeInterface, game);
-        gameState.beginGame();
-        var choices = gameState.getCurrentChoices();
+        var ui = new engine.NullUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame();
+        var choices = dendryEngine.getCurrentChoices();
         choices.length.should.equal(2);
         var which = (choices[0].id === 'foo') ? 0 : 1;
         choices[which].title.should.equal("Foo Link");
@@ -513,10 +513,10 @@
             }
           }
         };
-        var runtimeInterface = new runtime.NullRuntimeInterface();
-        var gameState = new runtime.GameState(runtimeInterface, game);
-        gameState.beginGame();
-        (function() { gameState.choose(1); }).should.throw(
+        var ui = new engine.NullUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame();
+        (function() { dendryEngine.choose(1); }).should.throw(
           "No choice at index 1, only 1 choices are available."
         );
       });
@@ -546,14 +546,14 @@
             }
           }
         };
-        var runtimeInterface = new runtime.NullRuntimeInterface();
-        var gameState = new runtime.GameState(runtimeInterface, game);
-        gameState.beginGame();
-        gameState.getCurrentScene().id.should.equal('root');
-        gameState.getCurrentChoices().length.should.equal(2);
-        gameState.choose(0).choose(0);
-        gameState.getCurrentScene().id.should.equal('root');
-        gameState.getCurrentChoices().length.should.equal(1);
+        var ui = new engine.NullUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame();
+        dendryEngine.getCurrentScene().id.should.equal('root');
+        dendryEngine.getCurrentChoices().length.should.equal(2);
+        dendryEngine.choose(0).choose(0);
+        dendryEngine.getCurrentScene().id.should.equal('root');
+        dendryEngine.getCurrentChoices().length.should.equal(1);
       });
 
       it("honors view-if checks when compiling choices", function() {
@@ -576,11 +576,11 @@
             }
           }
         };
-        var runtimeInterface = new runtime.NullRuntimeInterface();
-        var gameState = new runtime.GameState(runtimeInterface, game);
-        gameState.beginGame();
-        gameState.getCurrentScene().id.should.equal('root');
-        gameState.getCurrentChoices().length.should.equal(1);
+        var ui = new engine.NullUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame();
+        dendryEngine.getCurrentScene().id.should.equal('root');
+        dendryEngine.getCurrentChoices().length.should.equal(1);
       });
 
       it("ends the game when no valid choices remain", function() {
@@ -601,29 +601,29 @@
             }
           }
         };
-        var runtimeInterface = new runtime.NullRuntimeInterface();
-        var gameState = new runtime.GameState(runtimeInterface, game);
-        gameState.beginGame();
-        gameState.getCurrentChoices().length.should.equal(1);
-        gameState.choose(0).choose(0);
-        gameState.isGameOver().should.be.true;
+        var ui = new engine.NullUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame();
+        dendryEngine.getCurrentChoices().length.should.equal(1);
+        dendryEngine.choose(0).choose(0);
+        dendryEngine.isGameOver().should.be.true;
       });
     });
 
     describe("display", function() {
-      var TestRuntimeInterface = function() {
+      var TestUserInterface = function() {
         this.content = [];
         this.choices = [];
         this.page = 0;
       };
-      runtime.RuntimeInterface.makeParentOf(TestRuntimeInterface);
-      TestRuntimeInterface.prototype.displayContent = function(content) {
+      engine.UserInterface.makeParentOf(TestUserInterface);
+      TestUserInterface.prototype.displayContent = function(content) {
         this.content.push(content);
       };
-      TestRuntimeInterface.prototype.displayChoices = function(choices) {
+      TestUserInterface.prototype.displayChoices = function(choices) {
         this.choices.push(choices);
       };
-      TestRuntimeInterface.prototype.newPage = function() {
+      TestUserInterface.prototype.newPage = function() {
         this.content = [];
         this.page++;
       };
@@ -641,18 +641,18 @@
             "foo": {id:"foo"}
           }
         };
-        var runtimeInterface = new TestRuntimeInterface();
-        var gameState = new runtime.GameState(runtimeInterface, game);
-        gameState.beginGame();
+        var ui = new TestUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame();
 
         // We should have recieved one set of content, the root content.
-        runtimeInterface.content.length.should.equal(1);
-        runtimeInterface.content[0].should.equal("This is the root content.");
+        ui.content.length.should.equal(1);
+        ui.content[0].should.equal("This is the root content.");
 
         // We should have received one set of choices, and it should have one
         // choice.
-        runtimeInterface.choices.length.should.equal(1);
-        var choices = runtimeInterface.choices[0];
+        ui.choices.length.should.equal(1);
+        var choices = ui.choices[0];
         choices.length.should.equal(1);
         choices[0].id.should.equal('foo');
         choices[0].title.should.equal("To the Foo");
@@ -665,10 +665,10 @@
             "foo": {id: "foo"}
           }
         };
-        var runtimeInterface = new TestRuntimeInterface();
-        var gameState = new runtime.GameState(runtimeInterface, game);
-        gameState.beginGame();
-        runtimeInterface.content.length.should.equal(0);
+        var ui = new TestUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame();
+        ui.content.length.should.equal(0);
       });
 
       it("clears the page when a new-page scene is found", function() {
@@ -680,16 +680,16 @@
             "foo": {id: "foo", content: "Foo content"}
           }
         };
-        var runtimeInterface = new TestRuntimeInterface();
-        var gameState = new runtime.GameState(runtimeInterface, game);
-        gameState.beginGame();
-        runtimeInterface.content.length.should.equal(1);
-        gameState.choose(0);
-        runtimeInterface.content.length.should.equal(2);
-        runtimeInterface.page.should.equal(1);
-        gameState.choose(0);
-        runtimeInterface.content.length.should.equal(1);
-        runtimeInterface.page.should.equal(2);
+        var ui = new TestUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame();
+        ui.content.length.should.equal(1);
+        dendryEngine.choose(0);
+        ui.content.length.should.equal(2);
+        ui.page.should.equal(1);
+        dendryEngine.choose(0);
+        ui.content.length.should.equal(1);
+        ui.page.should.equal(2);
       });
 
       it("displays game over if we're done", function() {
@@ -699,11 +699,11 @@
             "foo": {id:"foo", content:"Foo content"}
           }
         };
-        var runtimeInterface = new TestRuntimeInterface();
-        var gameState = new runtime.GameState(runtimeInterface, game);
-        gameState.beginGame().gameOver();
-        runtimeInterface.content.length.should.equal(1);
-        runtimeInterface.content[0].should.equal("Game Over");
+        var ui = new TestUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame().gameOver();
+        ui.content.length.should.equal(1);
+        ui.content[0].should.equal("Game Over");
       });
 
       it("displays game over scene content", function() {
@@ -713,13 +713,13 @@
             "foo": {id:"foo", content:"Foo content", gameOver:true}
           }
         };
-        var runtimeInterface = new TestRuntimeInterface();
-        var gameState = new runtime.GameState(runtimeInterface, game);
-        gameState.beginGame().choose(0);
-        runtimeInterface.content.length.should.equal(2);
-        runtimeInterface.content[0].should.equal("Foo content");
-        runtimeInterface.content[1].should.equal("Game Over");
-        gameState.isGameOver().should.be.true;
+        var ui = new TestUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame().choose(0);
+        ui.content.length.should.equal(2);
+        ui.content[0].should.equal("Foo content");
+        ui.content[1].should.equal("Game Over");
+        dendryEngine.isGameOver().should.be.true;
       });
 
       it("displays content from scene with go-to", function() {
@@ -730,12 +730,12 @@
             "bar": {id:"bar", content:"Bar content"}
           }
         };
-        var runtimeInterface = new TestRuntimeInterface();
-        var gameState = new runtime.GameState(runtimeInterface, game);
-        gameState.beginGame().choose(0);
-        runtimeInterface.content.length.should.equal(2);
-        runtimeInterface.content[0].should.equal("Foo content");
-        runtimeInterface.content[1].should.equal("Bar content");
+        var ui = new TestUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame().choose(0);
+        ui.content.length.should.equal(2);
+        ui.content[0].should.equal("Foo content");
+        ui.content[1].should.equal("Bar content");
       });
     });
   });

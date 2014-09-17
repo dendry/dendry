@@ -14,7 +14,7 @@
   // Disable errors from using the should library.
   /*jshint -W030 */
 
-  var cliruntime = require('../lib/cli_runtime');
+  var CLUserInterface = require('../lib/ui_cli').CommandLineUserInterface;
 
   describe("command-line run", function() {
 
@@ -84,7 +84,7 @@
 
     it("should default to command line output/input", function() {
       var game = getTestGame();
-      var clint =  new cliruntime.CommandLineRuntimeInterface(game);
+      var clint =  new CLUserInterface(game);
       clint.console.should.equal(console);
       clint.prompt.should.equal(prompt);
     });
@@ -95,18 +95,18 @@
       var pin = new PredeterminedInput([
         {choice:'1'},
         function() {
-          clint.gameState.getCurrentScene().id.should.equal('foo');
+          clint.dendryEngine.getCurrentScene().id.should.equal('foo');
         },
         {choice:'1'},
         function() {
-          clint.gameState.getCurrentScene().id.should.equal('root');
+          clint.dendryEngine.getCurrentScene().id.should.equal('root');
         },
         {choice:'2'}
       ]);
-      var clint =  new cliruntime.CommandLineRuntimeInterface(game, out, pin);
+      var clint =  new CLUserInterface(game, out, pin);
       clint.run(function(err) {
         (!!err).should.be.false;
-        clint.gameState.isGameOver().should.be.true;
+        clint.dendryEngine.isGameOver().should.be.true;
         pin.currentIndex.should.equal(5);
         done();
       });
@@ -118,7 +118,7 @@
       var pin = new PredeterminedInput([
         {choice:'1'}, {choice:'x'}
       ]);
-      var clint =  new cliruntime.CommandLineRuntimeInterface(game, out, pin);
+      var clint =  new CLUserInterface(game, out, pin);
       clint.run(function(err) {
         (!!err).should.be.true;
         err.toString().should.equal(
