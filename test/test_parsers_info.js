@@ -12,7 +12,7 @@
   // Disable errors from using the should library.
   /*jshint -W030 */
 
-  var parse = require('../lib/info_parser');
+  var parse = require('../lib/parsers/info');
 
   describe("info parser", function() {
 

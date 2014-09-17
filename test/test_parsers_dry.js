@@ -12,7 +12,7 @@
   // Disable errors from using the should library.
   /*jshint -W030 */
 
-  var parse = require('../lib/dry_parser');
+  var parse = require('../lib/parsers/dry');
   var propval = parse.propval;
 
   describe("dry-parser", function() {

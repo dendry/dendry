@@ -11,7 +11,7 @@
   // Disable errors from using the should library.
   /*jshint -W030 */
 
-  var validators = require('../lib/validators');
+  var validators = require('../lib/parsers/validators');
 
   describe("validators", function() {
 

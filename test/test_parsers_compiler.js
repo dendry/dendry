@@ -12,7 +12,7 @@
   // Disable errors from using the should library.
   /*jshint -W030 */
 
-  var compiler = require('../lib/compiler');
+  var compiler = require('../lib/parsers/compiler');
 
   describe("game compiler", function() {
 

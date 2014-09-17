@@ -11,7 +11,7 @@
   // Disable errors from using the should library.
   /*jshint -W030 */
 
-  var parse = require('../lib/gp_parser');
+  var parse = require('../lib/parsers/gp');
 
   var getSampleTokenRules = function() {
     return [

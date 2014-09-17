@@ -14,7 +14,7 @@
   // Disable errors from using the should library.
   /*jshint -W030 */
 
-  var CLUserInterface = require('../lib/ui_cli').CommandLineUserInterface;
+  var CLUserInterface = require('../lib/ui/cli').CommandLineUserInterface;
 
   describe("command-line run", function() {
 

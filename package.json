@@ -40,6 +40,6 @@
     "upload-to-coveralls": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
   },
   "bin": {
-    "dendry": "lib/cli.js"
+    "dendry": "lib/cli/main.js"
   }
 }
