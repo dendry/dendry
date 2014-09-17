@@ -189,7 +189,29 @@
 
           gameState.goToScene(gameState.getRootSceneId());
           check(2,2,1, 1,2,1);
+
+          // Go to the scene without transitioning.
+          gameState.goToScene('foo', true);
+          check(2,2,1, 1,3,1);
         });
+
+      it("should not fail when errors are found in actions", function() {
+        var rootDisplay = 0;
+        var game = {
+          scenes: {
+            "root": {
+              id: "root",
+              // Lack of rootArrival variable shouldn't prevent initial scene.
+              onArrival: [function() {rootArrival++;}],
+              onDisplay: [function() {rootDisplay++;}]
+            },
+          }
+        };
+        var runtimeInterface = new runtime.NullRuntimeInterface();
+        var gameState = new runtime.GameState(runtimeInterface, game);
+        gameState.beginGame();
+        rootDisplay.should.equal(1);
+      });
     });
 
     // ---------------------------------------------------------------------
