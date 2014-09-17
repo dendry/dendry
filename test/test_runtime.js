@@ -333,7 +333,6 @@
         var gameState = new runtime.GameState(runtimeInterface, game);
         gameState.beginGame();
         var choices = gameState.getCurrentChoices();
-        choices.length.should.equal(5);
         _.map(choices, function(choice) { return choice.title; }).should.eql([
           "Bar Link",
           "Dock Link",
@@ -343,6 +342,107 @@
         ]);
       });
 
+      it("only displays highest visible priority", function() {
+        var game = {
+          scenes: {
+            "root": {
+              id: "root",
+              options: { options:[
+                {id:"@foo", title:"Foo Link"},
+                {id:"@bar", title:"Bar Link"},
+                {id:"@sun", title:"Sun Link"},
+                {id:"@dock", title:"Dock Link"},
+                {id:"@trog", title:"Trog Link"},
+              ]}
+            },
+            "foo": {id: "foo", title: "The Foo", priority:1},
+            "bar": {id: "bar", title: "The Bar", priority:1},
+            "sun": {id: "sun", title: "The Sun", priority:3},
+            "dock": {id: "dock", title: "The Dock", priority:2},
+            "trog": {id: "trog", title: "The Trog", priority:2}
+          },
+          tagLookup: {}
+        };
+        var runtimeInterface = new runtime.NullRuntimeInterface();
+        var gameState = new runtime.GameState(runtimeInterface, game);
+        gameState.beginGame();
+        var choices = gameState.getCurrentChoices();
+        choices.length.should.equal(1);
+        choices[0].title.should.equal("Sun Link");
+      });
+
+      it("displays lower priorities if minimum not reached", function() {
+        var game = {
+          scenes: {
+            "root": {
+              id: "root",
+              options: {
+                minChoices: 3,
+                maxChoices: 3,
+                options:[
+                  {id:"@foo", title:"Foo Link"},
+                  {id:"@bar", title:"Bar Link"},
+                  {id:"@sun", title:"Sun Link"},
+                  {id:"@dock", title:"Dock Link"},
+                  {id:"@trog", title:"Trog Link"},
+                ]
+              }
+            },
+            "foo": {id: "foo", title: "The Foo", priority:1, order:1},
+            "bar": {id: "bar", title: "The Bar", priority:1, order:2},
+            "sun": {id: "sun", title: "The Sun", priority:3, order:3},
+            "dock": {id: "dock", title: "The Dock", priority:2, order:4},
+            "trog": {id: "trog", title: "The Trog", priority:2, order:5}
+          },
+          tagLookup: {}
+        };
+        var runtimeInterface = new runtime.NullRuntimeInterface();
+        var gameState = new runtime.GameState(runtimeInterface, game);
+        gameState.beginGame();
+        var choices = gameState.getCurrentChoices();
+        _.map(choices, function(choice) { return choice.title; }).should.eql([
+          "Sun Link",
+          "Dock Link",
+          "Trog Link"
+        ]);
+      });
+
+      it("samples lower priority choices if too many are viable", function() {
+        var game = {
+          scenes: {
+            "root": {
+              id: "root",
+              options: {
+                minChoices: 2,
+                maxChoices: 3,
+                options:[
+                  {id:"@foo", title:"Foo Link"},
+                  {id:"@bar", title:"Bar Link"},
+                  {id:"@sun", title:"Sun Link"},
+                  {id:"@dock", title:"Dock Link"},
+                  {id:"@trog", title:"Trog Link"},
+                ]
+              }
+            },
+            "foo": {id: "foo", title: "The Foo", priority:1, order:1},
+            "bar": {id: "bar", title: "The Bar", priority:1, order:2},
+            "sun": {id: "sun", title: "The Sun", priority:2, order:3},
+            "dock": {id: "dock", title: "The Dock", priority:1, order:4},
+            "trog": {id: "trog", title: "The Trog", priority:1, order:5}
+          },
+          tagLookup: {}
+        };
+        var runtimeInterface = new runtime.NullRuntimeInterface();
+        var gameState = new runtime.GameState(runtimeInterface, game);
+        gameState.beginGame();
+        var choices = gameState.getCurrentChoices();
+        choices.length.should.equal(3);
+
+        // We should have the sun, whatever else.
+        var ids = {};
+        _.each(choices, function(choice) { ids[choice.id] = true; });
+        (ids.sun !== undefined).should.be.true;
+      });
 
       it("overrides tag choices with explicit choice", function() {
         var game = {
