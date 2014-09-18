@@ -380,7 +380,7 @@
           "{! return true; !}",
           function(err, result) {
             noerr(err);
-            result(null, null).should.be.true;
+            result(null, null, null).should.be.true;
             done();
           });
       });
@@ -423,14 +423,24 @@
           });
       });
 
-      it("disallows logic (Logic is TODO)", function(done) {
+      it("validates logic predicate", function(done) {
         validators.validatePredicate(
-          "return false",
+          "true",
           function(err, result) {
-            (!!err).should.be.true;
-            err.toString().should.equal(
-              "Error: Logic is not currently supported, use Magic."
-            );
+            noerr(err);
+            result(null, null, null).should.be.true;
+            done();
+          });
+      });
+
+
+      it("validates logic predicate that uses qualities", function(done) {
+        validators.validatePredicate(
+          "foo >= 1",
+          function(err, result) {
+            noerr(err);
+            var Q = {foo: 2};
+            result(null, null, Q).should.be.true;
             done();
           });
       });
@@ -459,22 +469,18 @@
         validators.validateActions(
           "{! Q.foo = 1; !} {! Q.foo += 2 !}",
           function(err, actions) {
-            if (err) console.error(err);
             noerr(err);
-
             actions.length.should.equal(2);
-
             var Q = {foo:0};
             actions[0](null, null, Q);
             Q.foo.should.equal(1);
             actions[1](null, null, Q);
             Q.foo.should.equal(3);
-
             done();
           });
       });
 
-      it("passes on  magic eval errors", function(done) {
+      it("passes on magic eval errors", function(done) {
         validators.validateActions(
           "{! case 4; !}",
           function(err, result) {
@@ -486,14 +492,31 @@
           });
       });
 
-      it("disallows logic (Logic is TODO)", function(done) {
+      it("passes on logic compilation errors", function(done) {
         validators.validateActions(
-          "{! Q.foo = 1 !} foo += 2 {! Q.foo += 3 !}",
+          "foo true",
           function(err, result) {
             (!!err).should.be.true;
             err.toString().should.equal(
-              "Error: Logic is not currently supported, use Magic in chunk 2."
+              "Error: No valid way to parse this content."
             );
+            done();
+          });
+      });
+
+      it("allows mixing of logic and magic", function(done) {
+        validators.validateActions(
+          "{! Q.foo = 1 !} foo += 2 {! Q.foo += 3 !}",
+          function(err, actions) {
+            noerr(err);
+            actions.length.should.equal(3);
+            var Q = {foo:0};
+            actions[0](null, null, Q);
+            Q.foo.should.equal(1);
+            actions[1](null, null, Q);
+            Q.foo.should.equal(3);
+            actions[2](null, null, Q);
+            Q.foo.should.equal(6);
             done();
           });
       });
@@ -1093,10 +1116,10 @@
       });
 
       it("passes on predicate validation errors", function(done) {
-        validators.validateGoTo('@foo if bar', function(err, result) {
+        validators.validateGoTo('@foo if $bar', function(err, result) {
           (!!err).should.be.true;
           err.toString().should.equal(
-            "Error: Logic is not currently supported, use Magic."
+            "Error: Unrecognized content at position 0."
           );
           done();
         });
