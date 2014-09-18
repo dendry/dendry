@@ -104,7 +104,7 @@
         tokenizer.run("foo $ 2", function(err, tokens) {
           (!!err).should.be.true;
           err.toString().should.equal(
-            "Error: Unrecognized content at 4.");
+            "Error: Unrecognized content at position 4.");
           (tokens === undefined).should.be.true;
           done();
         });
@@ -116,7 +116,7 @@
         tokenizer.run("foo < 2 $", function(err, tokens) {
           (!!err).should.be.true;
           err.toString().should.equal(
-            "Error: Unrecognized content at 8.");
+            "Error: Unrecognized content at position 8.");
           (tokens === undefined).should.be.true;
           done();
         });
@@ -227,7 +227,7 @@
         prules.splice(7, 2);
         (function() {
           new parse.Parser(prules);
-        }).should.throw("Rule neg-bool-exp is never referenced.");
+        }).should.throw("Rule 'neg-bool-exp' is never referenced.");
       });
 
       it("fails when undefined rules are referenced", function() {
@@ -236,7 +236,9 @@
         (function() {
           new parse.Parser(prules);
         }).should.throw(
-          "Non-terminal neg-bool-exp has no rule that can generate it.");
+          "Non-terminal symbol 'neg-bool-exp' has no rule "+
+          "that can generate it."
+        );
       });
 
       it("fails when a parse is ambiguous", function(done) {
