@@ -12,6 +12,10 @@
   // Disable errors from using the should library.
   /*jshint -W030 */
 
+  var noerr = function(err) {
+    if (err) console.trace(err);
+    (!!err).should.be.false;
+  };
 
   var engine = require('../lib/engine');
 
@@ -57,7 +61,7 @@
       it("should load a functionless JSON file", function(done) {
         var json = '{"title":"The Title", "author":"The Author"}';
         engine.convertJSONToGame(json, function(err, game) {
-          (!!err).should.be.false;
+          noerr(err);
           game.title.should.equal("The Title");
           game.author.should.equal("The Author");
           done();
@@ -67,7 +71,7 @@
       it("should convert function definitions into functions", function(done) {
         var json = '{"title":"The Title", "fun":{"$code":"return true;"}}';
         engine.convertJSONToGame(json, function(err, game) {
-          (!!err).should.be.false;
+          noerr(err);
           game.title.should.equal("The Title");
           _.isFunction(game.fun).should.be.true;
           game.fun().should.be.true;
@@ -94,7 +98,7 @@
         var game = {
           scenes: {
             "root": {id: "root", content:"Root content", newPage: true,
-                    options:{options:[{id:"@foo", title:"Foo"}]}},
+                     options:[{id:"@foo", title:"Foo"}]},
             "foo": {id: "foo", content:"Foo content"}
           }
         };
@@ -108,7 +112,7 @@
       it("should explicitly allow game to be terminated", function() {
         var game = {
           scenes: {
-            "root": {id: "root", options:{options:[{id:'@foo', title:'Foo'}]}},
+            "root": {id: "root", options:[{id:'@foo', title:'Foo'}]},
             "foo": {id: "foo", gameOver:true}
           }
         };
@@ -136,7 +140,7 @@
           scenes: {
             "root": {id: "root", content:"Root content"},
             "foo": {id: "foo", content:"Foo content",
-                    options:{options:[{id:"@root", title:"Root"}]}}
+                    options:[{id:"@root", title:"Root"}]}
           }
         };
         var ui = new engine.NullUserInterface();
@@ -294,9 +298,9 @@
           scenes: {
             "root": {
               id: "root",
-              options: { options:[
+              options:[
                 {id:"@foo", title:"To the Foo"}
-              ]}
+              ]
             },
             "foo": {id: "foo"}
           }
@@ -316,7 +320,7 @@
           scenes: {
             "root": {
               id: "root",
-              options: { options:[ {id:"@foo"} ]}
+              options:[ {id:"@foo"} ]
             },
             "foo": {id: "foo", title: "The Foo"}
           }
@@ -334,7 +338,7 @@
           scenes: {
             "root": {
               id: "root",
-              options: { options:[ {id:"#alpha"} ]}
+              options:[ {id:"#alpha"} ]
             },
             "foo": {id: "foo", title: "The Foo"},
             "bar": {id: "bar", title: "The Bar"}
@@ -355,13 +359,13 @@
           scenes: {
             "root": {
               id: "root",
-              options: { options:[
+              options:[
                 {id:"@foo", title:"Foo Link"},
                 {id:"@bar", title:"Bar Link"},
                 {id:"@sun", title:"Sun Link"},
                 {id:"@dock", title:"Dock Link"},
                 {id:"@trog", title:"Trog Link"},
-              ]}
+              ]
             },
             "foo": {id: "foo", title: "The Foo", order:3},
             "bar": {id: "bar", title: "The Bar", order:1},
@@ -384,18 +388,52 @@
         ]);
       });
 
+      it("allows links to override order", function() {
+        var game = {
+          scenes: {
+            "root": {
+              id: "root",
+              options:[
+                {id:"@foo", title:"Foo Link"},
+                {id:"@bar", title:"Bar Link", order:5},
+                {id:"@sun", title:"Sun Link", order:1},
+                {id:"@dock", title:"Dock Link"},
+                {id:"@trog", title:"Trog Link"},
+              ]
+            },
+            "foo": {id: "foo", title: "The Foo", order:3},
+            "bar": {id: "bar", title: "The Bar", order:1},
+            "sun": {id: "sun", title: "The Sun", order:5},
+            "dock": {id: "dock", title: "The Dock", order:2},
+            "trog": {id: "trog", title: "The Trog", order:4}
+          },
+          tagLookup: {}
+        };
+        var ui = new engine.NullUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame();
+        var choices = dendryEngine.getCurrentChoices();
+        _.map(choices, function(choice) { return choice.title; }).should.eql([
+          "Sun Link",
+          "Dock Link",
+          "Foo Link",
+          "Trog Link",
+          "Bar Link"
+        ]);
+      });
+
       it("only displays highest visible priority", function() {
         var game = {
           scenes: {
             "root": {
               id: "root",
-              options: { options:[
+              options:[
                 {id:"@foo", title:"Foo Link"},
                 {id:"@bar", title:"Bar Link"},
                 {id:"@sun", title:"Sun Link"},
                 {id:"@dock", title:"Dock Link"},
                 {id:"@trog", title:"Trog Link"},
-              ]}
+              ]
             },
             "foo": {id: "foo", title: "The Foo", priority:1},
             "bar": {id: "bar", title: "The Bar", priority:1},
@@ -413,22 +451,49 @@
         choices[0].title.should.equal("Sun Link");
       });
 
+      it("allows links to override priority", function() {
+        var game = {
+          scenes: {
+            "root": {
+              id: "root",
+              options:[
+                {id:"@foo", title:"Foo Link", priority:3},
+                {id:"@bar", title:"Bar Link"},
+                {id:"@sun", title:"Sun Link", priority:1},
+                {id:"@dock", title:"Dock Link"},
+                {id:"@trog", title:"Trog Link"},
+              ]
+            },
+            "foo": {id: "foo", title: "The Foo", priority:1},
+            "bar": {id: "bar", title: "The Bar", priority:1},
+            "sun": {id: "sun", title: "The Sun", priority:3},
+            "dock": {id: "dock", title: "The Dock", priority:2},
+            "trog": {id: "trog", title: "The Trog", priority:2}
+          },
+          tagLookup: {}
+        };
+        var ui = new engine.NullUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame();
+        var choices = dendryEngine.getCurrentChoices();
+        choices.length.should.equal(1);
+        choices[0].title.should.equal("Foo Link");
+      });
+
       it("displays lower priorities if minimum not reached", function() {
         var game = {
           scenes: {
             "root": {
               id: "root",
-              options: {
-                minChoices: 3,
-                maxChoices: 3,
-                options:[
-                  {id:"@foo", title:"Foo Link"},
-                  {id:"@bar", title:"Bar Link"},
-                  {id:"@sun", title:"Sun Link"},
-                  {id:"@dock", title:"Dock Link"},
-                  {id:"@trog", title:"Trog Link"},
-                ]
-              }
+              minChoices: 3,
+              maxChoices: 3,
+              options:[
+                {id:"@foo", title:"Foo Link"},
+                {id:"@bar", title:"Bar Link"},
+                {id:"@sun", title:"Sun Link"},
+                {id:"@dock", title:"Dock Link"},
+                {id:"@trog", title:"Trog Link"},
+              ]
             },
             "foo": {id: "foo", title: "The Foo", priority:1, order:1},
             "bar": {id: "bar", title: "The Bar", priority:1, order:2},
@@ -454,17 +519,15 @@
           scenes: {
             "root": {
               id: "root",
-              options: {
-                minChoices: 3,
-                maxChoices: 3,
-                options:[
-                  {id:"@foo", title:"Foo Link"},
-                  {id:"@bar", title:"Bar Link"},
-                  {id:"@sun", title:"Sun Link"},
-                  {id:"@dock", title:"Dock Link"},
-                  {id:"@trog", title:"Trog Link"},
-                ]
-              }
+              minChoices: 3,
+              maxChoices: 3,
+              options:[
+                {id:"@foo", title:"Foo Link"},
+                {id:"@bar", title:"Bar Link"},
+                {id:"@sun", title:"Sun Link"},
+                {id:"@dock", title:"Dock Link"},
+                {id:"@trog", title:"Trog Link"},
+              ]
             },
             "foo": {id: "foo", title: "The Foo", priority:2, order:1},
             "bar": {id: "bar", title: "The Bar", priority:2, order:2},
@@ -491,10 +554,10 @@
           scenes: {
             "root": {
               id: "root",
-              options: { options:[
+              options:[
                 {id:"#alpha"},
                 {id:"@foo", title:"Foo Link"}
-              ]}
+              ]
             },
             "foo": {id: "foo", title: "The Foo"},
             "bar": {id: "bar", title: "The Bar"}
@@ -517,10 +580,10 @@
           scenes: {
             "root": {
               id: "root",
-              options: { options:[
+              options:[
                 {id:"@foo", title:"Foo Link"},
                 {id:"#alpha"}
-              ]}
+              ]
             },
             "foo": {id: "foo", title: "The Foo"},
             "bar": {id: "bar", title: "The Bar"}
@@ -543,15 +606,15 @@
           scenes: {
             "root": {
               id: "root",
-              options: { options:[
+              options:[
                 {id:"@foo", title:"To the Foo"}
-              ]}
+              ]
             },
             "foo": {
               id: "foo",
-              options: { options:[
+              options:[
                 {id:"@root", title:"Back to the Root"}
-              ]}
+              ]
             }
           }
         };
@@ -568,23 +631,23 @@
           scenes: {
             "root": {
               id: "root",
-              options: { options:[
+              options:[
                 {id:"@foo", title:"To the Foo"},
                 {id:"@bar", title:"To the Bar"}
-              ]}
+              ]
             },
             "foo": {
               id: "foo",
               maxVisits: 1,
-              options: { options:[
+              options:[
                 {id:"@root", title:"Back to the Root"}
-              ]}
+              ]
             },
             "bar": {
               id: "bar",
-              options: { options:[
+              options:[
                 {id:"@root", title:"Back to the Root"}
-              ]}
+              ]
             }
           }
         };
@@ -603,10 +666,10 @@
           scenes: {
             "root": {
               id: "root",
-              options: { options:[
+              options:[
                 {id:"@foo", title:"To the Foo"},
                 {id:"@bar", title:"To the Bar"}
-              ]}
+              ]
             },
             "foo": {
               id: "foo",
@@ -631,7 +694,7 @@
           scenes: {
             "root": {
               id: "root",
-              options: { options:[
+              options:[
                 {
                   id:"@foo",
                   title:"To the Foo",
@@ -642,7 +705,7 @@
                   title:"To the Bar",
                   viewIf: function(engine, state, Q) { return true; }
                 }
-              ]}
+              ]
             },
             "foo": {id: "foo"},
             "bar": {id: "bar"}
@@ -661,16 +724,16 @@
           scenes: {
             "root": {
               id: "root",
-              options: { options:[
+              options:[
                 {id:"@foo", title:"To the Foo"}
-              ]}
+              ]
             },
             "foo": {
               id: "foo",
               maxVisits: 1,
-              options: { options:[
+              options:[
                 {id:"@root", title:"Back to the Root"}
-              ]}
+              ]
             }
           }
         };
@@ -707,9 +770,9 @@
             "root": {
               id: "root",
               content: "This is the root content.",
-              options: { options:[
+              options:[
                 {id:"@foo", title:"To the Foo"}
-              ]},
+              ],
             },
             "foo": {id:"foo"}
           }
@@ -734,7 +797,7 @@
       it("displays no content if a scene has no content", function() {
         var game = {
           scenes: {
-            "root": {id: "root", options:{options:[{id:'@foo', title:'Foo'}]}},
+            "root": {id: "root", options:[{id:'@foo', title:'Foo'}]},
             "foo": {id: "foo"}
           }
         };
@@ -749,7 +812,7 @@
           scenes: {
             "root": {id: "root", content: "Root content",
                      newPage: true,
-                     options:{options:[{id:'@foo', title:'Foo'}]}},
+                     options:[{id:'@foo', title:'Foo'}]},
             "foo": {id: "foo", content: "Foo content"}
           }
         };
@@ -768,7 +831,7 @@
       it("displays game over if we're done", function() {
         var game = {
           scenes: {
-            "root": {id:"root", options:{options:[{id:"@foo", title:"Foo"}]}},
+            "root": {id:"root", options:[{id:"@foo", title:"Foo"}]},
             "foo": {id:"foo", content:"Foo content"}
           }
         };
@@ -782,7 +845,7 @@
       it("displays game over scene content", function() {
         var game = {
           scenes: {
-            "root": {id:"root", options:{options:[{id:"@foo", title:"Foo"}]}},
+            "root": {id:"root", options:[{id:"@foo", title:"Foo"}]},
             "foo": {id:"foo", content:"Foo content", gameOver:true}
           }
         };
@@ -798,7 +861,7 @@
       it("displays content from scene with go-to", function() {
         var game = {
           scenes: {
-            "root": {id:"root", options:{options:[{id:"@foo", title:"Foo"}]}},
+            "root": {id:"root", options:[{id:"@foo", title:"Foo"}]},
             "foo": {id:"foo", content:"Foo content", goTo:[{id:"bar"}]},
             "bar": {id:"bar", content:"Bar content"}
           }

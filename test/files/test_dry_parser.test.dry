@@ -48,34 +48,23 @@ after an option block. The option block, if it is present is compiled
 and added to a 'options' property, making 'options' another reserved
 word.
 
-# An option block:
-- min: 4
-# option blocks start each line with a hyphen
-- max: 9
-# lines starting with just a hyphen declare a property
-- min-priority: 3
+# An option block:  option blocks start each line with a hyphen
+- @new-id: The title of this link.
 # lines starting with an at sign indicate a link to a named id, the
 # text after the colon is the title that will be displayed to overrule
 # the title of that section, if any.
-- @new-id: The title of this link.
+- min: 4
+# lines starting with just a hyphen declare a property, properties
+# belong to the previous link.
+- max: 9
+- min-priority: 3
 - @other-id
 # lines starting with a hash indicate a tag, links corresponding to
 # that tag will be added. Because this can have multiple links, titles
 # aren't allowed.
 - #tag
-# either explicit @ links or tag links can be followed with an if
-# statement
-- @new-id2 if sunny > 1: The title of this link.
-- #tag2 if sunny > 2
-# These if statements are used to control if a set of links
-# appears. Each link is compiled into an object with id, view-if and
-# title members (the latter begin always underfined for tags), and
-# these appear in a list put in the 'options' property of the options
-# object.
-- @new-id3 if long-conditional > 1 and break-over-lines < 2 or
-    some-other-layout-issue: This option has continuation in
-    both its conditional clause and its title. These should be
-    handled properly.
+- @new-id3: This option has continuation in its title. These should be
+            handled properly.
 
 # Some more specific cases:
 

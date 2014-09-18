@@ -63,13 +63,13 @@
             id: "root",
             newPage: true,
             content: "This is the root content.",
-            options: {options:[{id:"@foo", title:"The Foo"},
-                               {id:"@bar", title:"The Bar"}]}
+            options:[{id:"@foo", title:"The Foo"},
+                     {id:"@bar", title:"The Bar"}]
           },
           "foo": {
             id: "foo",
             content: "This is the foo content.",
-            options: {options:[{id:"@root", title:"Return"}]}
+            options:[{id:"@root", title:"Return"}]
           },
           "bar": {
             id: "bar",

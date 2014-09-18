@@ -2,6 +2,6 @@ title: Bravo Scene
 tags: top
 new-page: yes
 order: 20
-on-arrival: {! Q.foo = 1; !}
+on-arrival: {! Q.foo = Q.foo ? Q.foo+1 : 1; !}
 
 This is bravo scene.
