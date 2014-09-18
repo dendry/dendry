@@ -97,7 +97,7 @@
       var content = "title: My Title\ngo-to: root";
       parse.parseFromContent("foo.scene.dry", content, function(err, result) {
         (!!err).should.be.false;
-        result.goTo.should.equal('root');
+        result.goTo.should.eql([{id:'root'}]);
         done();
       });
     });
@@ -106,7 +106,7 @@
       var content = "title: My Title\ngo-to: foo.bar";
       parse.parseFromContent("foo.scene.dry", content, function(err, result) {
         (!!err).should.be.false;
-        result.goTo.should.equal('foo.bar');
+        result.goTo.should.eql([{id:'foo.bar'}]);
         done();
       });
     });
@@ -115,7 +115,7 @@
       var content = "title: My Title\ngo-to: ..foo.bar";
       parse.parseFromContent("foo.scene.dry", content, function(err, result) {
         (!!err).should.be.false;
-        result.goTo.should.equal('..foo.bar');
+        result.goTo.should.eql([{id:'..foo.bar'}]);
         done();
       });
     });
@@ -124,7 +124,7 @@
       var content = "title: My Title\ngo-to: @foo";
       parse.parseFromContent("foo.scene.dry", content, function(err, result) {
         (!!err).should.be.false;
-        result.goTo.should.equal('foo');
+        result.goTo.should.eql([{id:'foo'}]);
         done();
       });
     });
@@ -179,7 +179,7 @@
             id: "test_scene_parser.bar",
             title: "The Bar Scene",
             content: "This is section 'bar'.",
-            goTo: "foo",
+            goTo: [{id:"foo"}],
             maxVisits: 1,
             options: {
               options: [{id:"@foo", title:"Return to foo."}]

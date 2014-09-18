@@ -148,7 +148,7 @@
       it("should honor goto, if given", function() {
         var game = {
           scenes: {
-            "root": {id: "root", content:"Root content", goTo:"foo"},
+            "root": {id: "root", content:"Root content", goTo:[{id:"foo"}]},
             "foo": {id: "foo", content:"Foo content"}
           }
         };
@@ -156,6 +156,27 @@
         var dendryEngine = new engine.DendryEngine(ui, game);
         dendryEngine.beginGame();
         dendryEngine.getCurrentScene().id.should.equal('foo');
+      });
+
+      it("should honor multiple clause goto with predicates", function() {
+        var game = {
+          scenes: {
+            "root": {
+              id: "root", content:"Root content",
+              goTo:[
+                {id:"foo",
+                 predicate: function(engine, state, Q) { return false; }},
+                {id:"bar"}
+              ]
+            },
+            "foo": {id: "foo", content:"Foo content"},
+            "bar": {id: "bar", content:"Bar content"}
+          }
+        };
+        var ui = new engine.NullUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame();
+        dendryEngine.getCurrentScene().id.should.equal('bar');
       });
     });
 
@@ -778,7 +799,7 @@
         var game = {
           scenes: {
             "root": {id:"root", options:{options:[{id:"@foo", title:"Foo"}]}},
-            "foo": {id:"foo", content:"Foo content", goTo:"bar"},
+            "foo": {id:"foo", content:"Foo content", goTo:[{id:"bar"}]},
             "bar": {id:"bar", content:"Bar content"}
           }
         };

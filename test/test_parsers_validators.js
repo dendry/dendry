@@ -13,6 +13,11 @@
 
   var validators = require('../lib/parsers/validators');
 
+  var noerr = function(err) {
+    if (err) console.trace(err);
+    (!!err).should.be.false;
+  };
+
   describe("validators", function() {
 
     describe("boolean validation", function() {
@@ -20,7 +25,7 @@
       trues.forEach(function(name) {
         it("should handle value "+name+" as true", function(done) {
           validators.validateBoolean(name, function(err, val) {
-            (!!err).should.be.false;
+            noerr(err);
             val.should.be.true;
             done();
           });
@@ -31,7 +36,7 @@
       falses.forEach(function(name) {
         it("should handle value "+name+" as false", function(done) {
           validators.validateBoolean(name, function(err, val) {
-            (!!err).should.be.false;
+            noerr(err);
             val.should.be.false;
             done();
           });
@@ -59,7 +64,7 @@
       ok.forEach(function(name) {
         it("should validate id "+name, function(done) {
           validators.validateId(name, function(err, val) {
-            (!!err).should.be.false;
+            noerr(err);
             val.should.equal(name.trim());
             done();
           });
@@ -68,7 +73,7 @@
 
       it("should strip at-sign", function(done) {
         validators.validateId("@alpha", function(err, val) {
-          (!!err).should.be.false;
+          noerr(err);
           val.should.equal("alpha");
           done();
         });
@@ -93,7 +98,7 @@
       ok.forEach(function(name) {
         it("should validate relative id "+name, function(done) {
           validators.validateRelativeId(name, function(err, val) {
-            (!!err).should.be.false;
+            noerr(err);
             val.should.equal(name.trim());
             done();
           });
@@ -102,7 +107,7 @@
 
       it("should strip at-sign", function(done) {
         validators.validateRelativeId("@.alpha", function(err, val) {
-          (!!err).should.be.false;
+          noerr(err);
           val.should.equal(".alpha");
           done();
         });
@@ -258,7 +263,7 @@
     describe("equality enforcing", function() {
       it("allows matches to pass", function(done) {
         validators.makeEnsureEqualTo("P", "foo")("foo", function(err, val) {
-          (!!err).should.be.false;
+          noerr(err);
           val.should.equal('foo');
           done();
         });
@@ -266,7 +271,7 @@
 
       it("trims whitespace before match", function(done) {
         validators.makeEnsureEqualTo("P", "foo  ")("  foo", function(err, val) {
-          (!!err).should.be.false;
+          noerr(err);
           val.should.equal('foo');
           done();
         });
@@ -305,7 +310,7 @@
     describe("tag list validation", function() {
       it("handles hash prefix or no prefix", function(done) {
         validators.validateTagList("alpha, #bravo", function(err, list) {
-          (!!err).should.be.false;
+          noerr(err);
           list.length.should.equal(2);
           list[0].should.equal('alpha');
           list[1].should.equal('bravo');
@@ -317,7 +322,7 @@
         validators.validateTagList(
           "alpha, bravo; charlie  delta",
           function(err,list) {
-            (!!err).should.be.false;
+            noerr(err);
             list.length.should.equal(4);
             list[0].should.equal('alpha');
             list[1].should.equal('bravo');
@@ -329,7 +334,7 @@
 
       it("supports single tags with trailing whitespace", function(done) {
         validators.validateTagList("#alpha ", function(err, list) {
-          (!!err).should.be.false;
+          noerr(err);
           list.length.should.equal(1);
           list[0].should.equal('alpha');
           done();
@@ -374,7 +379,7 @@
         validators.validatePredicate(
           "{! return true; !}",
           function(err, result) {
-            (!!err).should.be.false;
+            noerr(err);
             result(null, null).should.be.true;
             done();
           });
@@ -424,7 +429,7 @@
           function(err, result) {
             (!!err).should.be.true;
             err.toString().should.equal(
-              "Error: Logic is not currently supported, use Magic"
+              "Error: Logic is not currently supported, use Magic."
             );
             done();
           });
@@ -438,7 +443,7 @@
         validators.validateActions(
           "{! Q.foo = 1; !}",
           function(err, actions) {
-            (!!err).should.be.false;
+            noerr(err);
 
             actions.length.should.equal(1);
 
@@ -455,7 +460,7 @@
           "{! Q.foo = 1; !} {! Q.foo += 2 !}",
           function(err, actions) {
             if (err) console.error(err);
-            (!!err).should.be.false;
+            noerr(err);
 
             actions.length.should.equal(2);
 
@@ -475,7 +480,7 @@
           function(err, result) {
             (!!err).should.be.true;
             err.toString().should.equal(
-              "Error: SyntaxError: Unexpected token case in chunk 1"
+              "Error: SyntaxError: Unexpected token case in chunk 1."
             );
             done();
           });
@@ -487,7 +492,7 @@
           function(err, result) {
             (!!err).should.be.true;
             err.toString().should.equal(
-              "Error: Logic is not currently supported, use Magic in chunk 2"
+              "Error: Logic is not currently supported, use Magic in chunk 2."
             );
             done();
           });
@@ -510,7 +515,7 @@
         };
         var ensure = validators.makeEnsureObjectMatchesSchema(schema);
         ensure(content, function(err, result) {
-          (!!err).should.be.false;
+          noerr(err);
           result.should.eql(content);
           done();
         });
@@ -546,7 +551,7 @@
         };
         var ensure = validators.makeEnsureObjectMatchesSchema(schema);
         ensure(content, function(err, result) {
-          (!!err).should.be.false;
+          noerr(err);
           result.foo.should.equal('foo');
           (result.bar === undefined).should.be.true;
           done();
@@ -671,7 +676,7 @@
         ];
         var ensure = validators.makeEnsureListItemsMatchSchema(schema);
         ensure(content, function(err, result) {
-          (!!err).should.be.false;
+          noerr(err);
           result.should.eql(content);
           done();
         });
@@ -690,7 +695,7 @@
         ];
         var ensure = validators.makeEnsureListItemsMatchSchema(schema);
         ensure(content, function(err, result) {
-          (!!err).should.be.false;
+          noerr(err);
           result.should.eql([{foo:'foo', bar:'bar'},
                              {foo:'sun'},
                              {foo:'dock', bar:'bar'}]);
@@ -771,7 +776,7 @@
         ];
         var ensure = validators.makeEnsureListItemsMatchSchemaById(schemae);
         ensure(content, function(err, result) {
-          (!!err).should.be.false;
+          noerr(err);
           result.should.eql(content);
           done();
         });
@@ -802,7 +807,7 @@
         ];
         var ensure = validators.makeEnsureListItemsMatchSchemaById(schemae);
         ensure(content, function(err, result) {
-          (!!err).should.be.false;
+          noerr(err);
           result.should.eql([
             {id: 'foo', bar: 'bar'},
             {id: 'sun'},
@@ -832,7 +837,7 @@
         ];
         var ensure = validators.makeEnsureListItemsMatchSchemaById(schemae);
         ensure(content, function(err, result) {
-          (!!err).should.be.false;
+          noerr(err);
           result.should.eql(content);
           done();
         });
@@ -1007,7 +1012,97 @@
           done();
         });
       });
-
     });
+
+    // ----------------------------------------------------------------------
+
+    describe("go-to validation", function() {
+      it("validates single id", function(done) {
+        validators.validateGoTo('@foo', function(err, result) {
+          noerr(err);
+          result.length.should.equal(1);
+          result[0].id.should.equal('foo');
+          (result[0].predicate === undefined).should.be.true;
+          done();
+        });
+      });
+
+      it("validates single goto with predicate", function(done) {
+        validators.validateGoTo(
+          '@foo if {! return true !}',
+          function(err, result) {
+            noerr(err);
+            result.length.should.equal(1);
+            result[0].id.should.equal('foo');
+            (result[0].predicate === undefined).should.be.false;
+            result[0].predicate().should.be.true;
+            done();
+          });
+      });
+
+      it("validates multiple gotos", function(done) {
+        validators.validateGoTo(
+          '@foo if {! return true !}; @bar',
+          function(err, result) {
+            noerr(err);
+            result.length.should.equal(2);
+            result[0].id.should.equal('foo');
+            (result[0].predicate === undefined).should.be.false;
+            result[0].predicate().should.be.true;
+            result[1].id.should.equal('bar');
+            (result[1].predicate === undefined).should.be.true;
+            done();
+          });
+      });
+
+      it("allows semicolons in magic", function(done) {
+        validators.validateGoTo(
+          '@foo if {! return true; !}; @bar',
+          function(err, result) {
+            noerr(err);
+            result.length.should.equal(2);
+            result[0].id.should.equal('foo');
+            (result[0].predicate === undefined).should.be.false;
+            result[0].predicate().should.be.true;
+            result[1].id.should.equal('bar');
+            (result[1].predicate === undefined).should.be.true;
+            done();
+          });
+      });
+
+      it("requires non-terminal clauses to have a predicate", function(done) {
+        validators.validateGoTo(
+          '@foo; @bar',
+          function(err, result) {
+            (!!err).should.be.true;
+            err.toString().should.equal(
+              "Error: Only the last goto instruction can have no if-clause."
+            );
+            done();
+          });
+      });
+
+      it("passes on id validation errors", function(done) {
+        validators.validateGoTo('#foo', function(err, result) {
+          (!!err).should.be.true;
+          err.toString().should.equal(
+            "Error: '#foo' is not a valid relative id."
+          );
+          done();
+        });
+      });
+
+      it("passes on predicate validation errors", function(done) {
+        validators.validateGoTo('@foo if bar', function(err, result) {
+          (!!err).should.be.true;
+          err.toString().should.equal(
+            "Error: Logic is not currently supported, use Magic."
+          );
+          done();
+        });
+      });
+
+    }); // end describe goto
+
   });
 }());
