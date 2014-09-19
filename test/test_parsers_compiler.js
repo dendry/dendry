@@ -24,12 +24,14 @@
           author: "Jo Doe"
         };
         var listOfScenes = [
-          {id: "root", title:"Back to root", content: "Root content", options: {
+          {
+            id: "root", title:"Back to root", content: "Root content",
             options:[{id:"@foo", title:"Foo link"}]
-          }},
-          {id: "foo", title:"The Foo", content:"Foo content", options: {
+          },
+          {
+            id: "foo", title:"The Foo", content:"Foo content",
             options:[{id:"@foo", title:"Foo link"}]
-          }}
+          }
         ];
         compiler.compile(info, listOfScenes, function(err, game) {
           (!!err).should.be.false;
@@ -47,15 +49,14 @@
           {id: "root", title:"Back to root", content: "Root content",
            tags: ["alpha", "bravo"],
            sections: [
-             {id: "root.foo", title:"The Foo", content:"Foo content",
-              tags: ["alpha", "charlie"],
-              options: {
-                options:[{id:"@foo", title:"Foo link"}]}
+             {
+               id: "root.foo", title:"The Foo", content:"Foo content",
+               tags: ["alpha", "charlie"],
+               options:[{id:"@foo", title:"Foo link"}]
              }
            ],
-           options: {
-             options:[{id:"@foo", title:"Foo link"}]
-           }},
+           options:[{id:"@foo", title:"Foo link"}]
+           },
         ];
         compiler.compile(info, listOfScenes, function(err, game) {
           (!!err).should.be.false;
@@ -112,14 +113,12 @@
         var listOfScenes = [
           {id: "root", title:"Back to root", content: "Root content",
            tags: ["alpha", "bravo"],
-           options: {
-             options:[{id:"@foo", title:"Foo link"}]
-           }},
+           options:[{id:"@foo", title:"Foo link"}]
+           },
           {id: "foo", title:"The Foo", content:"Foo content",
            tags: ["alpha", "charlie"],
-           options: {
-             options:[{id:"@foo", title:"Foo link"}]
-           }}
+           options:[{id:"@foo", title:"Foo link"}]
+           }
         ];
         compiler.compile(info, listOfScenes, function(err, game) {
           (!!err).should.be.false;
@@ -172,16 +171,16 @@
         var listOfScenes = [
           {id: "root", title:"Root scene", content:"Root content",
            sections: [
-             {id: "root.one", title:"One", content:"One.",
-              options:{
-                options:[{id:"@two", title:"Two"}]
-              }},
+             {
+               id: "root.one", title:"One", content:"One.",
+               options:[{id:"@two", title:"Two"}]
+             },
              {id: "root.two", title:"Two", content:"Two."},
            ]}
         ];
         compiler.compile(info, listOfScenes, function(err, game) {
           (!!err).should.be.false;
-          game.scenes["root.one"].options.options[0].id.
+          game.scenes["root.one"].options[0].id.
             should.equal("@root.two");
           done();
         });
@@ -192,16 +191,16 @@
         var listOfScenes = [
           {id: "root", title:"Root scene", content:"Root content",
            sections: [
-             {id: "root.one", title:"One", content:"One.",
-              options:{
-                options:[{id:"#tag", title:"Two"}]
-              }},
+             {
+               id: "root.one", title:"One", content:"One.",
+               options:[{id:"#tag", title:"Two"}]
+             },
              {id: "root.two", title:"Two", content:"Two."},
            ]}
         ];
         compiler.compile(info, listOfScenes, function(err, game) {
           (!!err).should.be.false;
-          game.scenes["root.one"].options.options[0].id.should.equal("#tag");
+          game.scenes["root.one"].options[0].id.should.equal("#tag");
           done();
         });
       });
@@ -210,16 +209,14 @@
         var info = {title: "My Game", author: "Jo Doe"};
         var listOfScenes = [
           {id: "root", title:"Root scene", content:"Root content",
-           options: {
-             options: [{id:"@one", title:"One"}]
-           },
+           options: [{id:"@one", title:"One"}],
            sections: [
              {id: "root.one", title:"One", content:"One."}
            ]}
         ];
         compiler.compile(info, listOfScenes, function(err, game) {
           (!!err).should.be.false;
-          game.scenes.root.options.options[0].id.should.equal("@root.one");
+          game.scenes.root.options[0].id.should.equal("@root.one");
           done();
         });
       });
@@ -266,9 +263,7 @@
           {id: "root", title:"Root scene", content:"Root content",
            sections: [
              {id: "root.one", title:"One", content:"One.",
-              options:{
-                options:[{id:"@three"}]
-              }},
+              options:[{id:"@three"}]},
              {id: "root.two", title:"Two", content:"Two."}
            ]}
         ];

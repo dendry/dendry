@@ -24,8 +24,8 @@
     it("should allow game to be terminated", function() {
       var game = {
         scenes: {
-          "root": {id: "root", options:{options:[{id:'@foo', title:'Foo'}]}},
-            "foo": {id: "foo"}
+          "root": {id: "root", options:[{id:'@foo', title:'Foo'}]},
+          "foo": {id: "foo"}
         }
       };
       var ui = new engine.NullUserInterface();
