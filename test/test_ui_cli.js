@@ -68,11 +68,14 @@
           },
           "foo": {
             id: "foo",
+            order: 10,
+            onArrival: [function(state, Q) { Q.foo = 1; }],
             content: "This is the foo content.",
             options:[{id:"@root", title:"Return"}]
           },
           "bar": {
             id: "bar",
+            order: 20,
             content: "This is the bar content.",
             gameOver: true
           }
@@ -123,6 +126,36 @@
         (!!err).should.be.true;
         err.toString().should.equal(
           "Error: Value 'x' for 'choice' doesn't conform.");
+        done();
+      });
+    });
+
+    it("should quit on 'q'", function(done) {
+      var game = getTestGame();
+      var out = new OutputAccumulator();
+      var pin = new PredeterminedInput([
+        {choice:'1'}, {choice:'q'}
+      ]);
+      var clint =  new CLUserInterface(game, out, pin);
+      clint.run(function(err) {
+        (!!err).should.be.false;
+        clint.dendryEngine.isGameOver().should.be.false;
+        done();
+      });
+    });
+
+    it("should dump state on 'd'", function(done) {
+      var game = getTestGame();
+      var out = new OutputAccumulator();
+      var pin = new PredeterminedInput([
+        {choice:'1'}, {choice:'d'}, {choice:'q'}
+      ]);
+      var clint =  new CLUserInterface(game, out, pin);
+      clint.run(function(err) {
+        (!!err).should.be.false;
+        var json = out.output[out.output.length-2];
+        var state = JSON.parse(json);
+        state.qualities.foo.should.equal(1);
         done();
       });
     });

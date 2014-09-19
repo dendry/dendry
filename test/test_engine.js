@@ -92,6 +92,75 @@
 
     // ---------------------------------------------------------------------
 
+    describe("loading state", function() {
+      it("should load previously saved state", function() {
+        var game = {
+          scenes: {
+            "root": {
+              id: "root", content:"Root content",
+              options:[{id:"@foo", title:"Foo"}]
+            },
+            "foo": {
+              id: "foo", content:"Foo content",
+              onArrival: [
+                function(state, Q) { Q.foo = 1; }
+              ]
+            }
+          }
+        };
+        var ui = new engine.NullUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame();
+        dendryEngine.choose(0);
+        dendryEngine.state.qualities.foo.should.equal(1);
+        dendryEngine.getCurrentScene().id.should.equal('foo');
+        var state = dendryEngine.state;
+        dendryEngine.beginGame();
+        dendryEngine.state.qualities.should.eql({});
+        dendryEngine.getCurrentScene().id.should.equal('root');
+        dendryEngine.setState(state);
+        dendryEngine.getCurrentScene().id.should.equal('foo');
+        dendryEngine.state.qualities.foo.should.equal(1);
+      });
+
+      it("should load game over state", function() {
+        var game = {
+          scenes: {
+            "root": {
+              id: "root", content:"Root content",
+              options:[{id:"@foo", title:"Foo"}]
+            },
+            "foo": {
+              id: "foo", content:"Foo content",
+              gameOver: true,
+              onArrival: [
+                function(state, Q) { Q.foo = 1; }
+              ]
+            }
+          }
+        };
+        var ui = new engine.NullUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame();
+        dendryEngine.choose(0);
+        dendryEngine.state.qualities.foo.should.equal(1);
+        dendryEngine.getCurrentScene().id.should.equal('foo');
+        dendryEngine.isGameOver().should.be.true;
+        var state = dendryEngine.state;
+        dendryEngine.beginGame();
+        dendryEngine.state.qualities.should.eql({});
+        dendryEngine.getCurrentScene().id.should.equal('root');
+        dendryEngine.isGameOver().should.be.false;
+        dendryEngine.setState(state);
+        dendryEngine.getCurrentScene().id.should.equal('foo');
+        dendryEngine.state.qualities.foo.should.equal(1);
+        dendryEngine.isGameOver().should.be.true;
+      });
+
+    });
+
+    // ---------------------------------------------------------------------
+
     describe("scene", function() {
 
       it("should start at the root scene", function() {
@@ -785,6 +854,8 @@
         dendryEngine.isGameOver().should.be.true;
       });
     });
+
+    // ----------------------------------------------------------------------
 
     describe("display", function() {
       var TestUserInterface = function() {
