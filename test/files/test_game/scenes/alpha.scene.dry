@@ -9,7 +9,7 @@ view-if: {!
 This is alpha scene.
 
 - @alpha.one: Alpha subscene one.
--  view-if: {! return Q.foo >= 2 !}
+-  view-if: foo >= 2
 - @two
 -  title: Alpha subscene two.
 

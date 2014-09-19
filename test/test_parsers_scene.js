@@ -152,6 +152,15 @@
       });
     });
 
+    it("should cope with set root", function(done) {
+      var content = "title: My Title\nset-root: ok";
+      parse.parseFromContent("foo.scene.dry", content, function(err, result) {
+        noerr(err);
+        result.setRoot.should.be.true;
+        done();
+      });
+    });
+
     it("should parse priority and frequency", function(done) {
       var content = "title: My Title\npriority: 1.2\nfrequency: 1.2";
       parse.parseFromContent("foo.scene.dry", content, function(err, result) {

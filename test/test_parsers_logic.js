@@ -17,6 +17,7 @@
   };
 
   var logic = require('../lib/parsers/logic');
+  var engine = require('../lib/engine');
 
   describe("logic-compiler", function() {
 
@@ -26,10 +27,10 @@
       it("should compile a trivial predicate", function(done) {
         logic.compilePredicate('true', function(err, fn) {
           noerr(err);
-          var engine = {};
-          var state = {};
-          var Q = {};
-          fn(engine, state, Q).should.be.true;
+          var state = {
+            qualities: {}
+          };
+          engine.runPredicate(fn, false, {}, state).should.be.true;
           done();
         });
       });
@@ -37,10 +38,10 @@
       it("should default to 0 on unknown quality access", function(done) {
         logic.compilePredicate('foo = 0', function(err, fn) {
           noerr(err);
-          var engine = {};
-          var state = {};
-          var Q = {};
-          fn(engine, state, Q).should.be.true;
+          var state = {
+            qualities: {}
+          };
+          engine.runPredicate(fn, false, {}, state).should.be.true;
           done();
         });
       });
@@ -50,14 +51,14 @@
           'foo = 1 and (foo < bar or not foo > sun)',
           function(err, fn) {
             noerr(err);
-            var engine = {};
-            var state = {};
-            var Q = {
-              foo: 1,
-              bar: 1,
-              sun: 1
+            var state = {
+              qualities: {
+                foo: 1,
+                bar: 1,
+                sun: 1
+              }
             };
-            fn(engine, state, Q).should.be.true;
+            engine.runPredicate(fn, false, {}, state).should.be.true;
             done();
           });
       });
@@ -67,15 +68,14 @@
           'foo() = 2 and bar(3, 2) = 6',
           function(err, fn) {
             noerr(err);
-            var engine = {};
-            var state = {
-              functions: {
-                foo: function() { return 2; },
-                bar: function(a, b) { return a*b; }
-              }
+            var functions = {
+              foo: function() { return 2; },
+              bar: function(a, b) { return a*b; }
             };
-            var Q = {};
-            fn(engine, state, Q).should.be.true;
+            var state = {
+              qualities: {}
+            };
+            engine.runPredicate(fn, false, functions, state).should.be.true;
             done();
           });
       });
@@ -107,11 +107,12 @@
       it("should set qualities", function(done) {
         logic.compileActions('foo = 1', function(err, fn) {
           noerr(err);
-          var engine = {};
-          var state = {};
-          var Q = {};
-          fn(engine, state, Q);
-          Q.foo.should.equal(1);
+          var state = {
+            qualities: {}
+          };
+          engine.runActions([fn], {}, state);
+          console.log(state);
+          state.qualities.foo.should.equal(1);
           done();
         });
       });
@@ -119,11 +120,11 @@
       it("should allow multiple statements", function(done) {
         logic.compileActions('foo = 1; foo += 1;', function(err, fn) {
           noerr(err);
-          var engine = {};
-          var state = {};
-          var Q = {};
-          fn(engine, state, Q);
-          Q.foo.should.equal(2);
+          var state = {
+            qualities: {}
+          };
+          engine.runActions([fn], {}, state);
+          state.qualities.foo.should.equal(2);
           done();
         });
       });
@@ -131,11 +132,11 @@
       it("doesn't require terminal semicolon", function(done) {
         logic.compileActions('foo = 1; foo += 1', function(err, fn) {
           noerr(err);
-          var engine = {};
-          var state = {};
-          var Q = {};
-          fn(engine, state, Q);
-          Q.foo.should.equal(2);
+          var state = {
+            qualities: {}
+          };
+          engine.runActions([fn], {}, state);
+          state.qualities.foo.should.equal(2);
           done();
         });
       });
@@ -143,12 +144,12 @@
       it("should default to 0 on unknown quality modification", function(done) {
         logic.compileActions('bar *= 2; foo += 1;', function(err, fn) {
           noerr(err);
-          var engine = {};
-          var state = {};
-          var Q = {};
-          fn(engine, state, Q);
-          Q.bar.should.equal(0);
-          Q.foo.should.equal(1);
+          var state = {
+            qualities: {}
+          };
+          engine.runActions([fn], {}, state);
+          state.qualities.bar.should.equal(0);
+          state.qualities.foo.should.equal(1);
           done();
         });
       });

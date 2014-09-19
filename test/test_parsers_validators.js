@@ -380,7 +380,7 @@
           "{! return true; !}",
           function(err, result) {
             noerr(err);
-            result(null, null, null).should.be.true;
+            result(null, null).should.be.true;
             done();
           });
       });
@@ -428,7 +428,7 @@
           "true",
           function(err, result) {
             noerr(err);
-            result(null, null, null).should.be.true;
+            result(null, null).should.be.true;
             done();
           });
       });
@@ -440,7 +440,7 @@
           function(err, result) {
             noerr(err);
             var Q = {foo: 2};
-            result(null, null, Q).should.be.true;
+            result(null, Q).should.be.true;
             done();
           });
       });
@@ -458,7 +458,7 @@
             actions.length.should.equal(1);
 
             var Q = {foo:0};
-            actions[0](null, null, Q);
+            actions[0](null, Q);
             Q.foo.should.equal(1);
 
             done();
@@ -472,9 +472,9 @@
             noerr(err);
             actions.length.should.equal(2);
             var Q = {foo:0};
-            actions[0](null, null, Q);
+            actions[0](null, Q);
             Q.foo.should.equal(1);
-            actions[1](null, null, Q);
+            actions[1](null, Q);
             Q.foo.should.equal(3);
             done();
           });
@@ -511,11 +511,11 @@
             noerr(err);
             actions.length.should.equal(3);
             var Q = {foo:0};
-            actions[0](null, null, Q);
+            actions[0](null, Q);
             Q.foo.should.equal(1);
-            actions[1](null, null, Q);
+            actions[1](null, Q);
             Q.foo.should.equal(3);
-            actions[2](null, null, Q);
+            actions[2](null, Q);
             Q.foo.should.equal(6);
             done();
           });

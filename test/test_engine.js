@@ -137,6 +137,7 @@
       it("should start at an explicit scene, if given", function() {
         var game = {
           firstScene: "foo",
+          rootScene: "bar",
           scenes: {
             "root": {id: "root", content:"Root content"},
             "foo": {id: "foo", content:"Foo content",
@@ -147,6 +148,49 @@
         var dendryEngine = new engine.DendryEngine(ui, game);
         dendryEngine.beginGame();
         dendryEngine.getCurrentScene().id.should.equal('foo');
+        dendryEngine.state.rootSceneId.should.equal('bar');
+      });
+
+      it("should start at an explicit root, if given", function() {
+        var game = {
+          rootScene: "foo",
+          scenes: {
+            "root": {id: "root", content:"Root content"},
+            "foo": {id: "foo", content:"Foo content",
+                    options:[{id:"@root", title:"Root"}]}
+          }
+        };
+        var ui = new engine.NullUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame();
+        dendryEngine.getCurrentScene().id.should.equal('foo');
+        dendryEngine.state.rootSceneId.should.equal('foo');
+      });
+
+      it("should change root, if set-root is true", function() {
+        var game = {
+          scenes: {
+            "root": {
+              id: "root", content:"Root content",
+              options:[{id:"@foo", title:"Foo"}]
+            },
+            "foo": {
+              id: "foo", content:"Foo content", setRoot:true,
+              options:[{id:"@root", title:"Root"}]
+            }
+          }
+        };
+        var ui = new engine.NullUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame();
+        dendryEngine.getCurrentScene().id.should.equal('root');
+        dendryEngine.state.rootSceneId.should.equal('root');
+        dendryEngine.goToScene('foo');
+        dendryEngine.getCurrentScene().id.should.equal('foo');
+        dendryEngine.state.rootSceneId.should.equal('foo');
+        dendryEngine.goToScene('root');
+        dendryEngine.getCurrentScene().id.should.equal('root');
+        dendryEngine.state.rootSceneId.should.equal('foo');
       });
 
       it("should honor goto, if given", function() {
@@ -169,7 +213,7 @@
               id: "root", content:"Root content",
               goTo:[
                 {id:"foo",
-                 predicate: function(engine, state, Q) { return false; }},
+                 predicate: function(state, Q) { return false; }},
                 {id:"bar"}
               ]
             },
@@ -233,12 +277,8 @@
           dendryEngine.displaySceneContent();
           check(1,1,1, 1,2,0);
 
-          dendryEngine.goToScene(dendryEngine.getRootSceneId());
+          dendryEngine.goToScene('root');
           check(2,2,1, 1,2,1);
-
-          // Go to the scene without transitioning.
-          dendryEngine.goToScene('foo', true);
-          check(2,2,1, 1,3,1);
         });
 
       it("should not fail when errors are found in actions", function() {
@@ -673,11 +713,11 @@
             },
             "foo": {
               id: "foo",
-              viewIf: function(engine, state, Q) { return false; }
+              viewIf: function(state, Q) { return false; }
             },
             "bar": {
               id: "bar",
-              viewIf: function(engine, state, Q) { return true; }
+              viewIf: function(state, Q) { return true; }
             }
           }
         };
@@ -698,12 +738,12 @@
                 {
                   id:"@foo",
                   title:"To the Foo",
-                  viewIf: function(engine, state, Q) { return false; }
+                  viewIf: function(state, Q) { return false; }
                 },
                 {
                   id:"@bar",
                   title:"To the Bar",
-                  viewIf: function(engine, state, Q) { return true; }
+                  viewIf: function(state, Q) { return true; }
                 }
               ]
             },
