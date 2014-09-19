@@ -1,0 +1,5 @@
+name: The Quality Name
+initial: 5
+
+# We shouldn't see this line in the output.
+This is the description of this quality.

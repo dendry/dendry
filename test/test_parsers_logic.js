@@ -111,7 +111,6 @@
             qualities: {}
           };
           engine.runActions([fn], {}, state);
-          console.log(state);
           state.qualities.foo.should.equal(1);
           done();
         });

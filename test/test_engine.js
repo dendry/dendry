@@ -299,6 +299,25 @@
 
     // ---------------------------------------------------------------------
 
+    describe("qualities", function() {
+      it("should set initial qualities to state", function() {
+        var game = {
+          scenes: {
+            "root": {id: "root"}
+          },
+          initialQualities: {
+            foo: 10
+          }
+        };
+        var ui = new engine.NullUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame();
+        dendryEngine.state.qualities.foo.should.equal(10);
+      });
+    });
+
+    // ---------------------------------------------------------------------
+
     describe("actions", function() {
       it(
         "should call on-arrival, on-display and on-departure appropriately",

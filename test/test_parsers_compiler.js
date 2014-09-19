@@ -16,14 +16,36 @@
 
   describe("game compiler", function() {
 
-    describe("compiler", function() {
+    describe("scenes", function() {
+
+      it("should keep info properties", function(done) {
+        var info = {
+          title: "My Game",
+          author: "Jo Doe",
+          content: "A description of this game.",
+          firstScene: "root",
+          rootScene: "root"
+        };
+        var scenes = [
+          {id: "root", title:"The Root", content: "Root content"},
+          {id: "foo", title:"The Foo", content:"Foo content"}
+        ];
+        var qualities = [];
+        compiler.compile(info, scenes, qualities, function(err, game) {
+          (!!err).should.be.false;
+          game.content.should.equal(info.content);
+          game.firstScene.should.equal(info.firstScene);
+          game.rootScene.should.equal(info.rootScene);
+          done();
+        });
+      });
 
       it("should compile a simple two-scene game", function(done) {
         var info = {
           title: "My Game",
           author: "Jo Doe"
         };
-        var listOfScenes = [
+        var scenes = [
           {
             id: "root", title:"Back to root", content: "Root content",
             options:[{id:"@foo", title:"Foo link"}]
@@ -33,7 +55,8 @@
             options:[{id:"@foo", title:"Foo link"}]
           }
         ];
-        compiler.compile(info, listOfScenes, function(err, game) {
+        var qualities = [];
+        compiler.compile(info, scenes, qualities, function(err, game) {
           (!!err).should.be.false;
           game.scenes.foo.title.should.equal('The Foo');
           done();
@@ -45,7 +68,7 @@
           title: "My Game",
           author: "Jo Doe"
         };
-        var listOfScenes = [
+        var scenes = [
           {id: "root", title:"Back to root", content: "Root content",
            tags: ["alpha", "bravo"],
            sections: [
@@ -58,7 +81,8 @@
            options:[{id:"@foo", title:"Foo link"}]
            },
         ];
-        compiler.compile(info, listOfScenes, function(err, game) {
+        var qualities = [];
+        compiler.compile(info, scenes, qualities, function(err, game) {
           (!!err).should.be.false;
           game.tagLookup.alpha.should.eql({root: true, "root.foo": true});
           game.tagLookup.bravo.should.eql({root: true});
@@ -72,11 +96,12 @@
           title: "My Game",
           author: "Jo Doe"
         };
-        var listOfScenes = [
+        var scenes = [
           {id: "root", title:"Root", content: "Root."},
           {id: "root", title:"Root Two", content: "Root Two."},
         ];
-        compiler.compile(info, listOfScenes, function(err, game) {
+        var qualities = [];
+        compiler.compile(info, scenes, qualities, function(err, game) {
           (!!err).should.be.true;
           err.toString().should.equal(
             "Error: Duplicate scenes with id 'root' found.");
@@ -90,13 +115,14 @@
           title: "My Game",
           author: "Jo Doe"
         };
-        var listOfScenes = [
+        var scenes = [
           {id: "root.foo", title:"Explicit Root Foo", content: "Root Foo."},
           {id: "root", title:"Root", content: "Root.",
            sections: [{id: "foo", title:"Root Foo", content:"Root Foo."}],
           }
         ];
-        compiler.compile(info, listOfScenes, function(err, game) {
+        var qualities = [];
+        compiler.compile(info, scenes, qualities, function(err, game) {
           (!!err).should.be.true;
           err.toString().should.equal(
             "Error: Duplicate scenes with id 'root.foo' found.");
@@ -110,7 +136,7 @@
           title: "My Game",
           author: "Jo Doe"
         };
-        var listOfScenes = [
+        var scenes = [
           {id: "root", title:"Back to root", content: "Root content",
            tags: ["alpha", "bravo"],
            options:[{id:"@foo", title:"Foo link"}]
@@ -120,7 +146,8 @@
            options:[{id:"@foo", title:"Foo link"}]
            }
         ];
-        compiler.compile(info, listOfScenes, function(err, game) {
+        var qualities = [];
+        compiler.compile(info, scenes, qualities, function(err, game) {
           (!!err).should.be.false;
           game.tagLookup.alpha.should.eql({root: true, foo: true});
           game.tagLookup.bravo.should.eql({root: true});
@@ -130,17 +157,58 @@
       });
     });
 
+    // ----------------------------------------------------------------------
+
+    describe("qualities", function() {
+      it("should compile initial qualities data", function(done) {
+        var info = {title: "My Game", author: "Jo Doe"};
+        var scenes = [
+          {id: "root", title:"Root scene", content:"Root content"}
+        ];
+        var qualities = [
+          {id: "foo", initial: 10},
+          {id: "bar"} // No initial, shouldn't be set.
+        ];
+        compiler.compile(info, scenes, qualities, function(err, game) {
+          (!!err).should.be.false;
+          game.initialQualities.foo.should.equal(10);
+          (game.initialQualities.bar === undefined).should.be.true;
+          done();
+        });
+      });
+
+      it("should store qualities data", function(done) {
+        var info = {title: "My Game", author: "Jo Doe"};
+        var scenes = [
+          {id: "root", title:"Root scene", content:"Root content"}
+        ];
+        var qualities = [
+          {id: "foo"},
+          {id: "bar"} // No initial, shouldn't be set.
+        ];
+        compiler.compile(info, scenes, qualities, function(err, game) {
+          (!!err).should.be.false;
+          (!!game.qualities.foo).should.be.true;
+          (!!game.qualities.bar).should.be.true;
+          done();
+        });
+      });
+    });
+
+    // ----------------------------------------------------------------------
+
     describe("id modification", function() {
       it("should ensure sections are nested in their scene", function(done) {
         var info = {title: "My Game", author: "Jo Doe"};
-        var listOfScenes = [
+        var scenes = [
           {id: "root", title:"Root scene", content:"Root content",
            sections: [
              {id: "one", title:"One", content:"One."},
              {id: "two", title:"Two", content:"Two."},
            ]}
         ];
-        compiler.compile(info, listOfScenes, function(err, game) {
+        var qualities = [];
+        compiler.compile(info, scenes, qualities, function(err, game) {
           (!!err).should.be.false;
           (!!game.scenes.one).should.be.false;
           (!!game.scenes.two).should.be.false;
@@ -152,14 +220,15 @@
 
       it("should resolve id in goto", function(done) {
         var info = {title: "My Game", author: "Jo Doe"};
-        var listOfScenes = [
+        var scenes = [
           {id: "root", title:"Root scene", content:"Root content",
            sections: [
              {id: "root.one", title:"One", content:"One.", goTo:"two"},
              {id: "root.two", title:"Two", content:"Two."}
            ]}
         ];
-        compiler.compile(info, listOfScenes, function(err, game) {
+        var qualities = [];
+        compiler.compile(info, scenes, qualities, function(err, game) {
           (!!err).should.be.false;
           game.scenes["root.one"].goTo.should.equal("root.two");
           done();
@@ -168,7 +237,7 @@
 
       it("should resolve id in option", function(done) {
         var info = {title: "My Game", author: "Jo Doe"};
-        var listOfScenes = [
+        var scenes = [
           {id: "root", title:"Root scene", content:"Root content",
            sections: [
              {
@@ -178,7 +247,8 @@
              {id: "root.two", title:"Two", content:"Two."},
            ]}
         ];
-        compiler.compile(info, listOfScenes, function(err, game) {
+        var qualities = [];
+        compiler.compile(info, scenes, qualities, function(err, game) {
           (!!err).should.be.false;
           game.scenes["root.one"].options[0].id.
             should.equal("@root.two");
@@ -188,7 +258,7 @@
 
       it("should not a alter a tag in option", function(done) {
         var info = {title: "My Game", author: "Jo Doe"};
-        var listOfScenes = [
+        var scenes = [
           {id: "root", title:"Root scene", content:"Root content",
            sections: [
              {
@@ -198,7 +268,8 @@
              {id: "root.two", title:"Two", content:"Two."},
            ]}
         ];
-        compiler.compile(info, listOfScenes, function(err, game) {
+        var qualities = [];
+        compiler.compile(info, scenes, qualities, function(err, game) {
           (!!err).should.be.false;
           game.scenes["root.one"].options[0].id.should.equal("#tag");
           done();
@@ -207,14 +278,15 @@
 
       it("should use scene id as context in section option", function(done) {
         var info = {title: "My Game", author: "Jo Doe"};
-        var listOfScenes = [
+        var scenes = [
           {id: "root", title:"Root scene", content:"Root content",
            options: [{id:"@one", title:"One"}],
            sections: [
              {id: "root.one", title:"One", content:"One."}
            ]}
         ];
-        compiler.compile(info, listOfScenes, function(err, game) {
+        var qualities = [];
+        compiler.compile(info, scenes, qualities, function(err, game) {
           (!!err).should.be.false;
           game.scenes.root.options[0].id.should.equal("@root.one");
           done();
@@ -223,14 +295,15 @@
 
       it("should fail if there's no matching id in goto", function(done) {
         var info = {title: "My Game", author: "Jo Doe"};
-        var listOfScenes = [
+        var scenes = [
           {id: "root", title:"Root scene", content:"Root content",
            sections: [
              {id: "root.one", title:"One", content:"One.", goTo:"three"},
              {id: "root.two", title:"Two", content:"Two."}
            ]}
         ];
-        compiler.compile(info, listOfScenes, function(err, game) {
+        var qualities = [];
+        compiler.compile(info, scenes, qualities, function(err, game) {
           (!!err).should.be.true;
           err.toString().should.equal(
             "Error: Couldn't find an id matching 'three' in 'root.one'."
@@ -241,14 +314,15 @@
 
       it("should fail if there's no matching ancestor id", function(done) {
         var info = {title: "My Game", author: "Jo Doe"};
-        var listOfScenes = [
+        var scenes = [
           {id: "root", title:"Root scene", content:"Root content",
            sections: [
              {id: "root.one", title:"One", content:"One.", goTo:"..three"},
              {id: "root.two", title:"Two", content:"Two."}
            ]}
         ];
-        compiler.compile(info, listOfScenes, function(err, game) {
+        var qualities = [];
+        compiler.compile(info, scenes, qualities, function(err, game) {
           (!!err).should.be.true;
           err.toString().should.equal(
             "Error: Couldn't find an id matching '..three' in 'root.one'."
@@ -259,7 +333,7 @@
 
       it("should fail if there's no matching id in option", function(done) {
         var info = {title: "My Game", author: "Jo Doe"};
-        var listOfScenes = [
+        var scenes = [
           {id: "root", title:"Root scene", content:"Root content",
            sections: [
              {id: "root.one", title:"One", content:"One.",
@@ -267,7 +341,8 @@
              {id: "root.two", title:"Two", content:"Two."}
            ]}
         ];
-        compiler.compile(info, listOfScenes, function(err, game) {
+        var qualities = [];
+        compiler.compile(info, scenes, qualities, function(err, game) {
           (!!err).should.be.true;
           err.toString().should.equal(
             "Error: Couldn't find an id matching 'three' in 'root.one'."
@@ -278,14 +353,15 @@
 
       it("should pass on resolution errors", function(done) {
         var info = {title: "My Game", author: "Jo Doe"};
-        var listOfScenes = [
+        var scenes = [
           {id: "root", title:"Root scene", content:"Root content",
            sections: [
              {id: "root.one", title:"One", content:"One.", goTo:"....root"},
              {id: "root.two", title:"Two", content:"Two."}
            ]}
         ];
-        compiler.compile(info, listOfScenes, function(err, game) {
+        var qualities = [];
+        compiler.compile(info, scenes, qualities, function(err, game) {
           (!!err).should.be.true;
           err.toString().should.equal("Error: Context is not deep enough.");
           done();
@@ -293,6 +369,8 @@
       });
 
     }); // end id inheritance
+
+    // ----------------------------------------------------------------------
 
     describe("id resolution", function() {
       var ok = [
