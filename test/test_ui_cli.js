@@ -10,6 +10,7 @@
   var _ = require('lodash');
   var prompt = require('prompt');
   var assert = require('assert');
+  var fs = require('fs');
   var should = require('should');
   // Disable errors from using the should library.
   /*jshint -W030 */
@@ -148,7 +149,7 @@
       var game = getTestGame();
       var out = new OutputAccumulator();
       var pin = new PredeterminedInput([
-        {choice:'1'}, {choice:'d'}, {choice:'q'}
+        {choice:'1'}, {choice:'d'}, {filename:''}, {choice:'q'}
       ]);
       var clint =  new CLUserInterface(game, out, pin);
       clint.run(function(err) {
@@ -156,6 +157,68 @@
         var json = out.output[out.output.length-2];
         var state = JSON.parse(json);
         state.qualities.foo.should.equal(1);
+        done();
+      });
+    });
+
+    it("should run from dumped state", function(done) {
+      var game = getTestGame();
+      var out = new OutputAccumulator();
+      var pin = new PredeterminedInput([
+        {choice:'1'}, {choice:'d'}, {filename:''}, {choice:'q'}
+      ]);
+      var clint = new CLUserInterface(game, out, pin);
+      clint.run(function(err) {
+        (!!err).should.be.false;
+        var json = out.output[out.output.length-2];
+        var state = JSON.parse(json);
+
+        pin = new PredeterminedInput([{choice:'q'}]);
+        clint = new CLUserInterface(game, out, pin);
+        clint.run(state, function(err) {
+          (!!err).should.be.false;
+          clint.dendryEngine.state.qualities.foo.should.equal(1);
+          done();
+        });
+      });
+    });
+
+    it("should dump state to file", function(done) {
+      var tmp = '/tmp/test-dendry.state';
+      var game = getTestGame();
+      var out = new OutputAccumulator();
+      var pin = new PredeterminedInput([
+        {choice:'1'}, {choice:'d'},
+        {filename:tmp},
+        {choice:'q'}
+      ]);
+      var clint =  new CLUserInterface(game, out, pin);
+      clint.run(function(err) {
+        (!!err).should.be.false;
+        fs.readFile(tmp, function(err, json) {
+          (!!err).should.be.false;
+          var state = JSON.parse(json);
+          state.qualities.foo.should.equal(1);
+          done();
+        });
+      });
+    });
+
+    it("should report file errors", function(done) {
+      var tmp = '/';
+      var game = getTestGame();
+      var out = new OutputAccumulator();
+      var pin = new PredeterminedInput([
+        {choice:'1'}, {choice:'d'},
+        {filename:tmp}, {choice:'q'}
+      ]);
+      var clint =  new CLUserInterface(game, out, pin);
+      clint.run(function(err) {
+        (!!err).should.be.false;
+        out.output[out.output.length-3].should.match(/'\/'/);
+        out.output[out.output.length-2].should.match(
+          /State not dumped, continuing\./
+        );
         done();
       });
     });
