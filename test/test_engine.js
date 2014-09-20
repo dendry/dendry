@@ -24,8 +24,8 @@
     it("should allow game to be terminated", function() {
       var game = {
         scenes: {
-          "root": {id: "root", options:[{id:'@foo', title:'Foo'}]},
-          "foo": {id: "foo"}
+          "root": {id: "root", signal:"root-arrived", options:[{id:'@foo'}]},
+          "foo": {id: "foo", title:'Foo'}
         }
       };
       var ui = new engine.NullUserInterface();
@@ -1076,5 +1076,151 @@
         ui.content[1].should.equal("Bar content");
       });
     });
+
+    // ----------------------------------------------------------------------
+
+    describe("signals", function() {
+      var SignalTrackingUI = function() {
+        this.signalsReceived = [];
+      };
+      engine.UserInterface.makeParentOf(SignalTrackingUI);
+      SignalTrackingUI.prototype.signal = function(signal) {
+        this.signalsReceived.push(signal);
+      };
+
+      it("receives scene signal for first scene", function() {
+        var game = {
+          scenes: {
+            "root": {
+              id: "root",
+              signal: "root-arrived",
+              options:[{id:'@foo'}]
+            },
+            "foo": {id:"foo", title:"Foo"}
+          }
+        };
+        var ui = new SignalTrackingUI();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame();
+
+        ui.signalsReceived.length.should.equal(1);
+        ui.signalsReceived[0].should.equal('root-arrived');
+      });
+
+      it("receives scene signal on transition", function() {
+        var game = {
+          scenes: {
+            "root": {id: "root", signal:"root-arrived", options:[{id:'@foo'}]},
+            "foo": {id: "foo", signal:"foo-arrived", title:"Foo"}
+          }
+        };
+        var ui = new SignalTrackingUI();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame();
+        dendryEngine.goToScene('foo');
+        ui.signalsReceived.length.should.equal(2);
+        ui.signalsReceived[0].should.equal('root-arrived');
+        ui.signalsReceived[1].should.equal('foo-arrived');
+      });
+
+      it("receives scene signal on go-to transition", function() {
+        var game = {
+          scenes: {
+            "root": {id: "root", signal:"root-arrived", options:[{id:'@foo'}]},
+            "foo": {id: "foo", signal:"foo-arrived", title:"Foo",
+                    goTo:[{id:"bar"}]},
+            "bar": {id: "bar", signal:"bar-arrived"}
+          }
+        };
+        var ui = new SignalTrackingUI();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame();
+        dendryEngine.goToScene('foo');
+        ui.signalsReceived.length.should.equal(3);
+        ui.signalsReceived[0].should.equal('root-arrived');
+        ui.signalsReceived[1].should.equal('foo-arrived');
+        ui.signalsReceived[2].should.equal('bar-arrived');
+      });
+
+      it("receives quality change signal", function() {
+        var game = {
+          scenes: {
+            "root": {
+              id: "root",
+              onArrival: [function(state, Q) {
+                Q.foo = 1;
+              }],
+              options:[{id:'@foo'}]
+            },
+            "foo": {id:"foo", title:"Foo"}
+          },
+          qualities: {
+            "foo": {
+              signal: "foo-changed"
+            }
+          }
+        };
+        var ui = new SignalTrackingUI();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame();
+
+        ui.signalsReceived.length.should.equal(1);
+        ui.signalsReceived[0].should.equal('foo-changed');
+      });
+
+      it("receives quality change signal on initial value set", function() {
+        var game = {
+          scenes: {
+            "root": {
+              id: "root",
+              options:[{id:'@foo'}]
+            },
+            "foo": {id:"foo", title:"Foo"}
+          },
+          qualities: {
+            "foo": {
+              signal: "foo-changed",
+              initial: 10
+            }
+          }
+        };
+        var ui = new SignalTrackingUI();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame();
+
+        ui.signalsReceived.length.should.equal(1);
+        ui.signalsReceived[0].should.equal('foo-changed');
+      });
+
+      it("doesn't receive quality change signal if not changed", function() {
+        var game = {
+          scenes: {
+            "root": {
+              id: "root",
+              onArrival: [function(state, Q) {
+                Q.foo = 10;
+              }],
+              options:[{id:'@foo'}]
+            },
+            "foo": {id:"foo", title:"Foo"}
+          },
+          qualities: {
+            "foo": {
+              signal: "foo-changed",
+              initial: 10
+            }
+          }
+        };
+        var ui = new SignalTrackingUI();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame();
+
+        ui.signalsReceived.length.should.equal(1);
+        ui.signalsReceived[0].should.equal('foo-changed'); // from initial
+      });
+
+
+    }); // end describe signals
+
   });
 }());
