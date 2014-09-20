@@ -160,23 +160,6 @@
     // ----------------------------------------------------------------------
 
     describe("qualities", function() {
-      it("should compile initial qualities data", function(done) {
-        var info = {title: "My Game", author: "Jo Doe"};
-        var scenes = [
-          {id: "root", title:"Root scene", content:"Root content"}
-        ];
-        var qualities = [
-          {id: "foo", initial: 10},
-          {id: "bar"} // No initial, shouldn't be set.
-        ];
-        compiler.compile(info, scenes, qualities, function(err, game) {
-          (!!err).should.be.false;
-          game.initialQualities.foo.should.equal(10);
-          (game.initialQualities.bar === undefined).should.be.true;
-          done();
-        });
-      });
-
       it("should store qualities data", function(done) {
         var info = {title: "My Game", author: "Jo Doe"};
         var scenes = [
@@ -184,7 +167,7 @@
         ];
         var qualities = [
           {id: "foo"},
-          {id: "bar"} // No initial, shouldn't be set.
+          {id: "bar"}
         ];
         compiler.compile(info, scenes, qualities, function(err, game) {
           (!!err).should.be.false;

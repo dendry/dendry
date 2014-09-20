@@ -114,7 +114,7 @@
         dendryEngine.choose(0);
         dendryEngine.state.qualities.foo.should.equal(1);
         dendryEngine.getCurrentScene().id.should.equal('foo');
-        var state = dendryEngine.state;
+        var state = dendryEngine.getExportableState();
         dendryEngine.beginGame();
         dendryEngine.state.qualities.should.eql({});
         dendryEngine.getCurrentScene().id.should.equal('root');
@@ -146,7 +146,7 @@
         dendryEngine.state.qualities.foo.should.equal(1);
         dendryEngine.getCurrentScene().id.should.equal('foo');
         dendryEngine.isGameOver().should.be.true;
-        var state = dendryEngine.state;
+        var state = dendryEngine.getExportableState();
         dendryEngine.beginGame();
         dendryEngine.state.qualities.should.eql({});
         dendryEngine.getCurrentScene().id.should.equal('root');
@@ -305,14 +305,37 @@
           scenes: {
             "root": {id: "root"}
           },
-          initialQualities: {
-            foo: 10
+          qualities: {
+            foo: {initial:10}
           }
         };
         var ui = new engine.NullUserInterface();
         var dendryEngine = new engine.DendryEngine(ui, game);
         dendryEngine.beginGame();
         dendryEngine.state.qualities.foo.should.equal(10);
+      });
+
+      it("should honor minimum and maximum values", function() {
+        var game = {
+          scenes: {
+            "root": {
+              id: "root",
+              onArrival: [function(state, Q) {
+                Q.foo = 20;
+                Q.bar = -10;
+              }]
+            }
+          },
+          qualities: {
+            foo: {max: 15},
+            bar: {min: 0}
+          },
+        };
+        var ui = new engine.NullUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame();
+        dendryEngine.state.qualities.foo.should.equal(15);
+        dendryEngine.state.qualities.bar.should.equal(0);
       });
     });
 
