@@ -8,9 +8,15 @@
   "use strict";
 
   var _ = require('lodash');
+  var path = require('path');
   var should = require('should');
   // Disable errors from using the should library.
   /*jshint -W030 */
+
+  var noerr = function(err) {
+    if (err) console.trace(err);
+    (!!err).should.be.false;
+  };
 
   var compiler = require('../lib/parsers/compiler');
 
@@ -32,7 +38,7 @@
         ];
         var qualities = [];
         compiler.compile(info, scenes, qualities, function(err, game) {
-          (!!err).should.be.false;
+          noerr(err);
           game.content.should.equal(info.content);
           game.firstScene.should.equal(info.firstScene);
           game.rootScene.should.equal(info.rootScene);
@@ -57,7 +63,7 @@
         ];
         var qualities = [];
         compiler.compile(info, scenes, qualities, function(err, game) {
-          (!!err).should.be.false;
+          noerr(err);
           game.scenes.foo.title.should.equal('The Foo');
           done();
         });
@@ -83,7 +89,7 @@
         ];
         var qualities = [];
         compiler.compile(info, scenes, qualities, function(err, game) {
-          (!!err).should.be.false;
+          noerr(err);
           game.tagLookup.alpha.should.eql({root: true, "root.foo": true});
           game.tagLookup.bravo.should.eql({root: true});
           game.tagLookup.charlie.should.eql({"root.foo": true});
@@ -148,7 +154,7 @@
         ];
         var qualities = [];
         compiler.compile(info, scenes, qualities, function(err, game) {
-          (!!err).should.be.false;
+          noerr(err);
           game.tagLookup.alpha.should.eql({root: true, foo: true});
           game.tagLookup.bravo.should.eql({root: true});
           game.tagLookup.charlie.should.eql({foo: true});
@@ -170,7 +176,7 @@
           {id: "bar"}
         ];
         compiler.compile(info, scenes, qualities, function(err, game) {
-          (!!err).should.be.false;
+          noerr(err);
           (!!game.qualities.foo).should.be.true;
           (!!game.qualities.bar).should.be.true;
           done();
@@ -192,7 +198,7 @@
         ];
         var qualities = [];
         compiler.compile(info, scenes, qualities, function(err, game) {
-          (!!err).should.be.false;
+          noerr(err);
           (!!game.scenes.one).should.be.false;
           (!!game.scenes.two).should.be.false;
           (!!game.scenes["root.one"]).should.not.be.false;
@@ -212,7 +218,7 @@
         ];
         var qualities = [];
         compiler.compile(info, scenes, qualities, function(err, game) {
-          (!!err).should.be.false;
+          noerr(err);
           game.scenes["root.one"].goTo.should.equal("root.two");
           done();
         });
@@ -232,7 +238,7 @@
         ];
         var qualities = [];
         compiler.compile(info, scenes, qualities, function(err, game) {
-          (!!err).should.be.false;
+          noerr(err);
           game.scenes["root.one"].options[0].id.
             should.equal("@root.two");
           done();
@@ -253,7 +259,7 @@
         ];
         var qualities = [];
         compiler.compile(info, scenes, qualities, function(err, game) {
-          (!!err).should.be.false;
+          noerr(err);
           game.scenes["root.one"].options[0].id.should.equal("#tag");
           done();
         });
@@ -270,7 +276,7 @@
         ];
         var qualities = [];
         compiler.compile(info, scenes, qualities, function(err, game) {
-          (!!err).should.be.false;
+          noerr(err);
           game.scenes.root.options[0].id.should.equal("@root.one");
           done();
         });
@@ -396,6 +402,98 @@
         });
       });
     }); // end id resolution
+
+    // ----------------------------------------------------------------------
+
+    describe("compiling files", function() {
+      it("should compile a standard project directory", function(done) {
+        var diry = path.resolve(__dirname, "files", "test_game");
+        compiler.compileGame(diry, function(err, game) {
+          noerr(err);
+          game.title.should.equal('Test Game');
+          game.author.should.equal('Jo Doe');
+          var _;
+          var scenes = 0; for (_ in game.scenes) scenes++;
+          var qualities = 0; for (_ in game.qualities) qualities++;
+          scenes.should.equal(6);
+          qualities.should.equal(1);
+          done();
+        });
+      });
+
+      it("should load and save a game", function(done) {
+        var info = {
+          title: "My Game",
+          author: "Jo Doe"
+        };
+        var fn = function(state, Q) { Q.foo += 1; };
+        fn.source = "Q.foo += 1;";
+        var scenes = [
+          {
+            id: "root",
+            title:"The Root",
+            content: "Root content",
+            onArrival: [fn]
+          },
+          {id: "foo", title:"The Foo", content:"Foo content"}
+        ];
+        var qualities = [
+        ];
+        compiler.compile(info, scenes, qualities, function(err, game) {
+          noerr(err);
+          var filename = "/tmp/test-dendry.game";
+          compiler.saveCompiledGame(game, filename, function(err) {
+            noerr(err);
+            compiler.loadCompiledGame(filename, function(err, loaded) {
+              noerr(err);
+              // Function comparisons don't work without should.eql(),
+              // so compare them and delete them.
+              game.scenes.root.onArrival[0].source.should.equal(
+                loaded.scenes.root.onArrival[0].source
+              );
+              delete game.scenes.root.onArrival;
+              delete loaded.scenes.root.onArrival;
+              game.should.eql(loaded);
+              done();
+            });
+          });
+        });
+      });
+
+    }); // end describe loading/saving
+
+    // ----------------------------------------------------------------------
+
+    describe("directory walking", function() {
+      it("should return error from mid-walk", function(done) {
+        var diry = path.resolve(__dirname, "files", "test_game");
+        var count = 0;
+        var action = function(_, pathDone) {
+          if (++count > 2) {
+            pathDone(new Error("Too many files processed."));
+          } else {
+            pathDone();
+          }
+        };
+        compiler.walkDir(diry, {}, action, function(err) {
+          (!!err).should.be.true;
+          err.toString().should.equal("Error: Too many files processed.");
+          done();
+        });
+      });
+
+      it("should return error from dive", function(done) {
+        var diry = '/'+(new Date().getTime());
+        var action = function(_, pathDone) {
+          pathDone();
+        };
+        compiler.walkDir(diry, {}, action, function(err) {
+          (!!err).should.be.true;
+          err.toString().should.match(/Error: ENOENT/);
+          done();
+        });
+      });
+    }); // end describe walkDir
 
   });
 }());
