@@ -337,6 +337,55 @@
         dendryEngine.state.qualities.foo.should.equal(15);
         dendryEngine.state.qualities.bar.should.equal(0);
       });
+
+      it("should honor min and max after setting state", function() {
+        var game = {
+          scenes: {
+            "root": {
+              id: "root"
+            },
+            "bar": {
+              id: "bar",
+              onArrival: [function(state, Q) {
+                Q.foo = 20;
+                Q.bar = -10;
+              }]
+            }
+          },
+          qualities: {
+            foo: {max: 15},
+            bar: {min: 0}
+          },
+        };
+        var ui = new engine.NullUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame();
+        var state = dendryEngine.getExportableState();
+        var json = JSON.stringify(state);
+        state = JSON.parse(json);
+        dendryEngine.setState(state);
+        dendryEngine.goToScene('bar');
+        dendryEngine.state.qualities.foo.should.equal(15);
+        dendryEngine.state.qualities.bar.should.equal(0);
+      });
+
+
+      it("should prioritize min and max over initial value", function() {
+        var game = {
+          scenes: {
+            "root": {id: "root"}
+          },
+          qualities: {
+            foo: {max:15, initial:20},
+            bar: {min:0, initial:-10}
+          },
+        };
+        var ui = new engine.NullUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame();
+        dendryEngine.state.qualities.foo.should.equal(15);
+        dendryEngine.state.qualities.bar.should.equal(0);
+      });
     });
 
     // ---------------------------------------------------------------------
