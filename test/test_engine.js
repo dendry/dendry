@@ -369,7 +369,6 @@
         dendryEngine.state.qualities.bar.should.equal(0);
       });
 
-
       it("should prioritize min and max over initial value", function() {
         var game = {
           scenes: {
@@ -386,6 +385,30 @@
         dendryEngine.state.qualities.foo.should.equal(15);
         dendryEngine.state.qualities.bar.should.equal(0);
       });
+
+      it("should honor is-valid predicates", function() {
+        var game = {
+          scenes: {
+            "root": {
+              id: "root",
+              onArrival: [function(state, Q) {
+                Q.foo = 10;
+                Q.bar = 10;
+              }]
+            }
+          },
+          qualities: {
+            foo: {isValid:function(state, Q) { return false; }},
+            bar: {isValid:function(state, Q) { return true; }}
+          },
+        };
+        var ui = new engine.NullUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame();
+        (dendryEngine.state.qualities.foo === undefined).should.be.true;
+        dendryEngine.state.qualities.bar.should.equal(10);
+      });
+
     });
 
     // ---------------------------------------------------------------------
