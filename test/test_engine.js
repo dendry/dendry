@@ -1107,8 +1107,8 @@
         this.signalsReceived = [];
       };
       engine.UserInterface.makeParentOf(SignalTrackingUI);
-      SignalTrackingUI.prototype.signal = function(signal, data) {
-        this.signalsReceived.push(data);
+      SignalTrackingUI.prototype.signal = function(signal) {
+        this.signalsReceived.push(signal);
       };
 
       it("receives arrive and display signals for first scene", function() {
@@ -1127,8 +1127,8 @@
         dendryEngine.beginGame();
 
         ui.signalsReceived.should.eql([
-          {signal:"root-signal", type:"scene-arrival", id:"root"},
-          {signal:"root-signal", type:"scene-display", id:"root"}
+          {signal:"root-signal", event:"scene-arrival", id:"root"},
+          {signal:"root-signal", event:"scene-display", id:"root"}
         ]);
       });
 
@@ -1144,11 +1144,11 @@
         dendryEngine.beginGame();
         dendryEngine.goToScene('foo');
         ui.signalsReceived.should.eql([
-          {signal:'root-signal', type:'scene-arrival', id:'root'},
-          {signal:'root-signal', type:'scene-display', id:'root'},
-          {signal:'root-signal', type:'scene-departure', id:'root', to:'foo'},
-          {signal:'foo-signal', type:'scene-arrival', id:'foo', from:'root'},
-          {signal:'foo-signal', type:'scene-display', id:'foo'}
+          {signal:'root-signal', event:'scene-arrival', id:'root'},
+          {signal:'root-signal', event:'scene-display', id:'root'},
+          {signal:'root-signal', event:'scene-departure', id:'root', to:'foo'},
+          {signal:'foo-signal', event:'scene-arrival', id:'foo', from:'root'},
+          {signal:'foo-signal', event:'scene-display', id:'foo'}
         ]);
       });
 
@@ -1166,14 +1166,42 @@
         dendryEngine.beginGame();
         dendryEngine.goToScene('foo');
         ui.signalsReceived.should.eql([
-          {signal:'root-signal', type:'scene-arrival', id:'root'},
-          {signal:'root-signal', type:'scene-display', id:'root'},
-          {signal:'root-signal', type:'scene-departure', id:'root', to:'foo'},
-          {signal:'foo-signal', type:'scene-arrival', id:'foo', from:'root'},
-          {signal:'foo-signal', type:'scene-display', id:'foo'},
-          {signal:'foo-signal', type:'scene-departure', id:'foo', to:'bar'},
-          {signal:'bar-signal', type:'scene-arrival', id:'bar', from:'foo'},
-          {signal:'bar-signal', type:'scene-display', id:'bar'}
+          {signal:'root-signal', event:'scene-arrival', id:'root'},
+          {signal:'root-signal', event:'scene-display', id:'root'},
+          {signal:'root-signal', event:'scene-departure', id:'root', to:'foo'},
+          {signal:'foo-signal', event:'scene-arrival', id:'foo', from:'root'},
+          {signal:'foo-signal', event:'scene-display', id:'foo'},
+          {signal:'foo-signal', event:'scene-departure', id:'foo', to:'bar'},
+          {signal:'bar-signal', event:'scene-arrival', id:'bar', from:'foo'},
+          {signal:'bar-signal', event:'scene-display', id:'bar'}
+        ]);
+      });
+
+      it("receives global signal if scene signal is not defined", function() {
+        var game = {
+          sceneSignal: "global-signal",
+          scenes: {
+            "root": {
+              id: "root",
+              options:[{id:'@foo'}]
+            },
+            "foo": {
+              id:"foo", title:"Foo",
+              signal: "foo-signal"
+            }
+          }
+        };
+        var ui = new SignalTrackingUI();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame();
+        dendryEngine.goToScene('foo');
+        ui.signalsReceived.should.eql([
+          {signal:'global-signal', event:'scene-arrival', id:'root'},
+          {signal:'global-signal', event:'scene-display', id:'root'},
+          {signal:'global-signal', event:'scene-departure',
+           id:'root', to:'foo'},
+          {signal:'foo-signal', event:'scene-arrival', id:'foo', from:'root'},
+          {signal:'foo-signal', event:'scene-display', id:'foo'}
         ]);
       });
 
@@ -1198,10 +1226,36 @@
         var ui = new SignalTrackingUI();
         var dendryEngine = new engine.DendryEngine(ui, game);
         dendryEngine.beginGame();
-
-        ui.signalsReceived.length.should.equal(1);
         ui.signalsReceived.should.eql([
-          {signal:'foo-signal', type:'quality-change', id:'foo', now:1}
+          {signal:'foo-signal', event:'quality-change', id:'foo', now:1}
+        ]);
+      });
+
+      it("receives global signal if quality signal is not defined", function() {
+        var game = {
+          scenes: {
+            "root": {
+              id: "root",
+              options:[{id:'@foo'}]
+            },
+            "foo": {
+              id:"foo", title:"Foo"
+            }
+          },
+          qualitySignal: "global-signal",
+          qualities: {
+            "foo": {},
+            "bar": {signal: "bar-signal"}
+          }
+        };
+        var ui = new SignalTrackingUI();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame();
+        dendryEngine.state.qualities.foo = 10;
+        dendryEngine.state.qualities.bar = 10;
+        ui.signalsReceived.should.eql([
+          {signal:'global-signal', event:'quality-change', id:'foo', now:10},
+          {signal:'bar-signal', event:'quality-change', id:'bar', now:10}
         ]);
       });
 
@@ -1225,7 +1279,7 @@
         var dendryEngine = new engine.DendryEngine(ui, game);
         dendryEngine.beginGame();
         ui.signalsReceived.should.eql([
-          {signal:'foo-signal', type:'quality-change', id:'foo', now:10}
+          {signal:'foo-signal', event:'quality-change', id:'foo', now:10}
         ]);
       });
 
@@ -1252,7 +1306,7 @@
         var dendryEngine = new engine.DendryEngine(ui, game);
         dendryEngine.beginGame();
         ui.signalsReceived.should.eql([
-          {signal:'foo-signal', type:'quality-change', id:'foo', now:10}
+          {signal:'foo-signal', event:'quality-change', id:'foo', now:10}
         ]);
       });
 
@@ -1279,8 +1333,8 @@
         var dendryEngine = new engine.DendryEngine(ui, game);
         dendryEngine.beginGame();
         ui.signalsReceived.should.eql([
-          {signal:'foo-signal', type:'quality-change', id:'foo', now:5},
-          {signal:'foo-signal', type:'quality-change', id:'foo', now:10, was:5}
+          {signal:'foo-signal', event:'quality-change', id:'foo', now:5},
+          {signal:'foo-signal', event:'quality-change', id:'foo', now:10, was:5}
         ]);
       });
 
