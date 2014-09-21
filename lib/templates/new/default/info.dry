@@ -1,2 +1,2 @@
-title: "{{title}}"
-author: "{{author}}"
+title: {{title}}
+author: {{author}}

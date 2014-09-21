@@ -1,0 +1,11 @@
+title: Root Scene
+new-page: true
+
+This is the root scene of "{{title}}". The root scene is normally used
+as a hub: the choices allow you to go to different sections of your
+story. In shorter works it may just function as the first scene in the
+game, sending the player off into the tree of choices. If the root
+scene doesn't have any choices that it can display, the game is over.
+
+# Scenes with a top tag can be displayed here.
+- #top
