@@ -1,6 +1,11 @@
 title: The Game
 new-page: yes
 
-This is the game, and here are the choices of scenes for you.
+This is the test game. It isn't designed to be playable, but to
+include content that can be tested by the automated test framework. It
+displays a subset of Dendry functionality, and not a lot of
+explanation, other than this file.
+
+Here are the scenes:
 
 - #top
