@@ -1,4 +1,4 @@
-![Dendry](https://raw.githubusercontent.com/dendry/dendry/master/design/logo_64.png) Dendry
+![Dendry](http://dendry.org/img/logo_64.png) Dendry
 ======
 
 [![Build Status](https://travis-ci.org/dendry/dendry.svg?branch=master)](https://travis-ci.org/dendry/dendry)
