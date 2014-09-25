@@ -223,5 +223,152 @@
       });
     });
 
+    // ---------------------------------------------------------------------
+
+    describe("content output", function() {
+      it("should wrap text output", function() {
+        var game = getTestGame();
+        var out = new OutputAccumulator();
+        var clint =  new CLUserInterface(game, out);
+
+        clint.displayContent({chunks:[
+          {type:'paragraph',
+           content:["Two households, both alike in dignity, "+
+                    "in fair Verona where we lay our scene."]
+           }]}, 60);
+        var text = out.output[0];
+        text.should.equal(
+          "Two households, both alike in dignity, "+
+          "in fair Verona where\nwe lay our scene.\n"
+        );
+      });
+
+      it("should wrap simple output", function() {
+        var game = getTestGame();
+        var out = new OutputAccumulator();
+        var clint =  new CLUserInterface(game, out);
+
+        clint.displayContent("Two households, both alike in dignity, "+
+                             "in fair Verona where we lay our scene.", 60);
+        var text = out.output[0];
+        text.should.equal(
+          "Two households, both alike in dignity, "+
+          "in fair Verona where\nwe lay our scene.\n"
+        );
+      });
+
+      it("should bolden titles", function() {
+        var game = getTestGame();
+        var out = new OutputAccumulator();
+        var clint =  new CLUserInterface(game, out);
+
+        clint.displayContent({chunks:[
+          {type:'heading',
+           content:["The title."]
+           }]}, 60);
+        var text = out.output[0];
+        text.should.equal("The title.".bold + "\n");
+      });
+
+      it("should bolden strong emphasis", function() {
+        var game = getTestGame();
+        var out = new OutputAccumulator();
+        var clint =  new CLUserInterface(game, out);
+
+        clint.displayContent({chunks:[
+          {type:'emphasis-1',
+           content:["First."]},
+          {type:'emphasis-2',
+           content:["Second."]}
+        ]}, 60);
+        var text = out.output[0];
+        text.should.equal(" First.  "+"Second.".bold + " ");
+      });
+
+      it("should grey hidden text", function() {
+        var game = getTestGame();
+        var out = new OutputAccumulator();
+        var clint =  new CLUserInterface(game, out);
+
+        clint.displayContent({chunks:[
+          {type:'hidden',
+           content:["Hide me."]}
+        ]}, 60);
+        var text = out.output[0];
+        text.should.equal(" " + "Hide me.".grey + " ");
+      });
+
+      it("should separate paragraphs of different types", function() {
+        var game = getTestGame();
+        var out = new OutputAccumulator();
+        var clint =  new CLUserInterface(game, out);
+
+        clint.displayContent({chunks:[
+          {type:'heading',
+           content:["One."]},
+          {type:'paragraph',
+           content:["Two."]},
+          {type:'quotation',
+           content:["Three."]},
+          {type:'paragraph',
+           content:["Four."]},
+          {type:'attribution',
+           content:["Five."]},
+          {type:'paragraph',
+           content:["Six."]}
+        ]}, 60);
+        var text = out.output[0];
+        text.should.equal("One.".bold+"\n\nTwo.\n\n    Three.\n\n"+
+                          "Four.\n\n        Five.\n\nSix.\n");
+      });
+
+      it("should not separate quote and attribution", function() {
+        var game = getTestGame();
+        var out = new OutputAccumulator();
+        var clint =  new CLUserInterface(game, out);
+
+        clint.displayContent({chunks:[
+          {type:'quotation',
+           content:["Quote."]},
+          {type:'attribution',
+           content:["Byline."]}
+        ]}, 60);
+        var text = out.output[0];
+        text.should.equal("    Quote.\n        Byline.\n");
+      });
+
+      it("should separate hrule from both sides", function() {
+        var game = getTestGame();
+        var out = new OutputAccumulator();
+        var clint =  new CLUserInterface(game, out);
+
+        clint.displayContent({chunks:[
+          {type:'paragraph', content:["One."]},
+          {type:'hrule'},
+          {type:'paragraph', content:["Two."]}
+        ]}, 60);
+        var text = out.output[0];
+        text.should.equal("One.\n\n---\n\nTwo.\n");
+      });
+
+
+      it("should break lines where needed", function() {
+        var game = getTestGame();
+        var out = new OutputAccumulator();
+        var clint =  new CLUserInterface(game, out);
+
+        clint.displayContent({chunks:[
+          {type:'paragraph', content:[
+            "One.",
+            {type:'line-break'},
+            "Two."
+          ]}
+        ]}, 60);
+        var text = out.output[0];
+        text.should.equal("One.\nTwo.\n");
+      });
+
+    });
+
   });
 }());

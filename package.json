@@ -24,7 +24,8 @@
     "dive": "0.3.x",
     "browserify": "5.12.x",
     "uglify-js": "2.4.x",
-    "mkdirp": "0.5.x"
+    "mkdirp": "0.5.x",
+    "wordwrap": "0.0.x"
   },
   "devDependencies": {
     "mocha": "1.21.x",
