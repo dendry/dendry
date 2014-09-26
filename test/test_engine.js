@@ -978,7 +978,7 @@
         this.page = 0;
       };
       engine.UserInterface.makeParentOf(TestUserInterface);
-      TestUserInterface.prototype.displayContent = function(content) {
+      TestUserInterface.prototype.displayContent = function(content, preds) {
         this.content.push(content);
       };
       TestUserInterface.prototype.displayChoices = function(choices) {
@@ -1008,7 +1008,9 @@
 
         // We should have recieved one set of content, the root content.
         ui.content.length.should.equal(1);
-        ui.content[0].should.equal("This is the root content.");
+        ui.content[0].should.eql([
+          {type:'paragraph', content:["This is the root content."]}
+        ]);
 
         // We should have received one set of choices, and it should have one
         // choice.
@@ -1064,7 +1066,9 @@
         var dendryEngine = new engine.DendryEngine(ui, game);
         dendryEngine.beginGame().gameOver();
         ui.content.length.should.equal(1);
-        ui.content[0].should.equal("Game Over");
+        ui.content[0].should.eql(
+          [{type:'paragraph', content:["Game Over"]}]
+        );
       });
 
       it("displays game over scene content", function() {
@@ -1078,9 +1082,32 @@
         var dendryEngine = new engine.DendryEngine(ui, game);
         dendryEngine.beginGame().choose(0);
         ui.content.length.should.equal(2);
-        ui.content[0].should.equal("Foo content");
-        ui.content[1].should.equal("Game Over");
+        ui.content[0].should.eql([
+          {type:'paragraph', content:["Foo content"]}
+        ]);
+        ui.content[1].should.eql(
+          [{type:'paragraph', content:["Game Over"]}]
+        );
         dendryEngine.isGameOver().should.be.true;
+      });
+
+      it("displays pre-compiled scene content", function() {
+        var game = {
+          scenes: {
+            "root": {
+              id:"root",
+              content:{chunks:[
+                {type:'heading', content:["The title"]}
+              ]}
+            }
+          }
+        };
+        var ui = new TestUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame();
+        ui.content[0].should.eql([
+          {type:'heading', content:["The title"]}
+        ]);
       });
 
       it("displays content from scene with go-to", function() {
@@ -1095,8 +1122,12 @@
         var dendryEngine = new engine.DendryEngine(ui, game);
         dendryEngine.beginGame().choose(0);
         ui.content.length.should.equal(2);
-        ui.content[0].should.equal("Foo content");
-        ui.content[1].should.equal("Bar content");
+        ui.content[0].should.eql([
+          {type:'paragraph', content:["Foo content"]}
+        ]);
+        ui.content[1].should.eql([
+          {type:'paragraph', content:["Bar content"]}
+        ]);
       });
     });
 

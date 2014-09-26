@@ -129,7 +129,9 @@
         (!!err).should.be.false;
         result.chunks[0].content[0].content.length.should.equal(1);
         result.predicates.length.should.equal(1);
-        result.predicates[0].source.should.equal("var foo = '[*Not hidden*]';");
+        result.predicates[0].source.should.equal(
+          "var foo = '[*Not hidden*]';"
+        );
         done();
       });
     });
@@ -229,7 +231,6 @@
       var content = "one two three //\nfour five six";
       parse.compile(content, function(err, result) {
         (!!err).should.be.false;
-        console.log(JSON.stringify(result));
         result.should.eql({
           chunks: [
             {
