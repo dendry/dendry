@@ -15,7 +15,7 @@
 
   describe("content parser", function() {
 
-    it("should begin with plain text", function(done) {
+    it("should begin with paragraph text", function(done) {
       var content = "foo *bar*";
       parse.compile(content, function(err, result) {
         (!!err).should.be.false;
@@ -50,7 +50,88 @@
       });
     });
 
-    it("should build predicates", function(done) {
+    it("should allow overlapping elements", function(done) {
+      var content = "**foo *bar** sun*";
+      parse.compile(content, function(err, result) {
+        (!!err).should.be.false;
+        result.should.eql({
+          paragraphs: [
+            {
+              type:'paragraph',
+              content: [
+                {type:"emphasis-2", content:[
+                  "foo",
+                  {type:"emphasis-1", content:["bar"]}
+                ]},
+                {type:"emphasis-1", content:["sun"]}
+              ]
+            }
+          ]
+        });
+        done();
+      });
+    });
+
+    it("should reinstate ranges after paragraph break", function(done) {
+      var content = "**foo *bar\n\nsun* dock**";
+      parse.compile(content, function(err, result) {
+        (!!err).should.be.false;
+        result.should.eql({
+          paragraphs: [
+            {
+              type:'paragraph',
+              content: [
+                {type:"emphasis-2", content:[
+                  "foo",
+                  {type:"emphasis-1", content:["bar"]}
+                ]}
+              ]
+            },
+            {
+              type:'paragraph',
+              content: [
+                {type:"emphasis-2", content:[
+                  {type:"emphasis-1", content:["sun"]},
+                  "dock"
+                ]}
+              ]
+            }
+          ]
+        });
+        done();
+      });
+    });
+
+    it("should allow unterminated ranges", function(done) {
+      var content = "**foo *bar\n\nsun";
+      parse.compile(content, function(err, result) {
+        (!!err).should.be.false;
+        result.should.eql({
+          paragraphs: [
+            {
+              type:'paragraph',
+              content: [
+                {type:"emphasis-2", content:[
+                  "foo",
+                  {type:"emphasis-1", content:["bar"]}
+                ]}
+              ]
+            },
+            {
+              type:'paragraph',
+              content: [
+                {type:"emphasis-2", content:[
+                  {type:"emphasis-1", content:["sun"]}
+                ]}
+              ]
+            }
+          ]
+        });
+        done();
+      });
+    });
+
+    it("should build state-dependencies", function(done) {
       var content = "[? if foo > 1: first ?]"+
         "[? if {! return Q.foo === 1 !}: second ?]";
       parse.compile(content, function(err, result) {
