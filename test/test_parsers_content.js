@@ -20,7 +20,7 @@
       parse.compile(content, function(err, result) {
         (!!err).should.be.false;
         result.should.eql({
-          chunks: [
+          paragraphs: [
             {
               type:'paragraph',
               content: ["foo", {type:"emphasis-1", content:["bar"]}]
@@ -36,7 +36,7 @@
       parse.compile(content, function(err, result) {
         (!!err).should.be.false;
         result.should.eql({
-          chunks: [
+          paragraphs: [
             {
               type:'paragraph',
               content: [
@@ -55,9 +55,9 @@
         "[? if {! return Q.foo === 1 !}: second ?]";
       parse.compile(content, function(err, result) {
         (!!err).should.be.false;
-        result.predicates.length.should.equal(2);
-        result.predicates[0](null, {foo:1}).should.be.false;
-        result.predicates[1](null, {foo:1}).should.be.true;
+        result.stateDependencies.length.should.equal(2);
+        result.stateDependencies[0](null, {foo:1}).should.be.false;
+        result.stateDependencies[1](null, {foo:1}).should.be.true;
         done();
       });
     });
@@ -67,7 +67,7 @@
       parse.compile(content, function(err, result) {
         (!!err).should.be.false;
         result.should.eql({
-          chunks: [
+          paragraphs: [
             {
               type:'paragraph',
               content: [
@@ -92,7 +92,7 @@
       parse.compile(content, function(err, result) {
         (!!err).should.be.false;
         result.should.eql({
-          chunks: [
+          paragraphs: [
             {
               type:'paragraph',
               content: [
@@ -110,7 +110,7 @@
       parse.compile(content, function(err, result) {
         (!!err).should.be.false;
         result.should.eql({
-          chunks: [
+          paragraphs: [
             {
               type:'paragraph',
               content: [
@@ -127,9 +127,9 @@
       var content = "[? if {! var foo = '[*Not hidden*]'; !}: hi ?]";
       parse.compile(content, function(err, result) {
         (!!err).should.be.false;
-        result.chunks[0].content[0].content.length.should.equal(1);
-        result.predicates.length.should.equal(1);
-        result.predicates[0].source.should.equal(
+        result.paragraphs[0].content[0].content.length.should.equal(1);
+        result.stateDependencies.length.should.equal(1);
+        result.stateDependencies[0].source.should.equal(
           "var foo = '[*Not hidden*]';"
         );
         done();
@@ -141,7 +141,7 @@
       parse.compile(content, function(err, result) {
         (!!err).should.be.false;
         result.should.eql({
-          chunks: [
+          paragraphs: [
             {
               type: 'quotation',
               content: ['one two three four five six']
@@ -157,7 +157,7 @@
       parse.compile(content, function(err, result) {
         (!!err).should.be.false;
         result.should.eql({
-          chunks: [
+          paragraphs: [
             {
               type: 'attribution',
               content: ['one two three four five six']
@@ -173,7 +173,7 @@
       parse.compile(content, function(err, result) {
         (!!err).should.be.false;
         result.should.eql({
-          chunks: [
+          paragraphs: [
             {
               type: 'quotation',
               content: ['one two three']
@@ -193,7 +193,7 @@
       parse.compile(content, function(err, result) {
         (!!err).should.be.false;
         result.should.eql({
-          chunks: [
+          paragraphs: [
             {
               type: 'heading',
               content: ['one two three four five six']
@@ -209,7 +209,7 @@
       parse.compile(content, function(err, result) {
         (!!err).should.be.false;
         result.should.eql({
-          chunks: [
+          paragraphs: [
             {
               type: 'paragraph',
               content: ['one two three']
@@ -232,7 +232,7 @@
       parse.compile(content, function(err, result) {
         (!!err).should.be.false;
         result.should.eql({
-          chunks: [
+          paragraphs: [
             {
               type: 'paragraph',
               content: ['one two three', {type:'line-break'}, 'four five six']

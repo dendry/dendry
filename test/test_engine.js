@@ -1096,7 +1096,7 @@
           scenes: {
             "root": {
               id:"root",
-              content:{chunks:[
+              content:{paragraphs:[
                 {type:'heading', content:["The title"]}
               ]}
             }

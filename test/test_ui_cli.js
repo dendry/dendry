@@ -230,12 +230,13 @@
         var game = getTestGame();
         var out = new OutputAccumulator();
         var clint =  new CLUserInterface(game, out);
+        clint.defaultWidth = 60;
 
         clint.displayContent([
           {type:'paragraph',
            content:["Two households, both alike in dignity, "+
                     "in fair Verona where we lay our scene."]
-           }], [], 60);
+           }], []);
         var text = out.output[0];
         text.should.equal(
           "Two households, both alike in dignity, "+
@@ -247,11 +248,12 @@
         var game = getTestGame();
         var out = new OutputAccumulator();
         var clint =  new CLUserInterface(game, out);
+        clint.defaultWidth = 60;
 
         clint.displayContent([
           {type:'heading',
            content:["The title."]
-           }], [], 60);
+           }], []);
         var text = out.output[0];
         text.should.equal("The title.".bold + "\n");
       });
@@ -260,62 +262,79 @@
         var game = getTestGame();
         var out = new OutputAccumulator();
         var clint =  new CLUserInterface(game, out);
+        clint.defaultWidth = 60;
 
         clint.displayContent([
-          {type:'emphasis-1',
-           content:["First."]},
-          {type:'emphasis-2',
-           content:["Second."]}
-        ], [], 60);
+          {type:"paragraph",
+           content:[
+             {type:'emphasis-1',
+              content:["First."]},
+             {type:'emphasis-2',
+              content:["Second."]}
+           ]}
+        ], []);
         var text = out.output[0];
-        text.should.equal(" First.  "+"Second.".bold + " ");
+        text.should.equal("First. "+"Second.".bold + "\n");
       });
 
       it("should grey hidden text", function() {
         var game = getTestGame();
         var out = new OutputAccumulator();
         var clint =  new CLUserInterface(game, out);
+        clint.defaultWidth = 60;
 
         clint.displayContent([
-          {type:'hidden',
-           content:["Hide me."]}
-        ], [], 60);
+          {type:"paragraph",
+           content:[
+             {type:'hidden',
+              content:["Hide me."]}
+           ]}
+        ], []);
         var text = out.output[0];
-        text.should.equal(" " + "Hide me.".grey + " ");
+        text.should.equal("Hide me.".grey + "\n");
       });
 
       it("should include conditionals with passing predicates", function() {
         var game = getTestGame();
         var out = new OutputAccumulator();
         var clint =  new CLUserInterface(game, out);
+        clint.defaultWidth = 60;
 
         clint.displayContent([
-          {type:'conditional',
-           predicate: 0,
-           content:["Show me."]}
-        ], [true], 60);
+          {type:"paragraph",
+           content:[
+             {type:'conditional',
+              predicate: 0,
+              content:["Show me."]}
+           ]}
+        ], [true]);
         var text = out.output[0];
-        text.should.equal(" Show me. ");
+        text.should.equal("Show me." + "\n");
       });
 
       it("should elide conditionals with failing predicates", function() {
         var game = getTestGame();
         var out = new OutputAccumulator();
         var clint =  new CLUserInterface(game, out);
+        clint.defaultWidth = 60;
 
         clint.displayContent([
-          {type:'conditional',
-           predicate: 0,
-           content:["Hide me."]}
-        ], [false], 60);
+          {type:"paragraph",
+           content:[
+             {type:'conditional',
+              predicate: 0,
+              content:["Hide me."]}
+           ]}
+        ], [false]);
         var text = out.output[0];
-        text.should.equal("");
+        text.should.equal("\n");
       });
 
       it("should separate paragraphs of different types", function() {
         var game = getTestGame();
         var out = new OutputAccumulator();
         var clint =  new CLUserInterface(game, out);
+        clint.defaultWidth = 60;
 
         clint.displayContent([
           {type:'heading',
@@ -330,7 +349,7 @@
            content:["Five."]},
           {type:'paragraph',
            content:["Six."]}
-        ], [], 60);
+        ], []);
         var text = out.output[0];
         text.should.equal("One.".bold+"\n\nTwo.\n\n    Three.\n\n"+
                           "Four.\n\n        Five.\n\nSix.\n");
@@ -340,13 +359,14 @@
         var game = getTestGame();
         var out = new OutputAccumulator();
         var clint =  new CLUserInterface(game, out);
+        clint.defaultWidth = 60;
 
         clint.displayContent([
           {type:'quotation',
            content:["Quote."]},
           {type:'attribution',
            content:["Byline."]}
-        ], [], 60);
+        ], []);
         var text = out.output[0];
         text.should.equal("    Quote.\n        Byline.\n");
       });
@@ -355,12 +375,13 @@
         var game = getTestGame();
         var out = new OutputAccumulator();
         var clint =  new CLUserInterface(game, out);
+        clint.defaultWidth = 60;
 
         clint.displayContent([
           {type:'paragraph', content:["One."]},
           {type:'hrule'},
           {type:'paragraph', content:["Two."]}
-        ], [], 60);
+        ], []);
         var text = out.output[0];
         text.should.equal("One.\n\n---\n\nTwo.\n");
       });
@@ -370,6 +391,7 @@
         var game = getTestGame();
         var out = new OutputAccumulator();
         var clint =  new CLUserInterface(game, out);
+        clint.defaultWidth = 60;
 
         clint.displayContent([
           {type:'paragraph', content:[
@@ -377,7 +399,7 @@
             {type:'line-break'},
             "Two."
           ]}
-        ], [], 60);
+        ], []);
         var text = out.output[0];
         text.should.equal("One.\nTwo.\n");
       });
@@ -389,10 +411,12 @@
           scenes: {
             "root": {
               id:"root",
-              content:{chunks:[
-                {type:'conditional', predicate:0, content:["Show me"]},
-                {type:'conditional', predicate:1, content:["Hide me"]}
-              ], predicates:[
+              content:{paragraphs:[
+                {type:'paragraph', content:[
+                  {type:'conditional', predicate:0, content:["Show me."]},
+                  {type:'conditional', predicate:1, content:["Hide me."]}
+                ]}
+              ], stateDependencies:[
                 function(state, Q) { return true; },
                 function(state, Q) { return false; }
               ]}
@@ -402,11 +426,10 @@
         var out = new OutputAccumulator();
         var clint =  new CLUserInterface(game, out);
         clint.dendryEngine.beginGame();
-        out.output[4].should.eql(" Show me ");
+        out.output[4].should.eql("Show me.\n");
       });
 
-
-    });
+    }); // end describe
 
   });
 }());
