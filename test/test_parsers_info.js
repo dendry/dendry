@@ -32,7 +32,9 @@
       var content = "title: My Title\nauthor: Jo Doe\n@bar";
       parse.parseFromContent("info.dry", content, function(err, result) {
         (!!err).should.be.true;
-        err.toString().should.equal("Error: Unknown properties: 'sections'.");
+        err.toString().should.equal(
+          "Error: info.dry: Unknown properties: 'sections'."
+        );
         (result === undefined).should.be.true;
         done();
       });
@@ -54,7 +56,7 @@
       parse.parseFromContent("info.dry", content, function(err, result) {
         (!!err).should.be.true;
         err.toString().should.equal(
-          "Error: Required property 'author' missing.");
+          "Error: info.dry: Required property 'author' missing.");
         (result === undefined).should.be.true;
         done();
       });
@@ -65,7 +67,7 @@
       parse.parseFromContent("info.dry", content, function(err, result) {
         (!!err).should.be.true;
         err.toString().should.equal(
-          "Error: Unknown properties: 'label' (info.dry line 3).");
+          "Error: info.dry: Unknown properties: 'label' (info.dry line 3).");
         (result === undefined).should.be.true;
         done();
       });
@@ -121,7 +123,7 @@
       parse.parseFromContent("foo.info.dry", content, function(err, result) {
         (!!err).should.be.true;
         err.toString().should.equal(
-          "Error: Unknown properties: 'options'.");
+          "Error: foo.info.dry: Unknown properties: 'options'.");
         (result === undefined).should.be.true;
         done();
       });

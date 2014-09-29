@@ -861,7 +861,7 @@
             },
             "foo": {
               id: "foo",
-              maxVisits: 1,
+              maxVisits: 2, countVisits: true,
               options:[
                 {id:"@root", title:"Back to the Root"}
               ]
@@ -877,6 +877,9 @@
         var ui = new engine.NullUserInterface();
         var dendryEngine = new engine.DendryEngine(ui, game);
         dendryEngine.beginGame();
+        dendryEngine.getCurrentScene().id.should.equal('root');
+        dendryEngine.getCurrentChoices().length.should.equal(2);
+        dendryEngine.choose(0).choose(0);
         dendryEngine.getCurrentScene().id.should.equal('root');
         dendryEngine.getCurrentChoices().length.should.equal(2);
         dendryEngine.choose(0).choose(0);
@@ -953,7 +956,7 @@
             },
             "foo": {
               id: "foo",
-              maxVisits: 1,
+              maxVisits: 1, countVisits: true,
               options:[
                 {id:"@root", title:"Back to the Root"}
               ]

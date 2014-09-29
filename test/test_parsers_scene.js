@@ -59,7 +59,7 @@
       parse.parseFromContent("foo.dry", content, function(err, result) {
         (!!err).should.be.true;
         err.toString().should.equal(
-          "Error: Required property 'type' missing.");
+          "Error: foo.dry: Required property 'type' missing.");
         (result === undefined).should.be.true;
         done();
       });
@@ -70,7 +70,8 @@
       parse.parseFromContent("foo.scene.dry", content, function(err, result) {
         (!!err).should.be.true;
         err.toString().should.equal(
-          "Error: Unknown properties: 'label' (foo.scene.dry line 2).");
+          "Error: foo.scene.dry: Unknown properties: 'label' "+
+          "(foo.scene.dry line 2).");
         (result === undefined).should.be.true;
         done();
       });
@@ -93,6 +94,18 @@
         (!!err).should.be.true;
         err.toString().should.equal(
           "Error: foo.scene.dry line 2: Tag 1 '$nope' is not valid.");
+        (result === undefined).should.be.true;
+        done();
+      });
+    });
+
+    it("maxVisits requires countVisits", function(done) {
+      var content = "title: My Title\nmax-visits: 1\ncount-visits: no";
+      parse.parseFromContent("foo.scene.dry", content, function(err, result) {
+        (!!err).should.be.true;
+        err.toString().should.equal(
+          "Error: foo.scene.dry: "+
+          "Cannot disable count-visits when max-visits is set.");
         (result === undefined).should.be.true;
         done();
       });
@@ -192,7 +205,7 @@
             title: "The Bar Scene",
             content: "This is section 'bar'.",
             goTo: [{id:"foo"}],
-            maxVisits: 1,
+            maxVisits: 1, countVisits: true,
             options: [{id:"@foo", title:"Return to foo."}]
           }]
         });

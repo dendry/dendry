@@ -64,7 +64,7 @@
       parse.parseFromContent("foo.dry", content, function(err, result) {
         (!!err).should.be.true;
         err.toString().should.equal(
-          "Error: Required property 'type' missing.");
+          "Error: foo.dry: Required property 'type' missing.");
         (result === undefined).should.be.true;
         done();
       });
@@ -75,7 +75,8 @@
       parse.parseFromContent("foo.quality.dry", content, function(err, result) {
         (!!err).should.be.true;
         err.toString().should.equal(
-          "Error: Unknown properties: 'label' (foo.quality.dry line 2).");
+          "Error: foo.quality.dry: Unknown properties: 'label' "+
+          "(foo.quality.dry line 2).");
         (result === undefined).should.be.true;
         done();
       });
@@ -86,7 +87,7 @@
       parse.parseFromContent("foo.quality.dry", content, function(err, result) {
         (!!err).should.be.true;
         err.toString().should.equal(
-          "Error: Unknown properties: 'sections'.");
+          "Error: foo.quality.dry: Unknown properties: 'sections'.");
         (result === undefined).should.be.true;
         done();
       });
@@ -97,7 +98,7 @@
       parse.parseFromContent("foo.quality.dry", content, function(err, result) {
         (!!err).should.be.true;
         err.toString().should.equal(
-          "Error: Unknown properties: 'options'.");
+          "Error: foo.quality.dry: Unknown properties: 'options'.");
         (result === undefined).should.be.true;
         done();
       });
