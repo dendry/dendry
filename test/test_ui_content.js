@@ -37,17 +37,30 @@
         text.should.equal("The title.".bold + "\n");
       });
 
-      it("should bolden strong emphasis", function() {
+      it("should bolden level 2 emphasis", function() {
         var text = toText.convert([
           {type:"paragraph",
            content:[
              {type:'emphasis-1',
               content:["First."]},
+             ' ',
              {type:'emphasis-2',
               content:["Second."]}
            ]}
         ], [], 60);
         text.should.equal("First. "+"Second.".bold + "\n");
+      });
+
+      it("should not add extra spaces after end of emphasis", function() {
+        var text = toText.convert([
+          {type:"paragraph",
+           content:[
+             {type:'emphasis-1',
+              content:["Foo"]},
+             "."
+           ]}
+        ], [], 60);
+        text.should.equal("Foo.\n");
       });
 
       it("should grey hidden text", function() {
@@ -70,7 +83,7 @@
               content:["Show me."]}
            ]}
         ], [true], 60);
-        text.should.equal("Show me." + "\n");
+        text.should.equal("Show me.\n");
       });
 
       it("should elide conditionals with failing predicates", function() {
@@ -154,11 +167,24 @@
            content:[
              {type:'emphasis-1',
               content:["First."]},
+             " ",
              {type:'emphasis-2',
               content:["Second."]}
            ]}
         ], [], 60);
         text.should.equal("<p><em>First.</em> <strong>Second.</strong></p>");
+      });
+
+      it("should not add extra spaces after end of emphasis", function() {
+        var text = toHTML.convert([
+          {type:"paragraph",
+           content:[
+             {type:'emphasis-1',
+              content:["Foo"]},
+             "."
+           ]}
+        ], []);
+        text.should.equal("<p><em>Foo</em>.</p>");
       });
 
       it("should wrap hidden text in span", function() {
@@ -235,7 +261,7 @@
             "Two."
           ]}
         ], []);
-        text.should.equal("<p>One. <br> Two.</p>");
+        text.should.equal("<p>One.<br>Two.</p>");
       });
 
     }); // end text output

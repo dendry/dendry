@@ -23,7 +23,7 @@
           paragraphs: [
             {
               type:'paragraph',
-              content: ["foo", {type:"emphasis-1", content:["bar"]}]
+              content: ["foo ", {type:"emphasis-1", content:["bar"]}]
             }
           ]
         });
@@ -41,6 +41,7 @@
               type:'paragraph',
               content: [
                 {type:"emphasis-1", content:["foo"]},
+                " ",
                 {type:"emphasis-1", content:["bar"]}
               ]
             }
@@ -60,10 +61,10 @@
               type:'paragraph',
               content: [
                 {type:"emphasis-2", content:[
-                  "foo",
+                  "foo ",
                   {type:"emphasis-1", content:["bar"]}
                 ]},
-                {type:"emphasis-1", content:["sun"]}
+                {type:"emphasis-1", content:[" sun"]}
               ]
             }
           ]
@@ -82,7 +83,7 @@
               type:'paragraph',
               content: [
                 {type:"emphasis-2", content:[
-                  "foo",
+                  "foo ",
                   {type:"emphasis-1", content:["bar"]}
                 ]}
               ]
@@ -92,7 +93,7 @@
               content: [
                 {type:"emphasis-2", content:[
                   {type:"emphasis-1", content:["sun"]},
-                  "dock"
+                  " dock"
                 ]}
               ]
             }
@@ -112,7 +113,7 @@
               type:'paragraph',
               content: [
                 {type:"emphasis-2", content:[
-                  "foo",
+                  "foo ",
                   {type:"emphasis-1", content:["bar"]}
                 ]}
               ]
@@ -155,9 +156,9 @@
                 {
                   type:'emphasis-1',
                   content:[
-                    "first",
+                    "first ",
                     {type:"emphasis-2", content:["second level"]},
-                    "more first"
+                    " more first"
                   ]
                 }
               ]
@@ -257,7 +258,7 @@
           paragraphs: [
             {
               type: 'quotation',
-              content: ['one two three']
+              content: ['one two three '] // All whitespace becomes spaces.
             },
             {
               type: 'attribution',
@@ -316,7 +317,7 @@
           paragraphs: [
             {
               type: 'paragraph',
-              content: ['one two three', {type:'line-break'}, 'four five six']
+              content: ['one two three ', {type:'line-break'}, 'four five six']
             },
           ]
         });
