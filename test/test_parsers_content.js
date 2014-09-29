@@ -258,7 +258,7 @@
           paragraphs: [
             {
               type: 'quotation',
-              content: ['one two three '] // All whitespace becomes spaces.
+              content: ['one two three']
             },
             {
               type: 'attribution',
