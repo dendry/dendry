@@ -29,7 +29,6 @@
       var count = enumerate.countStates(game, 1000);
       count.states.should.equal(2);
       count.hasReachedSearchLimit.should.be.false;
-      count.gameOverStates.should.equal(0);
     });
 
     it("should not double count scenes reachable in two ways", function() {
@@ -109,6 +108,23 @@
       count.states.should.equal(21);
     });
 
+    it("should return one state per quality value up to max", function() {
+      var game = {
+        scenes: {
+          "root": {id: "root", options:[{id:'@foo'}]},
+          "foo": {id: "foo", title:'Foo', onArrival:[
+            function(state, Q) { Q.foo += 1; }
+          ]}
+        },
+        qualities: {
+          foo: {initial: 1, max: 10}
+        }
+      };
+      var count = enumerate.countStates(game, 1000);
+      count.hasReachedSearchLimit.should.be.false;
+      count.states.should.equal(19);
+    });
+
     it("should return the limit if the state is unbounded", function() {
       var game = {
         scenes: {
@@ -123,5 +139,6 @@
       count.hasReachedSearchLimit.should.be.true;
       count.states.should.equal(500);
     });
+
   });
 }());

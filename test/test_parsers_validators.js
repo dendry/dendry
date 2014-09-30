@@ -659,6 +659,31 @@
         });
       });
 
+      it("calls the clean function, if defined", function(done) {
+        var schema = {
+          $clean: function(object, callback) {
+            try {
+              object.foo.should.equal('foo');
+              object.bar.should.equal('bar');
+            } catch(err) {
+              return callback(err);
+            }
+            return callback(null, object);
+          },
+          foo: {required:true, validate:null},
+          bar: {required:true, validate:null}
+        };
+        var content = {
+          foo: 'foo',
+          bar: 'bar'
+        };
+        var ensure = validators.makeEnsureObjectMatchesSchema(schema);
+        ensure(content, function(err, result) {
+          noerr(err);
+          done();
+        });
+      });
+
       it("should include line number in error, if available", function(done) {
         var schema = {
           foo: {required:true, validate:null},

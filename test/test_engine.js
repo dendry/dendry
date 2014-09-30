@@ -300,7 +300,7 @@
     // ---------------------------------------------------------------------
 
     describe("qualities", function() {
-      it("should set initial qualities to state", function() {
+      it("should set initial qualities", function() {
         var game = {
           scenes: {
             "root": {id: "root"}
@@ -313,6 +313,50 @@
         var dendryEngine = new engine.DendryEngine(ui, game);
         dendryEngine.beginGame();
         dendryEngine.state.qualities.foo.should.equal(10);
+      });
+
+      it("should not override with initial value", function() {
+        var game = {
+          scenes: {
+            "root": {id: "root", options:[{id:'@foo'}]},
+            "foo": {id: "foo", title:'Foo', onArrival:[
+              function(state, Q) { Q.foo += 1; }
+            ]}
+          },
+          qualities: {
+            foo: {initial:10}
+          }
+        };
+        var ui = new engine.NullUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame().choose(0);
+        var state = _.cloneDeep(dendryEngine.getExportableState());
+        dendryEngine.setState(state).choose(0);
+        dendryEngine.state.qualities.foo.should.equal(11);
+      });
+
+      it("should not override quality with limits", function() {
+        // Regression test. The bug occurred when trying to augment
+        // the quality list with accessors (only need if
+        // min/max/signal/predicate are defined). The engine
+        // mistakenly thought the value was undefined.
+        var game = {
+          scenes: {
+            "root": {id: "root", options:[{id:'@foo'}]},
+            "foo": {id: "foo", title:'Foo', onArrival:[
+              function(state, Q) { Q.foo += 1; }
+            ]}
+          },
+          qualities: {
+            foo: {initial:10, max:20}
+          }
+        };
+        var ui = new engine.NullUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame().choose(0);
+        var state = _.cloneDeep(dendryEngine.getExportableState());
+        dendryEngine.setState(state).choose(0);
+        dendryEngine.state.qualities.foo.should.equal(11);
       });
 
       it("should honor minimum and maximum values", function() {
