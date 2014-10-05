@@ -18,7 +18,6 @@
   };
 
   var parse = require('../lib/parsers/dry');
-  var propval = parse.propval;
 
   describe("dry-parser", function() {
     var parseFromContent = parse.parseFromContent;
@@ -38,8 +37,7 @@
       it("sets the id", function(done) {
         parseFromContent("test.dry", "prop: foo", function(err, result) {
           noerr(err);
-          result = propval(result);
-          propval(result.id).should.equal('test');
+          result.id.should.equal('test');
           done();
         });
       });
@@ -48,8 +46,7 @@
         parseFromContent(
           "foo.bar.type.dry", "prop: foo", function(err, result) {
             noerr(err);
-            result = propval(result);
-            propval(result.id).should.equal('foo.bar');
+            result.id.should.equal('foo.bar');
             done();
           });
       });
@@ -57,9 +54,8 @@
       it("sets the type, if given", function(done) {
         parseFromContent("test.type.dry", "prop: foo", function(err, result) {
           noerr(err);
-          result = propval(result);
-          propval(result.id).should.equal('test');
-          propval(result.type).should.equal('type');
+          result.id.should.equal('test');
+          result.type.should.equal('type');
           done();
         });
       });
@@ -67,8 +63,7 @@
       it("should not set the type, if not given", function(done) {
         parseFromContent("test.dry", "prop: foo", function(err, result) {
           noerr(err);
-          result = propval(result);
-          propval(result.id).should.equal('test');
+          result.id.should.equal('test');
           (result.type === undefined).should.be.true;
           done();
         });
@@ -79,9 +74,8 @@
           "/tmp/foo/test.type.dry", "prop: foo",
           function(err, result) {
             noerr(err);
-            result = propval(result);
-            propval(result.id).should.equal('test');
-            propval(result.type).should.equal('type');
+            result.id.should.equal('test');
+            result.type.should.equal('type');
             done();
           });
       });
@@ -89,9 +83,8 @@
       it("copes with any extension", function(done) {
         parseFromContent("test.type.bar", "prop: foo", function(err, result) {
           noerr(err);
-          result = propval(result);
-          propval(result.id).should.equal('test');
-          propval(result.type).should.equal('type');
+          result.id.should.equal('test');
+          result.type.should.equal('type');
           done();
         });
       });
@@ -141,8 +134,7 @@
       it("allow type to be set if not inferred", function(done) {
         parseFromContent("test.dry", "type: foo", function(err, result) {
           noerr(err);
-          result = propval(result);
-          propval(result.type).should.equal('foo');
+          result.type.should.equal('foo');
           done();
         });
       });
@@ -152,9 +144,8 @@
           "test.dry", "prop-one: foo\nprop-two:\tbar",
           function(err, result){
             noerr(err);
-            result = propval(result);
-            propval(result.propOne).should.equal('foo');
-            propval(result.propTwo).should.equal('bar');
+            result.propOne.should.equal('foo');
+            result.propTwo.should.equal('bar');
             done();
           });
       });
@@ -162,8 +153,7 @@
       it("allow a property to be split over two lines", function(done) {
         parseFromContent("test.dry", "prop: foo\n\tbar", function(err, result){
           noerr(err);
-          result = propval(result);
-          propval(result.prop).should.equal('foo bar');
+          result.prop.should.equal('foo bar');
           done();
         });
       });
@@ -173,32 +163,30 @@
           "test.dry", "prop: foo\n\tbar\n  sun",
           function(err, result) {
             noerr(err);
-            result = propval(result);
-            propval(result.prop).should.equal('foo bar sun');
+            result.prop.should.equal('foo bar sun');
             done();
           });
       });
 
       it("should not allow interspersed non-conforming content",
-        function(done) {
-          parseFromContent(
-            "test.dry", "prop: A\nbar\nprop2: B",
-            function(err, result) {
-              (!!err).should.be.true;
-              err.toString().should.equal(
-                "Error: test.dry line 2: Invalid property definition."
-              );
-              (result === undefined).should.be.true;
-              done();
-            });
-        });
+         function(done) {
+           parseFromContent(
+             "test.dry", "prop: A\nbar\nprop2: B",
+             function(err, result) {
+               (!!err).should.be.true;
+               err.toString().should.equal(
+                 "Error: test.dry line 2: Invalid property definition."
+               );
+               (result === undefined).should.be.true;
+               done();
+             });
+         });
 
       it("should be terminated by a blank line", function(done) {
         parseFromContent("test.dry", "prop: foo\n\nbar", function(err, result){
           noerr(err);
-          result = propval(result);
-          propval(result.prop).should.equal('foo');
-          propval(result.content).should.equal('bar');
+          result.prop.should.equal('foo');
+          result.content.should.equal('bar');
           done();
         });
       });
@@ -206,8 +194,7 @@
       it("can be skipped with an initial blank line", function(done) {
         parseFromContent("test.dry", "\nbar", function(err, result) {
           noerr(err);
-          result = propval(result);
-          propval(result.content).should.equal('bar');
+          result.content.should.equal('bar');
           done();
         });
       });
@@ -220,9 +207,8 @@
         var content = "foo: {! return true; !}\nbar: 2";
         parseFromContent("test.dry", content, function(err, result) {
           noerr(err);
-          result = propval(result);
-          propval(result.foo).should.equal("{! return true; !}");
-          propval(result.bar).should.equal("2");
+          result.foo.should.equal("{! return true; !}");
+          result.bar.should.equal("2");
           done();
         });
       });
@@ -232,9 +218,8 @@
         parseFromContent("test.dry", content, function(err, result) {
           if (err) console.error(err);
           noerr(err);
-          result = propval(result);
-          propval(result.foo).should.equal("{!\nreturn true;\n!}");
-          propval(result.bar).should.equal("2");
+          result.foo.should.equal("{!\nreturn true;\n!}");
+          result.bar.should.equal("2");
           done();
         });
       });
@@ -244,9 +229,8 @@
         parseFromContent("test.dry", content, function(err, result) {
           if (err) console.error(err);
           noerr(err);
-          result = propval(result);
-          propval(result.foo).should.equal("{!\nreturn true;\n!} {!\na=0; !}");
-          propval(result.bar).should.equal("2");
+          result.foo.should.equal("{!\nreturn true;\n!} {!\na=0; !}");
+          result.bar.should.equal("2");
           done();
         });
       });
@@ -258,8 +242,7 @@
       it("allows multiple paragraphs", function(done) {
         parseFromContent("test.dry", "\nfoo\n\nbar", function(err, result) {
           noerr(err);
-          result = propval(result);
-          propval(result.content).should.equal('foo\n\nbar');
+          result.content.should.equal('foo\n\nbar');
           done();
         });
       });
@@ -267,8 +250,7 @@
       it("interprets apparent continuation lines as text", function(done) {
         parseFromContent("test.dry", "\nfoo\n\tbar", function(err, result) {
           noerr(err);
-          result = propval(result);
-          propval(result.content).should.equal('foo\n\tbar');
+          result.content.should.equal('foo\n\tbar');
           done();
         });
       });
@@ -276,7 +258,6 @@
       it("interprets apparent option lines as text", function(done) {
         parseFromContent("test.dry", "\nfoo\n- bar", function(err, result) {
           noerr(err);
-          result = propval(result);
           result.content.should.equal('foo\n- bar');
           done();
         });
@@ -285,8 +266,7 @@
       it("interprets apparent property lines as text", function(done) {
         parseFromContent("test.dry", "\nfoo\nbar: foo", function(err, result) {
           noerr(err);
-          result = propval(result);
-          propval(result.content).should.equal('foo\nbar: foo');
+          result.content.should.equal('foo\nbar: foo');
           done();
         });
       });
@@ -294,10 +274,9 @@
       it("ends when a new section id is given", function(done) {
         parseFromContent("test.dry", "\nfoo\n@bar", function(err, result) {
           noerr(err);
-          result = propval(result);
-          propval(result.content).should.equal('foo');
-          propval(result.sections).length.should.equal(1);
-          propval(propval(result.sections[0]).id).should.equal('test.bar');
+          result.content.should.equal('foo');
+          result.sections.length.should.equal(1);
+          result.sections[0].id.should.equal('test.bar');
           done();
         });
       });
@@ -305,10 +284,9 @@
       it("ends when an option block is given", function(done) {
         parseFromContent("test.dry", "\nfoo\n\n- @bar", function(err, result) {
           noerr(err);
-          result = propval(result);
-          propval(result.content).should.equal('foo');
+          result.content.should.equal('foo');
           result.options.length.should.equal(1);
-          propval(propval(result.options[0]).id).should.equal('@bar');
+          result.options[0].id.should.equal('@bar');
           done();
         });
       });
@@ -316,8 +294,7 @@
       it("ignores extra blank lines", function(done) {
         parseFromContent("test.dry", "\nfoo\n\n\nbar", function(err, result) {
           noerr(err);
-          result = propval(result);
-          propval(result.content).should.equal('foo\n\nbar');
+          result.content.should.equal('foo\n\nbar');
           done();
         });
       });
@@ -327,8 +304,7 @@
           "test.dry", "\nfoo\n\nbar\n\n\n",
           function(err, result) {
             noerr(err);
-            result = propval(result);
-            propval(result.content).should.equal('foo\n\nbar');
+            result.content.should.equal('foo\n\nbar');
             done();
           });
       });
@@ -336,32 +312,23 @@
       it("should be blank if we start with options", function(done) {
         parseFromContent("test.dry", "\n- @bar", function(err, result) {
           noerr(err);
-          result = propval(result);
-          propval(result.content).should.equal('');
+          result.content.should.equal('');
           result.options.length.should.equal(1);
-          propval(propval(result.options[0]).id).should.equal('@bar');
+          result.options[0].id.should.equal('@bar');
           done();
         });
       });
     });
 
     // ----------------------------------------------------------------------
-    var optval = function(result, i, name) {
-      return propval(propval(result.options[i])[name]);
-    };
-    var secval = function(result, i, name) {
-      return propval(propval(result.sections[i])[name]);
-    };
-
     describe("options", function() {
       it("can start with either a tag or id", function(done) {
         parseFromContent("test.dry", "\n- @bar\n-#foo", function(err, result) {
           noerr(err);
-          result = propval(result);
-          propval(result.content).should.equal('');
+          result.content.should.equal('');
           result.options.length.should.equal(2);
-          optval(result, 0, 'id').should.equal('@bar');
-          optval(result, 1, 'id').should.equal('#foo');
+          result.options[0].id.should.equal('@bar');
+          result.options[1].id.should.equal('#foo');
           done();
         });
       });
@@ -382,12 +349,11 @@
           "test.dry", "\n- @foo\n- @bar: The title",
           function(err, result) {
             noerr(err);
-            result = propval(result);
             result.options.length.should.equal(2);
-            optval(result, 0, 'id').should.equal('@foo');
-            (optval(result, 0, 'title') === undefined).should.be.true;
-            optval(result, 1, 'id').should.equal('@bar');
-            optval(result, 1, 'title').should.equal('The title');
+            result.options[0].id.should.equal('@foo');
+            (result.options[0].title === undefined).should.be.true;
+            result.options[1].id.should.equal('@bar');
+            result.options[1].title.should.equal('The title');
             done();
           });
       });
@@ -395,9 +361,8 @@
       it("can have a qualified id", function(done) {
         parseFromContent("test.dry", "\n- @foo.bar", function(err, result) {
           noerr(err);
-          result = propval(result);
           result.options.length.should.equal(1);
-          optval(result, 0, 'id').should.equal('@foo.bar');
+          result.options[0].id.should.equal('@foo.bar');
           done();
         });
       });
@@ -405,9 +370,8 @@
       it("can have a relative id", function(done) {
         parseFromContent("test.dry", "\n- @..foo.bar", function(err, result) {
           noerr(err);
-          result = propval(result);
           result.options.length.should.equal(1);
-          optval(result, 0, 'id').should.equal('@..foo.bar');
+          result.options[0].id.should.equal('@..foo.bar');
           done();
         });
       });
@@ -452,12 +416,11 @@
           "test.dry", "\n- @foo\n- foo:bar\n- #sun\n- sun:dock",
           function(err, result) {
             noerr(err);
-            result = propval(result);
             result.options.length.should.equal(2);
-            optval(result, 0, 'id').should.equal('@foo');
-            optval(result, 0, 'foo').should.equal('bar');
-            optval(result, 1, 'id').should.equal('#sun');
-            optval(result, 1, 'sun').should.equal('dock');
+            result.options[0].id.should.equal('@foo');
+            result.options[0].foo.should.equal('bar');
+            result.options[1].id.should.equal('#sun');
+            result.options[1].sun.should.equal('dock');
             done();
           });
       });
@@ -467,13 +430,12 @@
           "test.dry", "foo:trog\n\n- @foo\n- foo:bar\n- #sun\n- sun:dock",
           function(err, result) {
             noerr(err);
-            result = propval(result);
-            propval(result.foo).should.equal('trog');
+            result.foo.should.equal('trog');
             result.options.length.should.equal(2);
-            optval(result, 0, 'id').should.equal('@foo');
-            optval(result, 0, 'foo').should.equal('bar');
-            optval(result, 1, 'id').should.equal('#sun');
-            optval(result, 1, 'sun').should.equal('dock');
+            result.options[0].id.should.equal('@foo');
+            result.options[0].foo.should.equal('bar');
+            result.options[1].id.should.equal('#sun');
+            result.options[1].sun.should.equal('dock');
             done();
           });
       });
@@ -485,8 +447,8 @@
             (!!err).should.be.true;
             err.toString().should.equal(
               "Error: test.dry line 2: "+
-              "Property found in options before an option is defined."
-              );
+                "Property found in options before an option is defined."
+            );
             done();
           });
       });
@@ -498,7 +460,7 @@
             (!!err).should.be.true;
             err.toString().should.equal(
               "Error: test.dry line 3: Property 'title' is already defined."
-              );
+            );
             done();
           });
       });
@@ -519,9 +481,8 @@
       it("interpret a tag without a hyphen as a comment", function(done) {
         parseFromContent("test.dry", "\n- @cube\n#foo", function(err, result) {
           noerr(err);
-          result = propval(result);
           result.options.length.should.equal(1);
-          optval(result, 0, 'id').should.equal('@cube');
+          result.options[0].id.should.equal('@cube');
           done();
         });
       });
@@ -529,54 +490,53 @@
       it("interpret an id without a hyphen as a new section", function(done) {
         parseFromContent("test.dry", "\n- @cube\n@foo", function(err, result) {
           noerr(err);
-          result = propval(result);
           result.options.length.should.equal(1);
-          optval(result, 0, 'id').should.equal('@cube');
+          result.options[0].id.should.equal('@cube');
           result.sections.length.should.equal(1);
-          secval(result, 0, 'id').should.equal('test.foo');
+          result.sections[0].id.should.equal('test.foo');
           done();
         });
       });
 
       it("should not allow an id to be specified more than once",
-        function(done) {
-          parseFromContent(
-            "test.dry", "\n- @foo\n-@foo",
-            function(err, result) {
-              (!!err).should.be.true;
-              err.toString().should.equal(
-                "Error: test.dry line 3: "+
-                "Option with id/tag '@foo' already specified."
-              );
-              (result === undefined).should.be.true;
-              done();
-            });
-        });
+         function(done) {
+           parseFromContent(
+             "test.dry", "\n- @foo\n-@foo",
+             function(err, result) {
+               (!!err).should.be.true;
+               err.toString().should.equal(
+                 "Error: test.dry line 3: "+
+                   "Option with id/tag '@foo' already specified."
+               );
+               (result === undefined).should.be.true;
+               done();
+             });
+         });
 
       it("should allow an id to be specified in other sections",
-        function(done) {
-          parseFromContent(
-            "test.dry", "\n- @foo\n@bar\n\n-@foo",
-            function(err, result) {
-              noerr(err);
-              done();
-            });
-        });
+         function(done) {
+           parseFromContent(
+             "test.dry", "\n- @foo\n@bar\n\n-@foo",
+             function(err, result) {
+               noerr(err);
+               done();
+             });
+         });
 
       it("should not allow a tag to be specified more than once",
-        function(done) {
-          parseFromContent(
-            "test.dry", "\n- #foo\n-#foo",
-            function(err, result) {
-              (!!err).should.be.true;
-              err.toString().should.equal(
-                "Error: test.dry line 3: "+
-                "Option with id/tag '#foo' already specified."
-              );
-              (result === undefined).should.be.true;
-              done();
-            });
-        });
+         function(done) {
+           parseFromContent(
+             "test.dry", "\n- #foo\n-#foo",
+             function(err, result) {
+               (!!err).should.be.true;
+               err.toString().should.equal(
+                 "Error: test.dry line 3: "+
+                   "Option with id/tag '#foo' already specified."
+               );
+               (result === undefined).should.be.true;
+               done();
+             });
+         });
     });
 
     // ----------------------------------------------------------------------
@@ -585,10 +545,9 @@
       it("can begin at the start of the file", function(done) {
         parseFromContent("test.dry", "@foo", function(err, result) {
           noerr(err);
-          result = propval(result);
           result.content.should.equal('');
           result.sections.length.should.equal(1);
-          secval(result, 0, 'id').should.equal('test.foo');
+          result.sections[0].id.should.equal('test.foo');
           done();
         });
       });
@@ -610,10 +569,9 @@
       it("begin by interpreting following lines as properties", function(done){
         parseFromContent("test.dry", "@foo\nsun:dock", function(err, result) {
           noerr(err);
-          result = propval(result);
           result.sections.length.should.equal(1);
-          secval(result, 0, 'id').should.equal('test.foo');
-          secval(result, 0, 'sun').should.equal('dock');
+          result.sections[0].id.should.equal('test.foo');
+          result.sections[0].sun.should.equal('dock');
           done();
         });
       });
@@ -649,12 +607,11 @@
         var fn = path.join(__dirname, 'files', 'test_dry_parser.test.dry');
         parse.parseFromFile(fn, function(err, result) {
           noerr(err);
-          result = propval(result);
           result.id.should.equal('test_dry_parser');
           result.type.should.equal('test');
           result.sections.length.should.equal(4);
-          secval(result, 0, 'id').should.equal('test_dry_parser.new-id');
-          secval(result, 0, 'options').length.should.equal(4);
+          result.sections[0].id.should.equal('test_dry_parser.new-id');
+          result.sections[0].options.length.should.equal(4);
           done();
         });
       });
@@ -667,6 +624,91 @@
           done();
         });
       });
+
+    });
+
+    // ----------------------------------------------------------------------
+
+    describe("file and line", function() {
+      it("should output global file and line", function() {
+        var content = {
+          $metadata: {
+            $file: "file.dry",
+            $line: 5
+          }
+        };
+        var result = parse.propertyFileAndLine(content, null);
+        result.should.equal("file.dry line 5");
+      });
+
+      it("should use filename instead of negative line", function() {
+        var content = {
+          $metadata: {
+            $file: "file.dry",
+            $line: -1
+          }
+        };
+        var result = parse.propertyFileAndLine(content, null);
+        result.should.equal("file.dry filename");
+      });
+
+      it("should use property file and line", function() {
+        var content = {
+          $metadata: {
+            $file: "file.dry",
+            $line: -1,
+            foo: {$file:"other.dry", $line:2}
+          }
+        };
+        var result = parse.propertyFileAndLine(content, 'foo');
+        result.should.equal("other.dry line 2");
+      });
+
+      it("should fallback if property file not defined", function() {
+        var content = {
+          $metadata: {
+            $file: "file.dry",
+            $line: -1,
+            foo: {$line:2}
+          }
+        };
+        var result = parse.propertyFileAndLine(content, 'foo');
+        result.should.equal("file.dry line 2");
+      });
+
+      it("should fallback if property line not defined", function() {
+        var content = {
+          $metadata: {
+            $file: "file.dry",
+            $line: 2,
+            foo: {$file:"other.dry"}
+          }
+        };
+        var result = parse.propertyFileAndLine(content, 'foo');
+        result.should.equal("other.dry line 2");
+      });
+
+      it("can display only file", function() {
+        var content = {
+          $metadata: {
+            $file: "file.dry",
+          }
+        };
+        var result = parse.propertyFileAndLine(content, null);
+        result.should.equal("file.dry");
+      });
+
+      it("can display only line", function() {
+        var content = {
+          $metadata: {
+            $line: 2,
+          }
+        };
+        var result = parse.propertyFileAndLine(content, null);
+        result.should.equal("line 2");
+      });
+
+
     });
 
   });

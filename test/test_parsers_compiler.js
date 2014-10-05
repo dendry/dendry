@@ -22,6 +22,50 @@
 
   describe("game compiler", function() {
 
+    describe("id resolution", function() {
+      var ok = [
+        {context:"foo", id:"a", order:["foo.a", "a"]},
+        {context:"foo.bar", id:"a.b", order:["foo.bar.a.b", "foo.a.b", "a.b"]},
+        {context:"foo.bar", id:".a.b", order:["a.b"]}, // ?
+        {context:"foo.bar", id:"..a.b", order:["foo.a.b"]},
+        {context:"foo.bar", id:"...a.b", order:["a.b"]},
+        {context:"foo.bar", id:".", order:["foo.bar"]},
+        {context:"foo.bar", id:"..", order:["foo"]},
+        {context:"", id:"a.b", order:["a.b"]}
+      ];
+      _.each(ok, function(case_) {
+        var id = case_.id;
+        var context = case_.context;
+        var order = case_.order;
+        it("should resolve '"+id+"' in '"+context+"' to "+order.join(', '),
+           function() {
+             var candidates = compiler.getCandidateAbsoluteIds(context, id);
+             candidates.should.eql(order);
+           });
+      });
+
+      var fail = [
+        {context:"", id:"$a", err:"'$a' is not a valid relative id."},
+        {context:"..foo", id:"a", err:"'..foo' is not a valid id."},
+        {context:"", id:".", err:"Relative id '.' requires context."},
+        {context:"", id:"..", err:"Relative id '..' requires context."},
+        {context:"foo", id:"..", err:"Context is not deep enough."},
+        {context:"foo.bar", id:"...", err:"Context is not deep enough."},
+        {context:"foo.bar", id:"....a.b", err:"Context is not deep enough."}
+      ];
+      _.each(fail, function(case_) {
+        var id = case_.id;
+        var context = case_.context;
+        it("should fail to resolve '"+id+"' in '"+context+"'", function() {
+          (function() {
+            compiler.getCandidateAbsoluteIds(context, id);
+          }).should.throw(case_.err);
+        });
+      });
+    }); // end id resolution
+
+    // ----------------------------------------------------------------------
+
     describe("scenes", function() {
 
       it("should keep info properties", function(done) {
@@ -358,50 +402,6 @@
       });
 
     }); // end id inheritance
-
-    // ----------------------------------------------------------------------
-
-    describe("id resolution", function() {
-      var ok = [
-        {context:"foo", id:"a", order:["foo.a", "a"]},
-        {context:"foo.bar", id:"a.b", order:["foo.bar.a.b", "foo.a.b", "a.b"]},
-        {context:"foo.bar", id:".a.b", order:["a.b"]}, // ?
-        {context:"foo.bar", id:"..a.b", order:["foo.a.b"]},
-        {context:"foo.bar", id:"...a.b", order:["a.b"]},
-        {context:"foo.bar", id:".", order:["foo.bar"]},
-        {context:"foo.bar", id:"..", order:["foo"]},
-        {context:"", id:"a.b", order:["a.b"]}
-      ];
-      _.each(ok, function(case_) {
-        var id = case_.id;
-        var context = case_.context;
-        var order = case_.order;
-        it("should resolve '"+id+"' in '"+context+"' to "+order.join(', '),
-           function() {
-             var candidates = compiler.getCandidateAbsoluteIds(context, id);
-             candidates.should.eql(order);
-           });
-      });
-
-      var fail = [
-        {context:"", id:"$a", err:"'$a' is not a valid relative id."},
-        {context:"..foo", id:"a", err:"'..foo' is not a valid id."},
-        {context:"", id:".", err:"Relative id '.' requires context."},
-        {context:"", id:"..", err:"Relative id '..' requires context."},
-        {context:"foo", id:"..", err:"Context is not deep enough."},
-        {context:"foo.bar", id:"...", err:"Context is not deep enough."},
-        {context:"foo.bar", id:"....a.b", err:"Context is not deep enough."}
-      ];
-      _.each(fail, function(case_) {
-        var id = case_.id;
-        var context = case_.context;
-        it("should fail to resolve '"+id+"' in '"+context+"'", function() {
-          (function() {
-            compiler.getCandidateAbsoluteIds(context, id);
-          }).should.throw(case_.err);
-        });
-      });
-    }); // end id resolution
 
     // ----------------------------------------------------------------------
 

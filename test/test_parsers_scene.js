@@ -18,6 +18,7 @@
   };
 
   var parse = require('../lib/parsers/scene');
+  var dryParser = require('../lib/parsers/dry');
 
   describe("scene parser", function() {
 
@@ -47,7 +48,8 @@
       parse.parseFromContent("foo.quality.dry", content, function(err, result) {
         (!!err).should.be.true;
         err.toString().should.equal(
-          "Error: File type must equal 'scene', 'quality' found instead.");
+          "Error: foo.quality.dry filename: "+
+          "File type must equal 'scene', 'quality' found instead.");
         (result === undefined).should.be.true;
         done();
       });
@@ -70,8 +72,8 @@
       parse.parseFromContent("foo.scene.dry", content, function(err, result) {
         (!!err).should.be.true;
         err.toString().should.equal(
-          "Error: foo.scene.dry: Unknown properties: 'label' "+
-          "(foo.scene.dry line 2).");
+          "Error: foo.scene.dry: "+
+          "Unknown properties: 'label' (foo.scene.dry line 2).");
         (result === undefined).should.be.true;
         done();
       });
@@ -188,6 +190,7 @@
       var fn = path.join(__dirname, 'files', 'test_scene_parser.scene.dry');
       parse.parseFromFile(fn, function(err, result) {
         noerr(err);
+        dryParser.removeMetadataFromObject(result);
         result.should.eql({
           id: "test_scene_parser",
           type: "scene",
@@ -248,7 +251,8 @@
       parse.parseFromContent("foo.scene.dry", content, function(err, result) {
         (!!err).should.be.true;
         err.toString().should.equal(
-          "Error: Unknown properties: 'min' (foo.scene.dry line 4).");
+          "Error: foo.scene.dry line 3: "+
+          "Unknown properties: 'min' (foo.scene.dry line 4).");
         (result === undefined).should.be.true;
         done();
       });

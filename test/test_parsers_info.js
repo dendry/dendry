@@ -13,6 +13,7 @@
   /*jshint -W030 */
 
   var parse = require('../lib/parsers/info');
+  var dryParser = require('../lib/parsers/dry');
 
   describe("info parser", function() {
 
@@ -45,7 +46,8 @@
       parse.parseFromContent("foo.quality.dry", content, function(err, result) {
         (!!err).should.be.true;
         err.toString().should.equal(
-          "Error: File type must equal 'info', 'quality' found instead.");
+          "Error: foo.quality.dry filename: "+
+          "File type must equal 'info', 'quality' found instead.");
         (result === undefined).should.be.true;
         done();
       });
@@ -89,7 +91,7 @@
       parse.parseFromContent("info.dry", content, function(err, result) {
         (!!err).should.be.true;
         err.toString().should.equal(
-          "Error: '$nope' is not a valid id.");
+          "Error: info.dry line 3: '$nope' is not a valid id.");
         (result === undefined).should.be.true;
         done();
       });
@@ -99,6 +101,7 @@
       var fn = path.join(__dirname, 'files', 'test_info_parser.info.dry');
       parse.parseFromFile(fn, function(err, result) {
         (!!err).should.be.false;
+        dryParser.removeMetadataFromObject(result);
         result.should.eql({
           title: "The game title",
           author: "The game author",

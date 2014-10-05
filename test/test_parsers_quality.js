@@ -18,6 +18,7 @@
   };
 
   var parse = require('../lib/parsers/quality');
+  var dryParser = require('../lib/parsers/dry');
 
   describe("quality parser", function() {
 
@@ -51,7 +52,8 @@
         function(err, result) {
           (!!err).should.be.true;
           err.toString().should.equal(
-            "Error: 'foo.bar' is not a valid quality name."
+            "Error: foo.bar.quality.dry filename: "+
+            "'foo.bar' is not a valid quality name."
             );
           (result === undefined).should.be.true;
           done();
@@ -119,6 +121,7 @@
       var fn = path.join(__dirname, 'files', 'test_quality_parser.quality.dry');
       parse.parseFromFile(fn, function(err, result) {
         noerr(err);
+        dryParser.removeMetadataFromObject(result);
         result.should.eql({
           id: "test_quality_parser",
           type: "quality",
