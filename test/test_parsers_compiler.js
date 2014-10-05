@@ -495,5 +495,94 @@
       });
     }); // end describe walkDir
 
+    // ----------------------------------------------------------------------
+
+    describe("converting via JSON", function() {
+      it("should convert to and from JSON", function(done) {
+        var info = {
+          title: "My Game",
+          author: "Jo Doe"
+        };
+        var fn = function(state, Q) { Q.foo += 1; };
+        fn.source = "Q.foo += 1;";
+        var scenes = [
+          {
+            id: "root",
+            title:"The Root",
+            content: "Root content",
+            onArrival: [fn]
+          },
+          {id: "foo", title:"The Foo", content:"Foo content"}
+        ];
+        var qualities = [
+        ];
+        compiler.compile(info, scenes, qualities, function(err, game) {
+          noerr(err);
+          compiler.convertGameToJSON(game, function(err, json) {
+            noerr(err);
+            compiler.convertJSONToGame(json, function(err, converted) {
+              noerr(err);
+              // Function comparisons don't work without should.eql(),
+              // so compare them and delete them.
+              game.scenes.root.onArrival[0].source.should.equal(
+                converted.scenes.root.onArrival[0].source
+              );
+              delete game.scenes.root.onArrival;
+              delete converted.scenes.root.onArrival;
+              game.should.eql(converted);
+              done();
+            });
+          });
+        });
+      });
+
+      it("should remove metadata on conversion", function(done) {
+        var game = {
+          "title": "My Game",
+          "author": "Jo Doe",
+          $metadata: {
+            $file: "info.dry",
+            title: {$line: 1},
+            author: {$line: 2}
+          },
+          "scenes": {
+            "root": {
+              $metadata: {
+                $file: "root.scene.dry",
+                id: {$line: -1},
+                title: {$line: 1},
+                content: {$line: 4},
+                onArrival: {$line: 2}
+              },
+              "id": "root",
+              "title": "The Root",
+              "content": "Root content",
+              "onArrival": [
+                {"$code": "Q.foo += 1;"}
+              ]
+            },
+            "foo": {
+              $metadata: {
+                $file: "info.scene.dry",
+                id: {$line: -1},
+                title: {$line: 1},
+                content: {$line: 3}
+              },
+              "id": "foo",
+              "title": "The Foo",
+              "content": "Foo content"
+            }
+          },
+          "qualities": {},
+          "tagLookup": {}
+        };
+        compiler.convertGameToJSON(game, function(err, json) {
+          noerr(err);
+          json.should.not.match(/$metadata/);
+          done();
+        });
+      }); // end test
+    }); // end describe walkDir
+
   });
 }());
