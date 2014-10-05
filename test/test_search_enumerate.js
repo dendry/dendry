@@ -81,7 +81,7 @@
           "foo": {id: "foo", options:[{id:'@trog'}, {id:'@dock'}], title:'Foo'},
           "bar": {
             id: "bar", options:[{id:'@trog'}], title:'Bar',
-            countVisits:true // Tracking this means trog has two possible states
+            countVisitsMax:1 // Tracking this means trog has two possible states
           },
           "dock": {id: "dock", title:'Dock', gameOver:true},
           "trog": {id: "trog", title:'Trog', gameOver:true}
@@ -97,7 +97,22 @@
       var game = {
         scenes: {
           "root": {id: "root", options:[{id:'@foo'}]},
-          "foo": {id: "foo", title:'Foo', maxVisits:10, countVisits:true}
+          "foo": {id: "foo", title:'Foo', maxVisits:10, countVisitsMax:10}
+        },
+        qualities: {
+          foo: {initial: 1}
+        }
+      };
+      var count = enumerate.countStates(game, 1000);
+      count.hasReachedSearchLimit.should.be.false;
+      count.states.should.equal(21);
+    });
+
+    it("should return one state per visit up to count-visits-max", function() {
+      var game = {
+        scenes: {
+          "root": {id: "root", options:[{id:'@foo'}]},
+          "foo": {id: "foo", title:'Foo', countVisitsMax:10}
         },
         qualities: {
           foo: {initial: 1}
@@ -129,7 +144,7 @@
       var game = {
         scenes: {
           "root": {id: "root", options:[{id:'@foo'}]},
-          "foo": {id: "foo", title:'Foo', countVisits:true}
+          "foo": {id: "foo", title:'Foo', countVisitsMax:500}
         },
         qualities: {
           foo: {initial: 1}

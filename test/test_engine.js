@@ -905,7 +905,7 @@
             },
             "foo": {
               id: "foo",
-              maxVisits: 2, countVisits: true,
+              maxVisits: 2, countVisitsMax: 2,
               options:[
                 {id:"@root", title:"Back to the Root"}
               ]
@@ -1000,7 +1000,7 @@
             },
             "foo": {
               id: "foo",
-              maxVisits: 1, countVisits: true,
+              maxVisits: 1, countVisitsMax: 1,
               options:[
                 {id:"@root", title:"Back to the Root"}
               ]

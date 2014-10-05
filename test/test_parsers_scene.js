@@ -102,13 +102,13 @@
     });
 
     it("maxVisits requires countVisits", function(done) {
-      var content = "title: My Title\nmax-visits: 1\ncount-visits: no";
+      var content = "title: My Title\nmax-visits: 2\ncount-visits-max: 1";
       parse.parseFromContent("foo.scene.dry", content, function(err, result) {
         (!!err).should.be.true;
         err.toString().should.equal(
           "Error: foo.scene.dry: "+
-          "Cannot disable count-visits (foo.scene.dry line 3) "+
-          "when max-visits (foo.scene.dry line 2) is set.");
+          "Cannot have count-visits-max (foo.scene.dry line 3) "+
+          "set lower than max-visits (foo.scene.dry line 2).");
         (result === undefined).should.be.true;
         done();
       });
@@ -209,7 +209,7 @@
             title: "The Bar Scene",
             content: "This is section 'bar'.",
             goTo: [{id:"foo"}],
-            maxVisits: 1, countVisits: true,
+            maxVisits: 1, countVisitsMax: 5,
             options: [{id:"@foo", title:"Return to foo."}]
           }]
         });

@@ -86,7 +86,7 @@
       var game = {
         scenes: {
           "root": {id: "root", options:[{id:'@foo'}]},
-          "foo": {id: "foo", title:'Foo', countVisits:true}
+          "foo": {id: "foo", title:'Foo', countVisitsMax:2}
         }
       };
       var ui = new engine.NullUserInterface();
