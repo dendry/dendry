@@ -7,6 +7,7 @@
 (function() {
   "use strict";
 
+  var _ = require('lodash');
   var path = require('path');
   var should = require('should');
   // Disable errors from using the should library.
@@ -139,15 +140,28 @@
         });
       });
 
-      it("should camel case property names", function(done) {
-        parseFromContent(
-          "test.dry", "prop-one: foo\nprop-two:\tbar",
-          function(err, result){
-            noerr(err);
-            result.propOne.should.equal('foo');
-            result.propTwo.should.equal('bar');
-            done();
-          });
+      var camelTests = [
+        {prop:'prop-one: foo', val:{propOne:'foo'}},
+        {prop:'prop-one:\tfoo', val:{propOne:'foo'}},
+        {prop:'prop-one:foo', val:{propOne:'foo'}},
+        {prop:'prop two: bar', val:{propTwo:'bar'}},
+        {prop:'prop_two: bar', val:{propTwo:'bar'}},
+        {prop:'prop  two: bar', val:{propTwo:'bar'}},
+        {prop:'prop-Three: sun', val:{propThree:'sun'}},
+        {prop:'PROP_THREE: sun', val:{propThree:'sun'}}
+      ];
+      _.each(camelTests, function(test) {
+        it("should camel case property '"+test.prop+"'", function(done) {
+          parseFromContent(
+            "test.dry", test.prop+'\n',
+            function(err, result){
+              noerr(err);
+              for (var name in test.val) {
+                result[name].should.equal(test.val[name]);
+              }
+              done();
+            });
+        });
       });
 
       it("allow a property to be split over two lines", function(done) {
