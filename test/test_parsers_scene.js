@@ -107,7 +107,8 @@
         (!!err).should.be.true;
         err.toString().should.equal(
           "Error: foo.scene.dry: "+
-          "Cannot disable count-visits when max-visits is set.");
+          "Cannot disable count-visits (foo.scene.dry line 3) "+
+          "when max-visits (foo.scene.dry line 2) is set.");
         (result === undefined).should.be.true;
         done();
       });
