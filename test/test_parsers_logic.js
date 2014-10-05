@@ -7,6 +7,7 @@
 (function() {
   "use strict";
 
+  var _ = require('lodash');
   var should = require('should');
   // Disable errors from using the should library.
   /*jshint -W030 */
@@ -35,6 +36,53 @@
         });
       });
 
+      it("should look up qualities", function(done) {
+        logic.compilePredicate('foo > 0', function(err, fn) {
+          noerr(err);
+          var state = {
+            qualities: {foo: 1}
+          };
+          engine.runPredicate(fn, false, {}, state).should.be.true;
+          done();
+        });
+      });
+
+      it("should look up visits", function(done) {
+        logic.compilePredicate('@foo > 0', function(err, fn) {
+          noerr(err);
+          var state = {
+            qualities: {},
+            visits: {foo:1}
+          };
+          engine.runPredicate(fn, false, {}, state).should.be.true;
+          done();
+        });
+      });
+
+      it("should look up complex scene ids", function(done) {
+        logic.compilePredicate('@foo.bar.sun > 0', function(err, fn) {
+          noerr(err);
+          var state = {
+            qualities: {},
+            visits: {"foo.bar.sun":1}
+          };
+          engine.runPredicate(fn, false, {}, state).should.be.true;
+          done();
+        });
+      });
+
+      it("should default to zero when looking up visits", function(done) {
+        logic.compilePredicate('@foo > 0', function(err, fn) {
+          noerr(err);
+          var state = {
+            qualities: {},
+            visits: {}
+          };
+          engine.runPredicate(fn, false, {}, state).should.be.false;
+          done();
+        });
+      });
+
       it("should default to 0 on unknown quality access", function(done) {
         logic.compilePredicate('foo = 0', function(err, fn) {
           noerr(err);
@@ -43,6 +91,25 @@
           };
           engine.runPredicate(fn, false, {}, state).should.be.true;
           done();
+        });
+      });
+
+      var nonzeroCases = [
+        {Q:{}, result:false, desc:"unknown quality should default to false"},
+        {Q:{foo:0}, result:false, desc:"zero values should be false"},
+        {Q:{foo:1}, result:true, desc:"positive values should be true"},
+        {Q:{foo:-1}, result:true, desc:"negative values should be true"}
+      ];
+      _.each(nonzeroCases, function(test) {
+        it("bare numbers: "+test.desc, function(done) {
+          logic.compilePredicate('foo', function(err, fn) {
+            noerr(err);
+            var state = {
+              qualities: test.Q
+            };
+            engine.runPredicate(fn, false, {}, state).should.equal(test.result);
+            done();
+          });
         });
       });
 
