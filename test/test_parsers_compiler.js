@@ -256,14 +256,40 @@
         var scenes = [
           {id: "root", title:"Root scene", content:"Root content",
            sections: [
-             {id: "root.one", title:"One", content:"One.", goTo:"two"},
+             {id: "root.one", title:"One", content:"One.",
+              goTo: [{id:"two"}]},
              {id: "root.two", title:"Two", content:"Two."}
            ]}
         ];
         var qualities = [];
         compiler.compile(info, scenes, qualities, function(err, game) {
           noerr(err);
-          game.scenes["root.one"].goTo.should.equal("root.two");
+          game.scenes["root.one"].goTo.should.eql([{id:"root.two"}]);
+          done();
+        });
+      });
+
+      it("should resolve multiple goto ids", function(done) {
+        var info = {title: "My Game", author: "Jo Doe"};
+        var scenes = [
+          {id: "root", title:"Root scene", content:"Root content",
+           sections: [
+             {id: "root.one", title:"One", content:"One.",
+              goTo:[
+                {id: "two",
+                 predicate: function(state, Q) { return Q.sun > 1; }},
+                {id: "foo"}
+              ]},
+             {id: "root.two", title:"Two", content:"Two."}
+           ]},
+          {id: "foo", title:"Foo scene", content:"Foo content"}
+        ];
+        var qualities = [];
+        compiler.compile(info, scenes, qualities, function(err, game) {
+          noerr(err);
+          game.scenes["root.one"].goTo.length.should.equal(2);
+          game.scenes["root.one"].goTo[0].id.should.equal('root.two');
+          game.scenes["root.one"].goTo[1].id.should.equal('foo');
           done();
         });
       });
@@ -331,7 +357,8 @@
         var scenes = [
           {id: "root", title:"Root scene", content:"Root content",
            sections: [
-             {id: "root.one", title:"One", content:"One.", goTo:"three"},
+             {id: "root.one", title:"One", content:"One.",
+              goTo: [{id:"three"}]},
              {id: "root.two", title:"Two", content:"Two."}
            ]}
         ];
@@ -350,7 +377,8 @@
         var scenes = [
           {id: "root", title:"Root scene", content:"Root content",
            sections: [
-             {id: "root.one", title:"One", content:"One.", goTo:"..three"},
+             {id: "root.one", title:"One", content:"One.",
+              goTo: [{id:"..three"}]},
              {id: "root.two", title:"Two", content:"Two."}
            ]}
         ];
@@ -389,7 +417,8 @@
         var scenes = [
           {id: "root", title:"Root scene", content:"Root content",
            sections: [
-             {id: "root.one", title:"One", content:"One.", goTo:"....root"},
+             {id: "root.one", title:"One", content:"One.",
+              goTo: [{id:"....root"}]},
              {id: "root.two", title:"Two", content:"Two."}
            ]}
         ];
