@@ -130,6 +130,25 @@
           });
       });
 
+      it("should support complex boolean queries with visits", function(done) {
+        logic.compilePredicate(
+          'foo = 1 and (foo < @bar or not foo > @sun) and @sun',
+          function(err, fn) {
+            noerr(err);
+            var state = {
+              qualities: {
+                foo: 1
+              },
+              visits: {
+                bar: 1,
+                sun: 1
+              }
+            };
+            engine.runPredicate(fn, false, {}, state).should.be.true;
+            done();
+          });
+      });
+
       it("should support function calls", function(done) {
         logic.compilePredicate(
           'foo() = 2 and bar(3, 2) = 6',
