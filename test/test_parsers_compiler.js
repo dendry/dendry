@@ -269,6 +269,38 @@
         });
       });
 
+      it("should resolve id in goto predicate", function(done) {
+        var fn = function(state, Q) {
+          return (state.visits.two || 0) > 0;
+        };
+        fn.source = "return (state.visits['@two'] || 0) > 0;";
+        fn.logicSource = "@two";
+        fn.root = "predicate";
+
+        var info = {title: "My Game", author: "Jo Doe"};
+        var scenes = [
+          {id: "root", title:"Root scene", content:"Root content",
+           sections: [
+             {id: "root.one", title:"One", content:"One.",
+              goTo: [{id:"two", predicate:fn}]},
+             {id: "root.two", title:"Two", content:"Two."}
+           ]}
+        ];
+        var qualities = [];
+        compiler.compile(info, scenes, qualities, function(err, game) {
+          noerr(err);
+          var fn = game.scenes['root.one'].goTo[0].predicate;
+          var state = {
+            visits:{"root.two":1},
+            qualities:{}
+          };
+          fn(state, state.qualities).should.be.true;
+          fn.logicSource.should.equal("@root.two");
+          fn.root.should.equal('predicate');
+          done();
+        });
+      });
+
       it("should resolve multiple goto ids", function(done) {
         var info = {title: "My Game", author: "Jo Doe"};
         var scenes = [
@@ -311,6 +343,40 @@
           noerr(err);
           game.scenes["root.one"].options[0].id.
             should.equal("@root.two");
+          done();
+        });
+      });
+
+      it("should resolve id in option view-if", function(done) {
+        var fn = function(state, Q) {
+          return (state.visits.two || 0) > 0;
+        };
+        fn.source = "return (state.visits['@two'] || 0) > 0;";
+        fn.logicSource = "@two";
+        fn.root = "predicate";
+
+        var info = {title: "My Game", author: "Jo Doe"};
+        var scenes = [
+          {id: "root", title:"Root scene", content:"Root content",
+           sections: [
+             {
+               id: "root.one", title:"One", content:"One.",
+               options:[{id:"@two", title:"Two", viewIf:fn}]
+             },
+             {id: "root.two", title:"Two", content:"Two."},
+           ]}
+        ];
+        var qualities = [];
+        compiler.compile(info, scenes, qualities, function(err, game) {
+          noerr(err);
+          var fn = game.scenes["root.one"].options[0].viewIf;
+          var state = {
+            visits:{"root.two":1},
+            qualities:{}
+          };
+          fn(state, state.qualities).should.be.true;
+          fn.logicSource.should.equal("@root.two");
+          fn.root.should.equal('predicate');
           done();
         });
       });
