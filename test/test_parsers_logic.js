@@ -166,6 +166,18 @@
           });
       });
 
+      it("should augment function with metadata", function(done) {
+        var src = 'foo() = 2 and bar(3, 2) = 6';
+        logic.compilePredicate(
+          src,
+          function(err, fn) {
+            noerr(err);
+            fn.logicSource.should.equal(src);
+            fn.root.should.equal('predicate');
+            done();
+          });
+      });
+
       it("should pass on tokenizer errors", function(done) {
         logic.compilePredicate('$foo', function(err, fn) {
           (!!err).should.be.true;
@@ -224,6 +236,18 @@
           state.qualities.foo.should.equal(2);
           done();
         });
+      });
+
+      it("should augment function with metadata", function(done) {
+        var src = 'foo = 1; foo += 1';
+        logic.compileActions(
+          src,
+          function(err, fn) {
+            noerr(err);
+            fn.logicSource.should.equal(src);
+            fn.root.should.equal('actions');
+            done();
+          });
       });
 
       it("should default to 0 on unknown quality modification", function(done) {

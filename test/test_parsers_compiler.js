@@ -352,6 +352,175 @@
         });
       });
 
+      it("should qualify id in view-if", function(done) {
+        var fn = function(state, Q) {
+          return (state.visits.two || 0) > 0;
+        };
+        fn.source = "return (state.visits['@two'] || 0) > 0;";
+        fn.logicSource = "@two";
+        fn.root = "predicate";
+
+        var info = {title: "My Game", author: "Jo Doe"};
+        var scenes = [
+          {
+            id: "root",
+            title:"Root",
+            content:"Root.",
+            options: [{id:"@two"}],
+            sections:[
+              {id: "two", title:"Two", content:"Two.", viewIf:fn}
+            ]
+          }
+        ];
+        var qualities = [];
+        compiler.compile(info, scenes, qualities, function(err, game) {
+          noerr(err);
+          var fn = game.scenes['root.two'].viewIf;
+          var state = {
+            visits:{"root.two":1},
+            qualities:{}
+          };
+          fn(state, state.qualities).should.be.true;
+          fn.logicSource.should.equal("@root.two");
+          fn.root.should.equal('predicate');
+          done();
+        });
+      });
+
+      it("should qualify id in view-if", function(done) {
+        var fn = function(state, Q) {
+          return (state.visits.two || 0) > 0;
+        };
+        fn.source = "return (state.visits['two'] || 0) > 0;";
+        fn.logicSource = "@two";
+        fn.root = "predicate";
+
+        var info = {title: "My Game", author: "Jo Doe"};
+        var scenes = [
+          {
+            id: "root",
+            title:"Root",
+            content:"Root.",
+            options: [{id:"@two"}],
+            sections:[
+              {id: "two", title:"Two", content:"Two.", viewIf:fn}
+            ]
+          }
+        ];
+        var qualities = [];
+        compiler.compile(info, scenes, qualities, function(err, game) {
+          noerr(err);
+          var fn = game.scenes['root.two'].viewIf;
+          var state = {
+            visits:{"root.two":1},
+            qualities:{}
+          };
+          fn(state, state.qualities).should.be.true;
+          fn.logicSource.should.equal("@root.two");
+          fn.root.should.equal('predicate');
+          done();
+        });
+      });
+
+      it("should qualify id in on-arrival", function(done) {
+        var fn = function(state, Q) {
+          Q.foo = (state.visits.two || 0);
+        };
+        fn.source = "Q.foo = (state.visits['two'] || 0);";
+        fn.logicSource = "foo = @two";
+        fn.root = "actions";
+
+        var info = {title: "My Game", author: "Jo Doe"};
+        var scenes = [
+          {
+            id: "root",
+            title:"Root",
+            content:"Root.",
+            options: [{id:"@two"}],
+            onArrival: [fn],
+            sections:[
+              {id: "two", title:"Two", content:"Two."}
+            ]
+          }
+        ];
+        var qualities = [];
+        compiler.compile(info, scenes, qualities, function(err, game) {
+          noerr(err);
+          var fn = game.scenes.root.onArrival[0];
+          var state = {
+            visits:{"root.two":2},
+            qualities:{}
+          };
+          var Q = state.qualities;
+          fn(state, Q);
+          state.qualities.foo.should.equal(2);
+          fn.logicSource.should.equal("foo = @root.two");
+          fn.root.should.equal('actions');
+          done();
+        });
+      });
+
+      it("should fail if there's no matching id in on-arrival", function(done) {
+        var fn = function(state, Q) {
+          Q.foo = (state.visits.three || 0);
+        };
+        fn.source = "Q.foo = (state.visits['three'] || 0);";
+        fn.logicSource = "foo = @three";
+        fn.root = "actions";
+
+        var info = {title: "My Game", author: "Jo Doe"};
+        var scenes = [
+          {
+            id: "root",
+            title:"Root",
+            content:"Root.",
+            options: [{id:"@two"}],
+            onArrival: [fn],
+            sections:[
+              {id: "two", title:"Two", content:"Two."}
+            ]
+          }
+        ];
+        var qualities = [];
+        compiler.compile(info, scenes, qualities, function(err, game) {
+          (!!err).should.be.true;
+          err.toString().should.equal(
+            "Error: Couldn't find an id matching 'three' in 'root'."
+          );
+          done();
+        });
+      });
+
+      it("should fail if there's no matching id in view-if", function(done) {
+        var fn = function(state, Q) {
+          return (state.visits.three || 0) > 0;
+        };
+        fn.source = "return (state.visits['three'] || 0) > 0;";
+        fn.logicSource = "@three";
+        fn.root = "predicate";
+
+        var info = {title: "My Game", author: "Jo Doe"};
+        var scenes = [
+          {
+            id: "root",
+            title:"Root",
+            content:"Root.",
+            options: [{id:"@two"}],
+            sections:[
+              {id: "two", title:"Two", content:"Two.", viewIf:fn}
+            ]
+          }
+        ];
+        var qualities = [];
+        compiler.compile(info, scenes, qualities, function(err, game) {
+          (!!err).should.be.true;
+          err.toString().should.equal(
+            "Error: Couldn't find an id matching 'three' in 'root.two'."
+          );
+          done();
+        });
+      });
+
       it("should fail if there's no matching id in goto", function(done) {
         var info = {title: "My Game", author: "Jo Doe"};
         var scenes = [
