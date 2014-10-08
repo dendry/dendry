@@ -381,22 +381,70 @@
         });
       });
 
-      it("should not a alter a tag in option", function(done) {
+      it("should not alter a tag in option", function(done) {
         var info = {title: "My Game", author: "Jo Doe"};
         var scenes = [
           {id: "root", title:"Root scene", content:"Root content",
            sections: [
              {
                id: "root.one", title:"One", content:"One.",
-               options:[{id:"#tag", title:"Two"}]
+               options:[{id:"#tag"}]
              },
-             {id: "root.two", title:"Two", content:"Two."},
+             {id: "root.two", title:"Two", content:"Two.", tags:['tag']},
            ]}
         ];
         var qualities = [];
         compiler.compile(info, scenes, qualities, function(err, game) {
           noerr(err);
           game.scenes["root.one"].options[0].id.should.equal("#tag");
+          done();
+        });
+      });
+
+      it("should fail if an option tag doesn't have targets", function(done) {
+        var info = {title: "My Game", author: "Jo Doe"};
+        var scenes = [
+          {id: "root", title:"Root scene", content:"Root content"},
+          {id: "one", title:"One", content:"One.", options:[{id:"#tag"}]},
+          {id: "two", title:"Two", content:"Two."}
+        ];
+        var qualities = [];
+        compiler.compile(info, scenes, qualities, function(err, game) {
+          (!!err).should.be.true;
+          err.message.should.equal("We have an option pointing at a tag "+
+                                   "'tag' which has no matching scenes.");
+          done();
+        });
+      });
+
+      it("should fail if an option and scene have no title", function(done) {
+        var info = {title: "My Game", author: "Jo Doe"};
+        var scenes = [
+          {id: "root", title:"Root", content:"Root", options:[{id:"@one"}]},
+          {id: "one", title:"One", content:"One.", options:[{id:"@two"}]},
+          {id: "two", content:"Two."}
+        ];
+        var qualities = [];
+        compiler.compile(info, scenes, qualities, function(err, game) {
+          (!!err).should.be.true;
+          err.message.should.equal("Option refers to scene 'two', but neither "+
+                                   "option nor scene have a title.");
+          done();
+        });
+      });
+
+      it("should fail if a title-less scene referenced by tag", function(done) {
+        var info = {title: "My Game", author: "Jo Doe"};
+        var scenes = [
+          {id: "root", title:"Root", content:"Root", options:[{id:"#foo"}]},
+          {id: "one", title:"One", content:"One.", tags:['foo']},
+          {id: "two", content:"Two.", tags:['foo']}
+        ];
+        var qualities = [];
+        compiler.compile(info, scenes, qualities, function(err, game) {
+          (!!err).should.be.true;
+          err.message.should.equal("Scene 'two' can be selected as an "+
+                                   "option for tag 'foo' but has no title.");
           done();
         });
       });
