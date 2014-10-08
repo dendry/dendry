@@ -7,6 +7,7 @@
 (function() {
   "use strict";
 
+  var colors = require('colors');
   var should = require('should');
   // Disable errors from using the should library.
   /*jshint -W030 */
@@ -96,6 +97,18 @@
            ]}
         ], [false], 60);
         text.should.equal("\n");
+      });
+
+      it("should include inserts from dependencies", function() {
+        var text = toText.convert([
+          {type:"paragraph",
+           content:[
+             "Foo is ",
+             {type:'insert', insert:0},
+             "."
+           ]}
+        ], [1]);
+        text.should.equal("Foo is 1.\n");
       });
 
       it("should separate paragraphs of different types", function() {
@@ -220,6 +233,18 @@
            ]}
         ], [false]);
         text.should.equal("<p></p>");
+      });
+
+      it("should include inserts from dependencies", function() {
+        var text = toHTML.convert([
+          {type:"paragraph",
+           content:[
+             "Foo is ",
+             {type:'insert', insert:0},
+             "."
+           ]}
+        ], [1]);
+        text.should.equal("<p>Foo is 1.</p>");
       });
 
       it("should create paragraphs of different types", function() {

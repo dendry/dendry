@@ -144,6 +144,23 @@
       });
     });
 
+    it("should parse quality inserts", function(done) {
+      var content = "[+ foo +]";
+      parse.compile(content, function(err, result) {
+        if (err) console.trace(err);
+        (!!err).should.be.false;
+        result.paragraphs.should.eql([{
+          type:'paragraph',
+          content: [
+            {type:"insert", insert: 0}
+            ]
+          }]);
+        result.stateDependencies.length.should.equal(1);
+        result.stateDependencies[0].quality.should.equal('foo');
+        done();
+      });
+    });
+
     it("should nest emphasis", function(done) {
       var content = "*first **second level** more first*";
       parse.compile(content, function(err, result) {
@@ -199,6 +216,46 @@
                 {type:'hidden', content:['Is this hidden?']}
               ]
             }
+          ]
+        });
+        done();
+      });
+    });
+
+    it("can interpret +] as end of hidden", function(done) {
+      var content = "[Is this hidden+]";
+      parse.compile(content, function(err, result) {
+        (!!err).should.be.false;
+        result.should.eql({
+          paragraphs: [
+            {
+              type:'paragraph',
+              content: [
+                {type:'hidden', content:['Is this hidden+']}
+              ]
+            }
+          ]
+        });
+        done();
+      });
+    });
+
+    it("inserts can't be nested", function(done) {
+      var content = "[+ Foo [+ Bar +] Sun +]";
+      parse.compile(content, function(err, result) {
+        (!!err).should.be.false;
+        result.should.eql({
+          paragraphs: [
+            {
+              type:'paragraph',
+              content: [
+                {type:'insert', insert:0},
+                " Sun +"
+              ]
+            }
+          ],
+          stateDependencies: [
+            {type:'insert', quality:'Foo [+ Bar'}
           ]
         });
         done();

@@ -1021,12 +1021,14 @@
     describe("display", function() {
       var TestUserInterface = function() {
         this.content = [];
+        this.data = [];
         this.choices = [];
         this.page = 0;
       };
       engine.UserInterface.makeParentOf(TestUserInterface);
-      TestUserInterface.prototype.displayContent = function(content, preds) {
-        this.content.push(content);
+      TestUserInterface.prototype.displayContent = function(paragraphs, data) {
+        this.content.push(paragraphs);
+        this.data.push(data);
       };
       TestUserInterface.prototype.displayChoices = function(choices) {
         this.choices.push(choices);
@@ -1138,7 +1140,7 @@
         dendryEngine.isGameOver().should.be.true;
       });
 
-      it("displays pre-compiled scene content", function() {
+      it("displays pre-defined scene content", function() {
         var game = {
           scenes: {
             "root": {
@@ -1155,6 +1157,67 @@
         ui.content[0].should.eql([
           {type:'heading', content:["The title"]}
         ]);
+      });
+
+      it("displays conditional content", function() {
+        var game = {
+          scenes: {
+            "root": {
+              id:"root",
+              content:{
+                paragraphs:[
+                  {
+                    type:'paragraph',
+                    content:[
+                      {type:'conditional', predicate:0, content:[
+                        "This should be visible."
+                      ]}
+                    ]
+                  }
+                ],
+                stateDependencies: [
+                  function(state, Q) { return true; }
+                ]
+              }
+            }
+          }
+        };
+        var ui = new TestUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame();
+        ui.data[0].should.eql([true]);
+      });
+
+      it("displays insert content", function() {
+        var game = {
+          scenes: {
+            "root": {
+              id:"root",
+              content:{
+                paragraphs:[
+                  {
+                    type:'paragraph',
+                    content:[
+                      {type:'insert', insert:0},
+                      {type:'insert', insert:1}
+                    ]
+                  }
+                ],
+                stateDependencies: [
+                  {type:'insert', quality:'foo'},
+                  {type:'insert', quality:'bar'}
+                ]
+              }
+            }
+          },
+          qualities: {
+            foo: { initial: 5 }
+          }
+        };
+        var ui = new TestUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame();
+        ui.data[0].should.eql([5, 0]);
       });
 
       it("displays content from scene with go-to", function() {
