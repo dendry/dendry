@@ -283,7 +283,7 @@
            sections: [
              {id: "root.one", title:"One", content:"One.",
               goTo: [{id:"two", predicate:fn}]},
-             {id: "root.two", title:"Two", content:"Two."}
+             {id: "root.two", title:"Two", content:"Two.", countVisitsMax:1}
            ]}
         ];
         var qualities = [];
@@ -363,7 +363,7 @@
                id: "root.one", title:"One", content:"One.",
                options:[{id:"@two", title:"Two", viewIf:fn}]
              },
-             {id: "root.two", title:"Two", content:"Two."},
+             {id: "root.two", title:"Two", content:"Two.", countVisitsMax:1},
            ]}
         ];
         var qualities = [];
@@ -377,6 +377,63 @@
           fn(state, state.qualities).should.be.true;
           fn.logicSource.should.equal("@root.two");
           fn.root.should.equal('predicate');
+          done();
+        });
+      });
+
+      it("should fail if target id isn't counting visits", function(done) {
+        var fn = function(state, Q) {
+          return (state.visits.two || 0) > 0;
+        };
+        fn.source = "return (state.visits['@two'] || 0) > 0;";
+        fn.logicSource = "@two";
+        fn.root = "predicate";
+
+        var info = {title: "My Game", author: "Jo Doe"};
+        var scenes = [
+          {id: "root", title:"Root scene", content:"Root content",
+           sections: [
+             {
+               id: "root.one", title:"One", content:"One.",
+               options:[{id:"@two", title:"Two", viewIf:fn}]
+             },
+             {id: "root.two", title:"Two", content:"Two."},
+           ]}
+        ];
+        var qualities = [];
+        compiler.compile(info, scenes, qualities, function(err, game) {
+          (!!err).should.be.true;
+          err.message.should.equal(
+            "Function refers to visit count of scene 'two' which resolves to "+
+            "'root.two' which has count-visits-max undefined."
+          );
+          done();
+        });
+      });
+
+      it("should fail if unresolved id isn't counting visits", function(done) {
+        var fn = function(state, Q) {
+          return (state.visits.two || 0) > 0;
+        };
+        fn.source = "return (state.visits['@two'] || 0) > 0;";
+        fn.logicSource = "@two";
+        fn.root = "predicate";
+
+        var info = {title: "My Game", author: "Jo Doe"};
+        var scenes = [
+          {id: "root", title:"Root scene", content:"Root content"},
+          {id: "one", title:"One", content:"One.",
+           options:[{id:"@two", title:"Two", viewIf:fn}]
+          },
+          {id: "two", title:"Two", content:"Two."}
+        ];
+        var qualities = [];
+        compiler.compile(info, scenes, qualities, function(err, game) {
+          (!!err).should.be.true;
+          err.message.should.equal(
+            "Function refers to visit count of scene 'two' "+
+            "which has count-visits-max undefined."
+          );
           done();
         });
       });
@@ -482,42 +539,8 @@
             content:"Root.",
             options: [{id:"@two"}],
             sections:[
-              {id: "two", title:"Two", content:"Two.", viewIf:fn}
-            ]
-          }
-        ];
-        var qualities = [];
-        compiler.compile(info, scenes, qualities, function(err, game) {
-          noerr(err);
-          var fn = game.scenes['root.two'].viewIf;
-          var state = {
-            visits:{"root.two":1},
-            qualities:{}
-          };
-          fn(state, state.qualities).should.be.true;
-          fn.logicSource.should.equal("@root.two");
-          fn.root.should.equal('predicate');
-          done();
-        });
-      });
-
-      it("should qualify id in view-if", function(done) {
-        var fn = function(state, Q) {
-          return (state.visits.two || 0) > 0;
-        };
-        fn.source = "return (state.visits['two'] || 0) > 0;";
-        fn.logicSource = "@two";
-        fn.root = "predicate";
-
-        var info = {title: "My Game", author: "Jo Doe"};
-        var scenes = [
-          {
-            id: "root",
-            title:"Root",
-            content:"Root.",
-            options: [{id:"@two"}],
-            sections:[
-              {id: "two", title:"Two", content:"Two.", viewIf:fn}
+              {id: "two", title:"Two", content:"Two.", viewIf:fn,
+               countVisitsMax:1}
             ]
           }
         ];
@@ -553,7 +576,7 @@
             options: [{id:"@two"}],
             onArrival: [fn],
             sections:[
-              {id: "two", title:"Two", content:"Two."}
+              {id: "two", title:"Two", content:"Two.", countVisitsMax:1}
             ]
           }
         ];
