@@ -205,6 +205,46 @@
       });
     });
 
+    it("interprets ?] as end of hidden, after conditional", function(done) {
+      var content = "[? if foo : Conditional, but ?][Is this hidden?] Plain";
+      parse.compile(content, function(err, result) {
+        (!!err).should.be.false;
+        result.paragraphs.should.eql([
+            {
+              type:'paragraph',
+              content: [
+                {type:'conditional', predicate:0,
+                 content:['Conditional, but ']},
+                {type:'hidden', content:['Is this hidden?']},
+                " Plain"
+              ]
+            }
+          ]
+        );
+        done();
+      });
+    });
+
+    it("interprets ?] as end of nested conditional", function(done) {
+      var content = "[? if foo : Foo [? if bar: Bar ?] End Foo ?]";
+      parse.compile(content, function(err, result) {
+        (!!err).should.be.false;
+        result.paragraphs.should.eql([{
+          type:'paragraph',
+          content: [{
+            type:'conditional',
+            predicate:0,
+            content:[
+              'Foo ',
+              {type:'conditional', predicate:1, content:["Bar "]},
+              " End Foo"
+            ]
+          }]
+        }]);
+        done();
+      });
+    });
+
     it("ignores other features inside magic", function(done) {
       var content = "[? if {! var foo = '[*Not hidden*]'; !}: hi ?]";
       parse.compile(content, function(err, result) {

@@ -151,6 +151,7 @@
         {prop:'prop  two: bar', val:{propTwo:'bar'}},
         {prop:'prop-Three: sun', val:{propThree:'sun'}},
         {prop:'PROP_THREE: sun', val:{propThree:'sun'}},
+        {prop:'Prop three: sun', val:{propThree:'sun'}},
         {prop:'propFour: dock', val:{propFour:'dock'}},
         {prop:'propFour : dock', val:{propFour:'dock'}},
         {prop:'prop Four: dock', val:{propFour:'dock'}},
