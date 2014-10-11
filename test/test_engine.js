@@ -1222,9 +1222,11 @@
           scenes: {
             "root": {
               id:"root",
-              content:{paragraphs:[
-                {type:'heading', content:["The title"]}
-              ]}
+              content:{
+                content:[
+                  {type:'heading', content:["The title"]}
+                ]
+              }
             }
           }
         };
@@ -1242,7 +1244,7 @@
             "root": {
               id:"root",
               content:{
-                paragraphs:[
+                content:[
                   {
                     type:'paragraph',
                     content:[
@@ -1271,7 +1273,7 @@
             "root": {
               id:"root",
               content:{
-                paragraphs:[
+                content:[
                   {
                     type:'paragraph',
                     content:[

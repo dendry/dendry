@@ -229,7 +229,7 @@
         scenes: {
           "root": {
             id:"root",
-            content:{paragraphs:[
+            content:{content:[
               {type:'paragraph', content:[
                 {type:'conditional', predicate:0, content:["Show me."]},
                 {type:'conditional', predicate:1, content:["Hide me."]}

@@ -996,6 +996,47 @@
 
     // ----------------------------------------------------------------------
 
+    describe("content", function() {
+      // Most content compilation checking happens in the content test
+      // file.
+
+      it("should validate paragraph content", function(done) {
+        var content = "foo *bar*";
+        validators.validateParagraphContent(
+          content, null, function(err, result) {
+            noerr(err);
+            result.should.eql({
+              content: [{
+                type:'paragraph',
+                content:[
+                  "foo ",
+                  {type:"emphasis-1", content:["bar"]}
+                ]
+              }]
+            });
+            done();
+          });
+      });
+
+      it("should validate non-paragraph content", function(done) {
+        var content = "foo *bar*";
+        validators.validateLineContent(
+          content, null, function(err, result) {
+            noerr(err);
+            result.should.eql({
+              content: [
+                "foo ",
+                {type:"emphasis-1", content:["bar"]}
+              ]
+            });
+            done();
+          });
+      });
+
+    });
+
+    // ----------------------------------------------------------------------
+
     describe("go-to validation", function() {
       it("validates single id", function(done) {
         validators.validateGoTo('@foo', null, function(err, result) {
