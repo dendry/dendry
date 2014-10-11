@@ -637,7 +637,7 @@
         (choices === null).should.be.true;
       });
 
-      it("can choose an choice and have it change scene", function() {
+      it("can choose a choice and have it change scene", function() {
         var game = {
           scenes: {
             "root": {
@@ -674,7 +674,7 @@
         dendryEngine.beginGame();
         var choices = dendryEngine.getCurrentChoices();
         choices.length.should.equal(1);
-        choices[0].title.should.equal("The Foo");
+        choices[0].title.should.eql(["The Foo"]);
       });
 
       it("can generate choices from tags", function() {
@@ -723,12 +723,12 @@
         var dendryEngine = new engine.DendryEngine(ui, game);
         dendryEngine.beginGame();
         var choices = dendryEngine.getCurrentChoices();
-        _.map(choices, function(choice) { return choice.title; }).should.eql([
-          "Bar Link",
-          "Dock Link",
-          "Foo Link",
-          "Trog Link",
-          "Sun Link"
+        choices.should.eql([
+          {id:'bar', title:["Bar Link"]},
+          {id:'dock', title:["Dock Link"]},
+          {id:'foo', title:["Foo Link"]},
+          {id:'trog', title:["Trog Link"]},
+          {id:'sun', title:["Sun Link"]}
         ]);
       });
 
@@ -757,12 +757,12 @@
         var dendryEngine = new engine.DendryEngine(ui, game);
         dendryEngine.beginGame();
         var choices = dendryEngine.getCurrentChoices();
-        _.map(choices, function(choice) { return choice.title; }).should.eql([
-          "Sun Link",
-          "Dock Link",
-          "Foo Link",
-          "Trog Link",
-          "Bar Link"
+        choices.should.eql([
+          {id:'sun', title:["Sun Link"]},
+          {id:'dock', title:["Dock Link"]},
+          {id:'foo', title:["Foo Link"]},
+          {id:'trog', title:["Trog Link"]},
+          {id:'bar', title:["Bar Link"]}
         ]);
       });
 
@@ -792,7 +792,7 @@
         dendryEngine.beginGame();
         var choices = dendryEngine.getCurrentChoices();
         choices.length.should.equal(1);
-        choices[0].title.should.equal("Sun Link");
+        choices[0].title.should.eql(["Sun Link"]);
       });
 
       it("allows links to override priority", function() {
@@ -821,7 +821,7 @@
         dendryEngine.beginGame();
         var choices = dendryEngine.getCurrentChoices();
         choices.length.should.equal(1);
-        choices[0].title.should.equal("Foo Link");
+        choices[0].title.should.eql(["Foo Link"]);
       });
 
       it("displays lower priorities if minimum not reached", function() {
@@ -851,10 +851,10 @@
         var dendryEngine = new engine.DendryEngine(ui, game);
         dendryEngine.beginGame();
         var choices = dendryEngine.getCurrentChoices();
-        _.map(choices, function(choice) { return choice.title; }).should.eql([
-          "Sun Link",
-          "Dock Link",
-          "Trog Link"
+        choices.should.eql([
+          {id:'sun', title:["Sun Link"]},
+          {id:'dock', title:["Dock Link"]},
+          {id:'trog', title:["Trog Link"]}
         ]);
       });
 
@@ -916,7 +916,75 @@
         var choices = dendryEngine.getCurrentChoices();
         choices.length.should.equal(2);
         var which = (choices[0].id === 'foo') ? 0 : 1;
-        choices[which].title.should.equal("Foo Link");
+        choices[which].title.should.eql(["Foo Link"]);
+      });
+
+      it("honors content in choice title", function() {
+        var game = {
+          scenes: {
+            "root": {
+              id: "root",
+              options:[
+                {
+                  id:"@foo",
+                  title:{
+                    content: [
+                      "The Foo (",
+                      {type:'conditional',
+                       predicate: 0, content:["Checked"]},
+                      ")"],
+                    stateDependencies: [
+                      {type:'predicate', fn:function() { return true;}}
+                    ]
+                  }
+                }
+              ]
+            },
+            "foo": {id: "foo", title: "The Foo"}
+          },
+          tagLookup: {
+            alpha: {foo:true, bar:true}
+          }
+        };
+        var ui = new engine.NullUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame();
+        var choices = dendryEngine.getCurrentChoices();
+        choices.length.should.equal(1);
+        choices[0].title.should.eql(["The Foo (", "Checked", ")"]);
+      });
+
+      it("honors content in scene title", function() {
+        var game = {
+          scenes: {
+            "root": {
+              id: "root",
+              options:[{id:'@foo'}]
+            },
+            "foo": {
+              id: "foo",
+              title: {
+                content: [
+                  "The Foo (",
+                  {type:'conditional',
+                   predicate: 0, content:["Checked"]},
+                  ")"],
+                stateDependencies: [
+                  {type:'predicate', fn:function() { return true;}}
+                ]
+              }
+            }
+          },
+          tagLookup: {
+            alpha: {foo:true, bar:true}
+          }
+        };
+        var ui = new engine.NullUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame();
+        var choices = dendryEngine.getCurrentChoices();
+        choices.length.should.equal(1);
+        choices[0].title.should.eql(["The Foo (", "Checked", ")"]);
       });
 
       it("doesn't override explicit choices from a tag", function() {
@@ -942,7 +1010,7 @@
         var choices = dendryEngine.getCurrentChoices();
         choices.length.should.equal(2);
         var which = (choices[0].id === 'foo') ? 0 : 1;
-        choices[which].title.should.equal("Foo Link");
+        choices[which].title.should.eql(["Foo Link"]);
       });
 
       it("can't choose an invalid choice", function() {
@@ -1142,7 +1210,7 @@
         var choices = ui.choices[0];
         choices.length.should.equal(1);
         choices[0].id.should.equal('foo');
-        choices[0].title.should.equal("To the Foo");
+        choices[0].title.should.eql(["To the Foo"]);
       });
 
       it("displays no content if a scene has no content", function() {
@@ -1236,7 +1304,7 @@
         ]);
       });
 
-      it("displays conditional content", function() {
+      it("displays and elides conditional content correctly", function() {
         var game = {
           scenes: {
             "root": {
@@ -1248,12 +1316,16 @@
                     content:[
                       {type:'conditional', predicate:0, content:[
                         "This should be visible."
+                      ]},
+                      {type:'conditional', predicate:1, content:[
+                        "This should be removed."
                       ]}
                     ]
                   }
                 ],
                 stateDependencies: [
-                  {type:'predicate', fn:function(state, Q) { return true; }}
+                  {type:'predicate', fn:function(state, Q) { return true; }},
+                  {type:'predicate', fn:function(state, Q) { return false; }}
                 ]
               }
             }

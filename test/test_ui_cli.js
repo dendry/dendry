@@ -222,31 +222,6 @@
       });
     });
 
-    it("runs predicates to determine conditional visibility", function() {
-      var game = {
-        title: "Game Title",
-        author: "Game Author",
-        scenes: {
-          "root": {
-            id:"root",
-            content:{content:[
-              {type:'paragraph', content:[
-                {type:'conditional', predicate:0, content:["Show me."]},
-                {type:'conditional', predicate:1, content:["Hide me."]}
-              ]}
-            ], stateDependencies:[
-              {type:'predicate', fn:function(state, Q) { return true; }},
-              {type:'predicate', fn:function(state, Q) { return false; }}
-            ]}
-          }
-        }
-      };
-      var out = new OutputAccumulator();
-      var clint =  new CLUserInterface(game, out);
-      clint.dendryEngine.beginGame();
-      out.output[4].should.eql("Show me.\n");
-    });
-
     it("honors default output width", function() {
       var game = getTestGame();
       var out = new OutputAccumulator();
