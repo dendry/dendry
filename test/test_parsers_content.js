@@ -132,31 +132,32 @@
       });
     });
 
-    it("should build state-dependencies", function(done) {
+    it("should parse conditionals", function(done) {
       var content = "[? if foo > 1: first ?]"+
         "[? if {! return Q.foo === 1 !}: second ?]";
       parse.compile(content, function(err, result) {
         (!!err).should.be.false;
         result.stateDependencies.length.should.equal(2);
-        result.stateDependencies[0](null, {foo:1}).should.be.false;
-        result.stateDependencies[1](null, {foo:1}).should.be.true;
+        result.stateDependencies[0].fn(null, {foo:1}).should.be.false;
+        result.stateDependencies[1].fn(null, {foo:1}).should.be.true;
         done();
       });
     });
 
     it("should parse quality inserts", function(done) {
-      var content = "[+ foo +]";
+      var content = "[+ foo +][+ {! return 4 !} +]";
       parse.compile(content, function(err, result) {
-        if (err) console.trace(err);
         (!!err).should.be.false;
         result.paragraphs.should.eql([{
           type:'paragraph',
           content: [
-            {type:"insert", insert: 0}
+            {type:"insert", insert: 0},
+            {type:"insert", insert: 1}
             ]
           }]);
-        result.stateDependencies.length.should.equal(1);
-        result.stateDependencies[0].quality.should.equal('foo');
+        result.stateDependencies.length.should.equal(2);
+        result.stateDependencies[0].fn(null, {foo:2}).should.equal(2);
+        result.stateDependencies[1].fn(null, {}).should.equal(4);
         done();
       });
     });
@@ -240,27 +241,59 @@
       });
     });
 
-    it("inserts can't be nested", function(done) {
-      var content = "[+ Foo [+ Bar +] Sun +]";
+    it("inserts can't have nested ranges", function(done) {
+      var content = "[+ Foo **Bar** Sun +]";
       parse.compile(content, function(err, result) {
-        (!!err).should.be.false;
-        result.should.eql({
-          paragraphs: [
-            {
-              type:'paragraph',
-              content: [
-                {type:'insert', insert:0},
-                " Sun +"
-              ]
-            }
-          ],
-          stateDependencies: [
-            {type:'insert', quality:'Foo [+ Bar'}
-          ]
-        });
+        (!!err).should.be.true;
+        err.message.should.equal(
+          "Insert content doesn't look like logic or magic."
+        );
         done();
       });
     });
+
+    it("inserts can't be nested", function(done) {
+      var content = "[+ Foo [+ Bar +] Sun +]";
+      parse.compile(content, function(err, result) {
+        (!!err).should.be.true;
+        err.message.should.equal(
+          "Can't begin a new insert in the middle of an insert."
+        );
+        done();
+      });
+    });
+
+    it("hidden blocks can't be nested", function(done) {
+      var content = "[Foo [ Bar ] Sun]";
+      parse.compile(content, function(err, result) {
+        (!!err).should.be.true;
+        err.message.should.equal(
+          "Can't begin a new hidden block in the middle of a hidden block."
+        );
+        done();
+      });
+    });
+
+    it("can't end a non existent hidden block", function(done) {
+      var content = "[ Foo Bar ] Sun]";
+      parse.compile(content, function(err, result) {
+        (!!err).should.be.true;
+        err.message.should.equal(
+          "Can't end a hidden block that hasn't been started."
+        );
+        done();
+      });
+    });
+
+    it("can't have hidden blocks inside inserts", function(done) {
+      var content = "[+ Foo [ Bar ] Sun +]";
+      parse.compile(content, function(err, result) {
+        (!!err).should.be.true;
+        err.message.should.equal("Can't nest a hidden block in an insert.");
+        done();
+      });
+    });
+
 
     it("interprets ?] as end of hidden, after conditional", function(done) {
       var content = "[? if foo : Conditional, but ?][Is this hidden?] Plain";
@@ -308,7 +341,7 @@
         (!!err).should.be.false;
         result.paragraphs[0].content[0].content.length.should.equal(1);
         result.stateDependencies.length.should.equal(1);
-        result.stateDependencies[0].source.should.equal(
+        result.stateDependencies[0].fn.source.should.equal(
           "var foo = '[*Not hidden*]';"
         );
         done();

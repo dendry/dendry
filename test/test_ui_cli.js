@@ -235,8 +235,8 @@
                 {type:'conditional', predicate:1, content:["Hide me."]}
               ]}
             ], stateDependencies:[
-              function(state, Q) { return true; },
-              function(state, Q) { return false; }
+              {type:'predicate', fn:function(state, Q) { return true; }},
+              {type:'predicate', fn:function(state, Q) { return false; }}
             ]}
           }
         }

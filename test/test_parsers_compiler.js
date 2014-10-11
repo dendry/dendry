@@ -597,6 +597,67 @@
         });
       });
 
+      it("should qualify ids in content", function(done) {
+        var predicate = function(state, Q) {
+          return (state.visits.two || 0) !== 0;
+        };
+        predicate.source = "return (state.visits['two'] || 0) !== 0;";
+        predicate.logicSource = "@two";
+        predicate.root = "predicate";
+
+        var expression = function(state, Q) {
+          return (state.visits.two || 0);
+        };
+        expression.source = "return state.visits['two'] || 0;";
+        expression.logicSource = "@two";
+        expression.root = "expression";
+
+        var info = {title: "My Game", author: "Jo Doe"};
+        var scenes = [
+          {
+            id: "root",
+            title:"Root",
+            content:"Root.",
+            options: [{id:"@two"}],
+            sections:[{
+              id: "two",
+              title:"Two",
+              content:{
+                paragraphs:[{
+                  type:'paragraph',
+                  content:[
+                    {type:'conditional',
+                     predicate:0,
+                     content:["Show me"]},
+                    {type:'insert', insert:1}
+                  ]}],
+                stateDependencies:[
+                  {type:'predicate', fn:predicate},
+                  {type:'insert', fn:expression}
+                ]
+              },
+              countVisitsMax:1
+            }]
+          }
+        ];
+        var qualities = [];
+        compiler.compile(info, scenes, qualities, function(err, game) {
+          noerr(err);
+          var deps = game.scenes['root.two'].content.stateDependencies;
+          var state = {
+            visits:{"root.two":2},
+            qualities:{}
+          };
+          var Q = state.qualities;
+          deps[0].fn(state, Q).should.be.true;
+          deps[1].fn(state, Q).should.equal(2);
+
+          deps[0].fn.logicSource.should.equal("@root.two");
+          deps[1].fn.logicSource.should.equal("@root.two");
+          done();
+        });
+      });
+
       it("should fail if there's no matching id in on-arrival", function(done) {
         var fn = function(state, Q) {
           Q.foo = (state.visits.three || 0);
@@ -627,6 +688,75 @@
           done();
         });
       });
+
+      it("should fail if there's no matching id in content", function(done) {
+        var fn = function(state, Q) {
+          return (state.visits.three || 0);
+        };
+        fn.source = "return (state.visits['three'] || 0);";
+        fn.logicSource = "@three";
+        fn.root = "predicate";
+
+        var info = {title: "My Game", author: "Jo Doe"};
+        var scenes = [
+          {
+            id: "root",
+            title:"Root",
+            content:"Root.",
+            options: [{id:"@two"}],
+            onArrival: [fn],
+            sections:[{
+              id: "two",
+              title:"Two",
+              content:{
+                paragraphs:[{
+                  type:'paragraph',
+                  content:[
+                    {type:'conditional',
+                     predicate:0,
+                     content:["Show me"]}
+                  ]}],
+                stateDependencies:[
+                  {type:'predicate', fn:fn}
+                ]
+              }
+            }]
+          }
+        ];
+        var qualities = [];
+        compiler.compile(info, scenes, qualities, function(err, game) {
+          (!!err).should.be.true;
+          err.toString().should.equal(
+            "Error: Couldn't find an id matching 'three' in 'root.two'."
+          );
+          done();
+        });
+      });
+
+      it("should ignore update ids for missing or non-dependent content",
+         function(done) {
+
+           var info = {title: "My Game", author: "Jo Doe"};
+           var scenes = [
+             {
+               id: "root",
+               title:"Root",
+               content:"Root.",
+               options: [{id:"@two"}],
+               sections:[{
+                 id: "two",
+                 title:"Two"
+                 // Having no content tests if the id-qualification can
+                 // cope with content being undefined.
+               }]
+             }
+          ];
+           var qualities = [];
+           compiler.compile(info, scenes, qualities, function(err, game) {
+             (!!err).should.be.false;
+             done();
+           });
+         });
 
       it("should fail if there's no matching id in view-if", function(done) {
         var fn = function(state, Q) {

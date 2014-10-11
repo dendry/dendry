@@ -57,6 +57,83 @@
 
     // ---------------------------------------------------------------------
 
+    describe("function running", function() {
+      it("can run actions", function() {
+        var actions = [
+          function(state, Q) {
+            Q.foo += 1;
+            Q.bar = 2;
+          },
+          function(state, Q) {
+            Q.foo += 1;
+            Q.bar += 1;
+          }
+        ];
+        var state = {
+          qualities:{
+            foo:1
+          }
+        };
+        engine.runActions(actions, {}, state);
+        state.qualities.foo.should.equal(3);
+        state.qualities.bar.should.equal(3);
+      });
+
+      it("copes with undefined actions", function() {
+        var state = {
+          qualities:{
+            foo:1
+          }
+        };
+        engine.runActions(undefined, {}, state);
+        state.qualities.foo.should.equal(1);
+      });
+
+      it("can run predicate", function() {
+        var predicate = function(state, Q) {
+          return Q.foo > 0;
+        };
+        var state = {
+          qualities:{
+            foo:1
+          }
+        };
+        engine.runPredicate(predicate, false, {}, state).should.be.true;
+      });
+
+      it("generates a default when no predicate is given", function() {
+        var state = {
+          qualities:{
+            foo:0
+          }
+        };
+        engine.runPredicate(undefined, true, {}, state).should.be.true;
+      });
+
+      it("can run expression", function() {
+        var expression = function(state, Q) {
+          return Q.foo + 1;
+        };
+        var state = {
+          qualities:{
+            foo:1
+          }
+        };
+        engine.runExpression(expression, 4, {}, state).should.equal(2);
+      });
+
+      it("generates a default when no expression is given", function() {
+        var state = {
+          qualities:{
+            foo:0
+          }
+        };
+        engine.runExpression(undefined, 4, {}, state).should.equal(4);
+      });
+    });
+
+    // ---------------------------------------------------------------------
+
     describe("loading game", function() {
       it("should load a functionless JSON file", function(done) {
         var json = '{"title":"The Title", "author":"The Author"}';
@@ -1176,7 +1253,7 @@
                   }
                 ],
                 stateDependencies: [
-                  function(state, Q) { return true; }
+                  {type:'predicate', fn:function(state, Q) { return true; }}
                 ]
               }
             }
@@ -1204,8 +1281,8 @@
                   }
                 ],
                 stateDependencies: [
-                  {type:'insert', quality:'foo'},
-                  {type:'insert', quality:'bar'}
+                  {type:'insert', fn:function(_, Q) { return Q.foo || 0; }},
+                  {type:'insert', fn:function(_, Q) { return Q.bar || 0; }}
                 ]
               }
             }
