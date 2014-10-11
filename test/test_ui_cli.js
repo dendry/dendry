@@ -257,7 +257,7 @@
         {type:'paragraph',
          content:["Two households, both alike in dignity, "+
                   "in fair Verona where we lay our scene."]
-        }], []);
+        }]);
       var text = out.output[0];
       text.should.equal(
         "Two households, both alike in dignity, "+

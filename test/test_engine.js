@@ -1098,14 +1098,12 @@
     describe("display", function() {
       var TestUserInterface = function() {
         this.content = [];
-        this.data = [];
         this.choices = [];
         this.page = 0;
       };
       engine.UserInterface.makeParentOf(TestUserInterface);
-      TestUserInterface.prototype.displayContent = function(paragraphs, data) {
+      TestUserInterface.prototype.displayContent = function(paragraphs) {
         this.content.push(paragraphs);
-        this.data.push(data);
       };
       TestUserInterface.prototype.displayChoices = function(choices) {
         this.choices.push(choices);
@@ -1264,7 +1262,12 @@
         var ui = new TestUserInterface();
         var dendryEngine = new engine.DendryEngine(ui, game);
         dendryEngine.beginGame();
-        ui.data[0].should.eql([true]);
+        ui.content[0].should.eql([
+          {
+            type:'paragraph',
+            content:["This should be visible."]
+          }
+        ]);
       });
 
       it("displays insert content", function() {
@@ -1278,6 +1281,7 @@
                     type:'paragraph',
                     content:[
                       {type:'insert', insert:0},
+                      ",",
                       {type:'insert', insert:1}
                     ]
                   }
@@ -1296,7 +1300,10 @@
         var ui = new TestUserInterface();
         var dendryEngine = new engine.DendryEngine(ui, game);
         dendryEngine.beginGame();
-        ui.data[0].should.eql([5, 0]);
+        ui.content[0].should.eql([{
+          type:'paragraph',
+          content: ["5", ",", "0"]
+        }]);
       });
 
       it("displays content from scene with go-to", function() {
