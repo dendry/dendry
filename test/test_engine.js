@@ -620,7 +620,7 @@
         var choices = dendryEngine.getCurrentChoices();
         choices.length.should.equal(1);
         choices[0].id.should.equal('root');
-        choices[0].title.should.equal('Scene Complete');
+        choices[0].title.should.equal('Continue...');
       });
 
       it("should not give a default choice if we're at the root", function() {
@@ -696,6 +696,37 @@
         dendryEngine.beginGame();
         var choices = dendryEngine.getCurrentChoices();
         choices.length.should.equal(2);
+      });
+
+      it("choices have subtitles", function() {
+        var game = {
+          scenes: {
+            "root": {
+              id: "root",
+              options:[
+                {id:"@foo", title:"Foo Link"},
+                {id:"@bar", title:"Bar Link", subtitle:"Bar subtitle"},
+                {id:"@sun", title:"Sun Link", subtitle:"Sun option subtitle"}
+              ]
+            },
+            "foo": {id:"foo", title:"The Foo", subtitle:"Foo subtitle"},
+            "bar": {id:"bar", title:"The Bar"},
+            "sun": {id:"sun", title:"The Sun", subtitle:"Sun scene subtitle"}
+          },
+          tagLookup: {}
+        };
+        var ui = new engine.NullUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame();
+        var choices = dendryEngine.getCurrentChoices();
+        choices.should.eql([
+          {id:'foo', canChoose:true,
+           title:["Foo Link"], subtitle:["Foo subtitle"]},
+          {id:'bar', canChoose:true,
+           title:["Bar Link"], subtitle:["Bar subtitle"]},
+          {id:'sun', canChoose:true,
+           title:["Sun Link"], subtitle:["Sun option subtitle"]}
+        ]);
       });
 
       it("orders choices correctly", function() {
