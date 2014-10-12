@@ -729,6 +729,56 @@
         ]);
       });
 
+      it("unavailable choices can use a different subtitles", function() {
+        var game = {
+          scenes: {
+            "root": {
+              id: "root",
+              options:[
+                {id:"@foo", title:"Foo Link",
+                 chooseIf: function(state, Q) { return false; }},
+                {id:"@bar", title:"Bar Link",
+                 chooseIf: function(state, Q) { return false; },
+                 subtitle:"Bar option available."},
+                {id:"@sun", title:"Sun Link",
+                 chooseIf: function(state, Q) { return false; },
+                 unavailableSubtitle:"Sun option unavailable."},
+                {id:"@dock", title:"Dock Link",
+                 chooseIf: function(state, Q) { return false; },
+                 subtitle:"Dock option available."},
+
+                // Because we can't have all unchoosable links.
+                {id:"@trog", title:"Trog Link"}
+              ]
+            },
+            "foo": {id:"foo", title:"The Foo",
+                    unavailableSubtitle:"Foo scene unavailable."},
+            "bar": {id:"bar", title:"The Bar"},
+            "sun": {id:"sun", title:"The Sun",
+                    unavailableSubtitle:"Sun scene unavailable."},
+            "dock": {id:"dock", title:"The Dock",
+                    unavailableSubtitle:"Dock scene unavailable."},
+            "trog": {id:"trog"}
+          },
+          tagLookup: {}
+        };
+        var ui = new engine.NullUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame();
+        var choices = dendryEngine.getCurrentChoices();
+        choices.should.eql([
+          {id:'foo', canChoose:false,
+           title:["Foo Link"], subtitle:["Foo scene unavailable."]},
+          {id:'bar', canChoose:false,
+           title:["Bar Link"], subtitle:["Bar option available."]},
+          {id:'sun', canChoose:false,
+           title:["Sun Link"], subtitle:["Sun option unavailable."]},
+          {id:'dock', canChoose:false,
+           title:["Dock Link"], subtitle:["Dock scene unavailable."]},
+          {id:'trog', canChoose:true, title:["Trog Link"]}
+        ]);
+      });
+
       it("orders choices correctly", function() {
         var game = {
           scenes: {
