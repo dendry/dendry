@@ -893,6 +893,34 @@
         choices[1].id.should.equal('bar');
       });
 
+      it("always selects unlimited frequency choices", function() {
+        var game = {
+          scenes: {
+            "root": {
+              id: "root",
+              maxChoices: 2,
+              options:[
+                {id:"@foo", title:"Foo Link", frequency:null},
+                {id:"@bar", title:"Bar Link"},
+                {id:"@sun", title:"Sun Link"}
+              ]
+            },
+            "foo": {id: "foo", title: "The Foo", frequency:0.01, order:1},
+            "bar": {id: "bar", title: "The Bar", frequency:100, order:2},
+            "sun": {id: "sun", title: "The Sun", order:3}
+          },
+          tagLookup: {}
+        };
+        var ui = new engine.NullUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame();
+        var choices = dendryEngine.getCurrentChoices();
+        choices.length.should.equal(2);
+        // Ordinarily the chance of foo being picked is basically zero,
+        // but the option should override this and make it always chosen.
+        choices[0].id.should.equal('foo');
+      });
+
       it("overrides tag choices with explicit choice", function() {
         var game = {
           scenes: {

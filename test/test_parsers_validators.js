@@ -1037,6 +1037,50 @@
 
     // ----------------------------------------------------------------------
 
+    describe("frequency validation", function() {
+      var unlimited = ['always', 'Always', "*"];
+      unlimited.forEach(function(name) {
+        it("should handle value "+name+" as always", function(done) {
+          validators.validateFrequency(name, null, function(err, result) {
+            noerr(err);
+            (result === null).should.be.true;
+            done();
+          });
+        });
+      });
+
+      var nevers = ['never', 'NEVER', "0"];
+      nevers.forEach(function(name) {
+        it("should handle value "+name+" as never", function(done) {
+          validators.validateFrequency(name, null, function(err, result) {
+            noerr(err);
+            result.should.equal(0);
+            done();
+          });
+        });
+      });
+
+      it("should interpret non-always values as floats", function(done) {
+        var content = "0.5";
+        validators.validateFrequency(content, null, function(err, result) {
+          noerr(err);
+          result.should.equal(0.5);
+          done();
+        });
+      });
+
+      it("should reject values below zero", function(done) {
+        var content = "-0.5";
+        validators.validateFrequency(content, null, function(err, result) {
+          (!!err).should.be.true;
+          err.message.should.equal("-0.5 is not in range 0+.");
+          done();
+        });
+      });
+    });
+
+    // ----------------------------------------------------------------------
+
     describe("go-to validation", function() {
       it("validates single id", function(done) {
         validators.validateGoTo('@foo', null, function(err, result) {
