@@ -1175,6 +1175,30 @@
         );
       });
 
+      it("can't choose an unavailable choice", function() {
+        var game = {
+          scenes: {
+            "root": {
+              id: "root",
+              options:[{
+                id:"@foo", title:"To the Foo",
+                chooseIf: function(state, Q) { return false; }
+              }, {
+                id:"@bar", title:"To the Bar"
+              }]
+            },
+            "foo": { id: "foo" },
+            "bar": { id: "bar" }
+          }
+        };
+        var ui = new engine.NullUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame();
+        (function() { dendryEngine.choose(0); }).should.throw(
+          "Attempted to choose index 0, but that choice is unavailable."
+        );
+      });
+
       it("removes a choice visited too much", function() {
         var game = {
           scenes: {

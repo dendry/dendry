@@ -66,6 +66,14 @@
         border-bottom: 1px solid #876;
         padding: 0.5em;
       }
+      ul.choices li.unavailable {
+        color: #999;
+        background-color: rgba(153,136,119,0.2);
+        cursor: default !important;
+      }
+      ul.choices li.unavailable:after {
+        content: " (Unavailable)";
+      }
       ul.choices li:hover {
         background-color: rgba(153,136,119,0.2);
         cursor: pointer;

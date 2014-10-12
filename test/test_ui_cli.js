@@ -68,6 +68,7 @@
           },
           "foo": {
             id: "foo",
+            subtitle: "Description of Foo",
             order: 10,
             onArrival: [function(state, Q) { Q.foo = 1; }],
             content: "This is the foo content.",
@@ -75,6 +76,8 @@
           },
           "bar": {
             id: "bar",
+            subtitle: "Description of Bar",
+            chooseIf: function(state, Q) { return Q.foo > 0; },
             order: 20,
             content: "This is the bar content.",
             gameOver: true
@@ -126,6 +129,21 @@
         (!!err).should.be.true;
         err.toString().should.equal(
           "Error: Value 'x' for 'choice' doesn't conform.");
+        done();
+      });
+    });
+
+    it("should fail if prompt is out of range", function(done) {
+      var game = getTestGame();
+      var out = new OutputAccumulator();
+      var pin = new PredeterminedInput([
+        {choice:'1'}, {choice:'3'}
+      ]);
+      var clint =  new CLUserInterface(game, out, pin);
+      clint.run(function(err) {
+        (!!err).should.be.true;
+        err.toString().should.equal(
+          "Error: Value '3' for 'choice' doesn't conform.");
         done();
       });
     });
