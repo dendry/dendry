@@ -381,6 +381,40 @@
         });
       });
 
+      it("should resolve id in option choose-if", function(done) {
+        var fn = function(state, Q) {
+          return (state.visits.two || 0) > 0;
+        };
+        fn.source = "return (state.visits['@two'] || 0) > 0;";
+        fn.logicSource = "@two";
+        fn.root = "predicate";
+
+        var info = {title: "My Game", author: "Jo Doe"};
+        var scenes = [
+          {id: "root", title:"Root scene", content:"Root content",
+           sections: [
+             {
+               id: "root.one", title:"One", content:"One.",
+               options:[{id:"@two", title:"Two", chooseIf:fn}]
+             },
+             {id: "root.two", title:"Two", content:"Two.", countVisitsMax:1},
+           ]}
+        ];
+        var qualities = [];
+        compiler.compile(info, scenes, qualities, function(err, game) {
+          noerr(err);
+          var fn = game.scenes["root.one"].options[0].chooseIf;
+          var state = {
+            visits:{"root.two":1},
+            qualities:{}
+          };
+          fn(state, state.qualities).should.be.true;
+          fn.logicSource.should.equal("@root.two");
+          fn.root.should.equal('predicate');
+          done();
+        });
+      });
+
       it("should fail if target id isn't counting visits", function(done) {
         var fn = function(state, Q) {
           return (state.visits.two || 0) > 0;
@@ -548,6 +582,42 @@
         compiler.compile(info, scenes, qualities, function(err, game) {
           noerr(err);
           var fn = game.scenes['root.two'].viewIf;
+          var state = {
+            visits:{"root.two":1},
+            qualities:{}
+          };
+          fn(state, state.qualities).should.be.true;
+          fn.logicSource.should.equal("@root.two");
+          fn.root.should.equal('predicate');
+          done();
+        });
+      });
+
+      it("should qualify id in choose-if", function(done) {
+        var fn = function(state, Q) {
+          return (state.visits.two || 0) > 0;
+        };
+        fn.source = "return (state.visits['@two'] || 0) > 0;";
+        fn.logicSource = "@two";
+        fn.root = "predicate";
+
+        var info = {title: "My Game", author: "Jo Doe"};
+        var scenes = [
+          {
+            id: "root",
+            title:"Root",
+            content:"Root.",
+            options: [{id:"@two"}],
+            sections:[
+              {id: "two", title:"Two", content:"Two.", chooseIf:fn,
+               countVisitsMax:1}
+            ]
+          }
+        ];
+        var qualities = [];
+        compiler.compile(info, scenes, qualities, function(err, game) {
+          noerr(err);
+          var fn = game.scenes['root.two'].chooseIf;
           var state = {
             visits:{"root.two":1},
             qualities:{}

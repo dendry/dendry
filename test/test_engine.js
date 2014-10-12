@@ -724,11 +724,11 @@
         dendryEngine.beginGame();
         var choices = dendryEngine.getCurrentChoices();
         choices.should.eql([
-          {id:'bar', title:["Bar Link"]},
-          {id:'dock', title:["Dock Link"]},
-          {id:'foo', title:["Foo Link"]},
-          {id:'trog', title:["Trog Link"]},
-          {id:'sun', title:["Sun Link"]}
+          {id:'bar', title:["Bar Link"], canChoose:true},
+          {id:'dock', title:["Dock Link"], canChoose:true},
+          {id:'foo', title:["Foo Link"], canChoose:true},
+          {id:'trog', title:["Trog Link"], canChoose:true},
+          {id:'sun', title:["Sun Link"], canChoose:true}
         ]);
       });
 
@@ -758,11 +758,11 @@
         dendryEngine.beginGame();
         var choices = dendryEngine.getCurrentChoices();
         choices.should.eql([
-          {id:'sun', title:["Sun Link"]},
-          {id:'dock', title:["Dock Link"]},
-          {id:'foo', title:["Foo Link"]},
-          {id:'trog', title:["Trog Link"]},
-          {id:'bar', title:["Bar Link"]}
+          {id:'sun', title:["Sun Link"], canChoose:true},
+          {id:'dock', title:["Dock Link"], canChoose:true},
+          {id:'foo', title:["Foo Link"], canChoose:true},
+          {id:'trog', title:["Trog Link"], canChoose:true},
+          {id:'bar', title:["Bar Link"], canChoose:true}
         ]);
       });
 
@@ -852,9 +852,9 @@
         dendryEngine.beginGame();
         var choices = dendryEngine.getCurrentChoices();
         choices.should.eql([
-          {id:'sun', title:["Sun Link"]},
-          {id:'dock', title:["Dock Link"]},
-          {id:'trog', title:["Trog Link"]}
+          {id:'sun', title:["Sun Link"], canChoose:true},
+          {id:'dock', title:["Dock Link"], canChoose:true},
+          {id:'trog', title:["Trog Link"], canChoose:true}
         ]);
       });
 
@@ -1190,6 +1190,42 @@
         choices[0].id.should.equal('bar');
       });
 
+      it("honors choose-if checks in scene and option", function() {
+        var game = {
+          scenes: {
+            "root": {
+              id: "root",
+              options:[
+                {id:"@foo",
+                 title:"To the Foo",
+                 chooseIf: function(state, Q) { return false; }},
+                {id:"@bar", title:"To the Bar"},
+                {id:"@sun", title:"To the Sun"}
+              ]
+            },
+            "foo": {
+              id: "foo"
+            },
+            "bar": {
+              id: "bar",
+              chooseIf: function(state, Q) { return false; }
+            },
+            "sun": {
+              id: "sun"
+            }
+          }
+        };
+        var ui = new engine.NullUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame();
+        var choices = dendryEngine.getCurrentChoices();
+        choices.should.eql([
+          {id:'foo', title:["To the Foo"], canChoose:false},
+          {id:'bar', title:["To the Bar"], canChoose:false},
+          {id:'sun', title:["To the Sun"], canChoose:true}
+        ]);
+      });
+
       it("ends the game when no valid choices remain", function() {
         var game = {
           scenes: {
@@ -1213,6 +1249,80 @@
         dendryEngine.beginGame();
         dendryEngine.getCurrentChoices().length.should.equal(1);
         dendryEngine.choose(0).choose(0);
+        dendryEngine.isGameOver().should.be.true;
+      });
+
+      it("ends the game when no choosable choices remain", function() {
+        var game = {
+          scenes: {
+            "root": {
+              id: "root",
+              options:[
+                {id:"@foo", title:"To the Foo"},
+                {id:"@bar", title:"To the Bar",
+                 chooseIf: function(state, Q) { return false; }}
+              ]
+            },
+            "foo": {
+              id: "foo",
+              maxVisits: 1, countVisitsMax: 1,
+            },
+            "bar": { id: "bar" }
+          }
+        };
+        var ui = new engine.NullUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame();
+        dendryEngine.getCurrentChoices().length.should.equal(2);
+        dendryEngine.choose(0).choose(0);
+        dendryEngine.isGameOver().should.be.true;
+      });
+
+      it("adds a root choice if no other choice is choosable", function() {
+        var game = {
+          scenes: {
+            "root": {
+              id: "root",
+              options:[
+                {id:"@foo", title:"To the Foo"}
+              ]
+            },
+            "foo": {
+              id: "foo",
+              options:[
+                {id:"@bar", title:"To the Bar",
+                 chooseIf: function(state, Q) { return false; }}
+              ]
+            },
+            "bar": { id: "bar" }
+          }
+        };
+        var ui = new engine.NullUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame();
+        dendryEngine.choose(0);
+        dendryEngine.getCurrentChoices().length.should.equal(2);
+      });
+
+      it("doesn't fall back to root if root isn't choosable", function() {
+        var game = {
+          scenes: {
+            "root": {
+              id: "root",
+              chooseIf: function(state, Q) { return false; },
+              options:[
+                {id:"@foo", title:"To the Foo"}
+              ]
+            },
+            "foo": {
+              id: "foo"
+            }
+          }
+        };
+        var ui = new engine.NullUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame();
+        dendryEngine.choose(0);
         dendryEngine.isGameOver().should.be.true;
       });
     });
