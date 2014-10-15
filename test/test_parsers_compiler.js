@@ -81,7 +81,8 @@
           {id: "foo", title:"The Foo", content:"Foo content"}
         ];
         var qualities = [];
-        compiler.compile(info, scenes, qualities, function(err, game) {
+        var qdisps = [];
+        compiler.compile(info, scenes, qualities, qdisps, function(err, game) {
           noerr(err);
           game.content.should.equal(info.content);
           game.firstScene.should.equal(info.firstScene);
@@ -106,7 +107,8 @@
           }
         ];
         var qualities = [];
-        compiler.compile(info, scenes, qualities, function(err, game) {
+        var qdisps = [];
+        compiler.compile(info, scenes, qualities, qdisps, function(err, game) {
           noerr(err);
           game.scenes.foo.title.should.equal('The Foo');
           done();
@@ -132,7 +134,8 @@
            },
         ];
         var qualities = [];
-        compiler.compile(info, scenes, qualities, function(err, game) {
+        var qdisps = [];
+        compiler.compile(info, scenes, qualities, qdisps, function(err, game) {
           noerr(err);
           game.tagLookup.alpha.should.eql({root: true, "root.foo": true});
           game.tagLookup.bravo.should.eql({root: true});
@@ -151,7 +154,8 @@
           {id: "root", title:"Root Two", content: "Root Two."},
         ];
         var qualities = [];
-        compiler.compile(info, scenes, qualities, function(err, game) {
+        var qdisps = [];
+        compiler.compile(info, scenes, qualities, qdisps, function(err, game) {
           (!!err).should.be.true;
           err.toString().should.equal(
             "Error: Duplicate scenes with id 'root' found.");
@@ -172,7 +176,8 @@
           }
         ];
         var qualities = [];
-        compiler.compile(info, scenes, qualities, function(err, game) {
+        var qdisps = [];
+        compiler.compile(info, scenes, qualities, qdisps, function(err, game) {
           (!!err).should.be.true;
           err.toString().should.equal(
             "Error: Duplicate scenes with id 'root.foo' found.");
@@ -197,7 +202,8 @@
            }
         ];
         var qualities = [];
-        compiler.compile(info, scenes, qualities, function(err, game) {
+        var qdisps = [];
+        compiler.compile(info, scenes, qualities, qdisps, function(err, game) {
           noerr(err);
           game.tagLookup.alpha.should.eql({root: true, foo: true});
           game.tagLookup.bravo.should.eql({root: true});
@@ -219,7 +225,8 @@
           {id: "foo"},
           {id: "bar"}
         ];
-        compiler.compile(info, scenes, qualities, function(err, game) {
+        var qdisps = [];
+        compiler.compile(info, scenes, qualities, qdisps, function(err, game) {
           noerr(err);
           (!!game.qualities.foo).should.be.true;
           (!!game.qualities.bar).should.be.true;
@@ -241,7 +248,8 @@
            ]}
         ];
         var qualities = [];
-        compiler.compile(info, scenes, qualities, function(err, game) {
+        var qdisps = [];
+        compiler.compile(info, scenes, qualities, qdisps, function(err, game) {
           noerr(err);
           (!!game.scenes.one).should.be.false;
           (!!game.scenes.two).should.be.false;
@@ -262,7 +270,8 @@
            ]}
         ];
         var qualities = [];
-        compiler.compile(info, scenes, qualities, function(err, game) {
+        var qdisps = [];
+        compiler.compile(info, scenes, qualities, qdisps, function(err, game) {
           noerr(err);
           game.scenes["root.one"].goTo.should.eql([{id:"root.two"}]);
           done();
@@ -287,7 +296,8 @@
            ]}
         ];
         var qualities = [];
-        compiler.compile(info, scenes, qualities, function(err, game) {
+        var qdisps = [];
+        compiler.compile(info, scenes, qualities, qdisps, function(err, game) {
           noerr(err);
           var fn = game.scenes['root.one'].goTo[0].predicate;
           var state = {
@@ -317,7 +327,8 @@
           {id: "foo", title:"Foo scene", content:"Foo content"}
         ];
         var qualities = [];
-        compiler.compile(info, scenes, qualities, function(err, game) {
+        var qdisps = [];
+        compiler.compile(info, scenes, qualities, qdisps, function(err, game) {
           noerr(err);
           game.scenes["root.one"].goTo.length.should.equal(2);
           game.scenes["root.one"].goTo[0].id.should.equal('root.two');
@@ -339,7 +350,8 @@
            ]}
         ];
         var qualities = [];
-        compiler.compile(info, scenes, qualities, function(err, game) {
+        var qdisps = [];
+        compiler.compile(info, scenes, qualities, qdisps, function(err, game) {
           noerr(err);
           game.scenes["root.one"].options[0].id.
             should.equal("@root.two");
@@ -367,7 +379,8 @@
            ]}
         ];
         var qualities = [];
-        compiler.compile(info, scenes, qualities, function(err, game) {
+        var qdisps = [];
+        compiler.compile(info, scenes, qualities, qdisps, function(err, game) {
           noerr(err);
           var fn = game.scenes["root.one"].options[0].viewIf;
           var state = {
@@ -401,7 +414,8 @@
            ]}
         ];
         var qualities = [];
-        compiler.compile(info, scenes, qualities, function(err, game) {
+        var qdisps = [];
+        compiler.compile(info, scenes, qualities, qdisps, function(err, game) {
           noerr(err);
           var fn = game.scenes["root.one"].options[0].chooseIf;
           var state = {
@@ -435,7 +449,8 @@
            ]}
         ];
         var qualities = [];
-        compiler.compile(info, scenes, qualities, function(err, game) {
+        var qdisps = [];
+        compiler.compile(info, scenes, qualities, qdisps, function(err, game) {
           (!!err).should.be.true;
           err.message.should.equal(
             "Function refers to visit count of scene 'two' which resolves to "+
@@ -462,7 +477,8 @@
           {id: "two", title:"Two", content:"Two."}
         ];
         var qualities = [];
-        compiler.compile(info, scenes, qualities, function(err, game) {
+        var qdisps = [];
+        compiler.compile(info, scenes, qualities, qdisps, function(err, game) {
           (!!err).should.be.true;
           err.message.should.equal(
             "Function refers to visit count of scene 'two' "+
@@ -485,7 +501,8 @@
            ]}
         ];
         var qualities = [];
-        compiler.compile(info, scenes, qualities, function(err, game) {
+        var qdisps = [];
+        compiler.compile(info, scenes, qualities, qdisps, function(err, game) {
           noerr(err);
           game.scenes["root.one"].options[0].id.should.equal("#tag");
           done();
@@ -500,7 +517,8 @@
           {id: "two", title:"Two", content:"Two."}
         ];
         var qualities = [];
-        compiler.compile(info, scenes, qualities, function(err, game) {
+        var qdisps = [];
+        compiler.compile(info, scenes, qualities, qdisps, function(err, game) {
           (!!err).should.be.true;
           err.message.should.equal("We have an option pointing at a tag "+
                                    "'tag' which has no matching scenes.");
@@ -516,7 +534,8 @@
           {id: "two", content:"Two."}
         ];
         var qualities = [];
-        compiler.compile(info, scenes, qualities, function(err, game) {
+        var qdisps = [];
+        compiler.compile(info, scenes, qualities, qdisps, function(err, game) {
           (!!err).should.be.true;
           err.message.should.equal("Option refers to scene 'two', but neither "+
                                    "option nor scene have a title.");
@@ -532,7 +551,8 @@
           {id: "two", content:"Two.", tags:['foo']}
         ];
         var qualities = [];
-        compiler.compile(info, scenes, qualities, function(err, game) {
+        var qdisps = [];
+        compiler.compile(info, scenes, qualities, qdisps, function(err, game) {
           (!!err).should.be.true;
           err.message.should.equal("Scene 'two' can be selected as an "+
                                    "option for tag 'foo' but has no title.");
@@ -550,7 +570,8 @@
            ]}
         ];
         var qualities = [];
-        compiler.compile(info, scenes, qualities, function(err, game) {
+        var qdisps = [];
+        compiler.compile(info, scenes, qualities, qdisps, function(err, game) {
           noerr(err);
           game.scenes.root.options[0].id.should.equal("@root.one");
           done();
@@ -579,7 +600,8 @@
           }
         ];
         var qualities = [];
-        compiler.compile(info, scenes, qualities, function(err, game) {
+        var qdisps = [];
+        compiler.compile(info, scenes, qualities, qdisps, function(err, game) {
           noerr(err);
           var fn = game.scenes['root.two'].viewIf;
           var state = {
@@ -615,7 +637,8 @@
           }
         ];
         var qualities = [];
-        compiler.compile(info, scenes, qualities, function(err, game) {
+        var qdisps = [];
+        compiler.compile(info, scenes, qualities, qdisps, function(err, game) {
           noerr(err);
           var fn = game.scenes['root.two'].chooseIf;
           var state = {
@@ -651,7 +674,8 @@
           }
         ];
         var qualities = [];
-        compiler.compile(info, scenes, qualities, function(err, game) {
+        var qdisps = [];
+        compiler.compile(info, scenes, qualities, qdisps, function(err, game) {
           noerr(err);
           var fn = game.scenes.root.onArrival[0];
           var state = {
@@ -711,7 +735,8 @@
           }
         ];
         var qualities = [];
-        compiler.compile(info, scenes, qualities, function(err, game) {
+        var qdisps = [];
+        compiler.compile(info, scenes, qualities, qdisps, function(err, game) {
           noerr(err);
           var deps = game.scenes['root.two'].content.stateDependencies;
           var state = {
@@ -750,7 +775,8 @@
           }
         ];
         var qualities = [];
-        compiler.compile(info, scenes, qualities, function(err, game) {
+        var qdisps = [];
+        compiler.compile(info, scenes, qualities, qdisps, function(err, game) {
           (!!err).should.be.true;
           err.toString().should.equal(
             "Error: Couldn't find an id matching 'three' in 'root'."
@@ -794,7 +820,8 @@
           }
         ];
         var qualities = [];
-        compiler.compile(info, scenes, qualities, function(err, game) {
+        var qdisps = [];
+        compiler.compile(info, scenes, qualities, qdisps, function(err, game) {
           (!!err).should.be.true;
           err.toString().should.equal(
             "Error: Couldn't find an id matching 'three' in 'root.two'."
@@ -803,30 +830,29 @@
         });
       });
 
-      it("should ignore update ids for missing or non-dependent content",
-         function(done) {
-
-           var info = {title: "My Game", author: "Jo Doe"};
-           var scenes = [
-             {
-               id: "root",
-               title:"Root",
-               content:"Root.",
-               options: [{id:"@two"}],
-               sections:[{
-                 id: "two",
-                 title:"Two"
-                 // Having no content tests if the id-qualification can
-                 // cope with content being undefined.
+      it("shouldn't update ids for irrelevant content", function(done) {
+        var info = {title: "My Game", author: "Jo Doe"};
+        var scenes = [
+          {
+            id: "root",
+            title:"Root",
+            content:"Root.",
+            options: [{id:"@two"}],
+            sections:[{
+              id: "two",
+              title:"Two"
+              // Having no content tests if the id-qualification can
+              // cope with content being undefined.
                }]
-             }
-          ];
-           var qualities = [];
-           compiler.compile(info, scenes, qualities, function(err, game) {
-             (!!err).should.be.false;
-             done();
-           });
-         });
+          }
+        ];
+        var qualities = [];
+        var qdisps = [];
+        compiler.compile(info, scenes, qualities, qdisps, function(err, game) {
+          (!!err).should.be.false;
+          done();
+        });
+      });
 
       it("should fail if there's no matching id in view-if", function(done) {
         var fn = function(state, Q) {
@@ -849,7 +875,8 @@
           }
         ];
         var qualities = [];
-        compiler.compile(info, scenes, qualities, function(err, game) {
+        var qdisps = [];
+        compiler.compile(info, scenes, qualities, qdisps, function(err, game) {
           (!!err).should.be.true;
           err.toString().should.equal(
             "Error: Couldn't find an id matching 'three' in 'root.two'."
@@ -869,7 +896,8 @@
            ]}
         ];
         var qualities = [];
-        compiler.compile(info, scenes, qualities, function(err, game) {
+        var qdisps = [];
+        compiler.compile(info, scenes, qualities, qdisps, function(err, game) {
           (!!err).should.be.true;
           err.toString().should.equal(
             "Error: Couldn't find an id matching 'three' in 'root.one'."
@@ -889,7 +917,8 @@
            ]}
         ];
         var qualities = [];
-        compiler.compile(info, scenes, qualities, function(err, game) {
+        var qdisps = [];
+        compiler.compile(info, scenes, qualities, qdisps, function(err, game) {
           (!!err).should.be.true;
           err.toString().should.equal(
             "Error: Couldn't find an id matching '..three' in 'root.one'."
@@ -909,7 +938,8 @@
            ]}
         ];
         var qualities = [];
-        compiler.compile(info, scenes, qualities, function(err, game) {
+        var qdisps = [];
+        compiler.compile(info, scenes, qualities, qdisps, function(err, game) {
           (!!err).should.be.true;
           err.toString().should.equal(
             "Error: Couldn't find an id matching 'three' in 'root.one'."
@@ -929,7 +959,8 @@
            ]}
         ];
         var qualities = [];
-        compiler.compile(info, scenes, qualities, function(err, game) {
+        var qdisps = [];
+        compiler.compile(info, scenes, qualities, qdisps, function(err, game) {
           (!!err).should.be.true;
           err.toString().should.equal("Error: Context is not deep enough.");
           done();
@@ -950,8 +981,10 @@
           var _;
           var scenes = 0; for (_ in game.scenes) scenes++;
           var qualities = 0; for (_ in game.qualities) qualities++;
+          var qdisplays = 0; for (_ in game.qdisplays) qdisplays++;
           scenes.should.equal(6);
           qualities.should.equal(1);
+          qdisplays.should.equal(0);
           done();
         });
       });
@@ -974,7 +1007,8 @@
         ];
         var qualities = [
         ];
-        compiler.compile(info, scenes, qualities, function(err, game) {
+        var qdisps = [];
+        compiler.compile(info, scenes, qualities, qdisps, function(err, game) {
           noerr(err);
           var filename = "/tmp/test-dendry.game";
           compiler.saveCompiledGame(game, filename, function(err) {
@@ -1049,9 +1083,9 @@
           },
           {id: "foo", title:"The Foo", content:"Foo content"}
         ];
-        var qualities = [
-        ];
-        compiler.compile(info, scenes, qualities, function(err, game) {
+        var qualities = [];
+        var qdisps = [];
+        compiler.compile(info, scenes, qualities, qdisps, function(err, game) {
           noerr(err);
           compiler.convertGameToJSON(game, function(err, json) {
             noerr(err);
