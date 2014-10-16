@@ -57,6 +57,58 @@
 
     // ---------------------------------------------------------------------
 
+    describe("built-in qdisplays", function() {
+      var cardinalCases = [
+        {num:0, str:"zero"},
+        {num:1, str:"one"},
+        {num:2, str:"two"},
+        {num:3, str:"three"},
+        {num:5, str:"five"},
+        {num:10, str:"ten"},
+        {num:12, str:"twelve"},
+        {num:15, str:"15"},
+        {num:20, str:"20"},
+        {num:-1, str:"-1"},
+        {num:1.5, str:"1.5"}
+      ];
+      _.each(cardinalCases, function(case_) {
+        var num = case_.num;
+        var str = case_.str;
+        it("cardinal "+num+" should map to "+str, function() {
+          engine.getCardinalNumber(num).should.equal(str);
+        });
+      });
+
+      var ordinalCases = [
+        {num:0, str:"zeroth"},
+        {num:1, str:"first"},
+        {num:2, str:"second"},
+        {num:3, str:"third"},
+        {num:5, str:"fifth"},
+        {num:10, str:"tenth"},
+        {num:12, str:"twelfth"},
+        {num:15, str:"15th"},
+        {num:20, str:"20th"},
+        {num:21, str:"21st"},
+        {num:22, str:"22nd"},
+        {num:23, str:"23rd"},
+        {num:211, str:"211th"},
+        {num:221, str:"221st"},
+        {num:-1, str:"-1"},
+        {num:1.5, str:"1.5"}
+      ];
+      _.each(ordinalCases, function(case_) {
+        var num = case_.num;
+        var str = case_.str;
+        it("ordinal "+num+" should map to "+str, function() {
+          engine.getOrdinalNumber(num).should.equal(str);
+        });
+      });
+
+    });
+
+    // ---------------------------------------------------------------------
+
     describe("function running", function() {
       it("can run actions", function() {
         var actions = [
@@ -1646,6 +1698,81 @@
         ui.content[0].should.eql([{
           type:'paragraph',
           content: ["5", ",", "0"]
+        }]);
+      });
+
+      it("displays insert content via built-in qdisplay", function() {
+        var game = {
+          scenes: {
+            "root": {
+              id:"root",
+              content:{
+                content:[
+                  {
+                    type:'paragraph',
+                    content:[
+                      {type:'insert', insert:0},
+                      ",",
+                      {type:'insert', insert:1}
+                    ]
+                  }
+                ],
+                stateDependencies: [
+                  {type:'insert', qdisplay:'cardinal',
+                   fn:function(_, Q) { return Q.foo || 0; }},
+                  {type:'insert', qdisplay:'ordinal',
+                   fn:function(_, Q) { return Q.bar || 0; }}
+                ]
+              }
+            }
+          },
+          qualities: {
+            foo: { initial: 5 }
+          }
+        };
+        var ui = new TestUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame();
+        ui.content[0].should.eql([{
+          type:'paragraph',
+          content: ["five", ",", "zeroth"]
+        }]);
+      });
+
+      it("displays insert unaltered content with noop qdisplay", function() {
+        var game = {
+          scenes: {
+            "root": {
+              id:"root",
+              content:{
+                content:[
+                  {
+                    type:'paragraph',
+                    content:[
+                      {type:'insert', insert:0}
+                    ]
+                  }
+                ],
+                stateDependencies: [
+                  {type:'insert', qdisplay:'myqd',
+                   fn:function(_, Q) { return Q.foo || 0; }},
+                ]
+              }
+            }
+          },
+          qualities: {
+            foo: { initial: 5 }
+          },
+          qdisplays: {
+            myqd: {}
+          }
+        };
+        var ui = new TestUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame();
+        ui.content[0].should.eql([{
+          type:'paragraph',
+          content: ["5"]
         }]);
       });
 
