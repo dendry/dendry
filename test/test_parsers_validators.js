@@ -270,6 +270,45 @@
 
     // ----------------------------------------------------------------------
 
+    describe("excluding ids", function() {
+
+      it("allows unexcluded values to pass", function(done) {
+        var exclude = ['foo', 'bar'];
+        var valid = validators.validateQualityName;
+        var ensure = validators.makeExcludeIdOrName("P", valid, exclude);
+        ensure("sun", null, function(err, val) {
+          noerr(err);
+          val.should.equal('sun');
+          done();
+        });
+      });
+
+      it("rejects excluded values", function(done) {
+        var exclude = ['foo', 'bar'];
+        var valid = validators.validateQualityName;
+        var ensure = validators.makeExcludeIdOrName("P", valid, exclude);
+        ensure("foo", null, function(err, val) {
+          (!!err).should.be.true;
+          err.message.should.equal("'foo' is a reserved P.");
+          done();
+        });
+      });
+
+      it("returns errors from wrapped validator", function(done) {
+        var exclude = ['foo', 'bar'];
+        var valid = validators.validateQualityName;
+        var ensure = validators.makeExcludeIdOrName("P", valid, exclude);
+        ensure("sun.dock", null, function(err, val) {
+          (!!err).should.be.true;
+          err.message.should.equal("'sun.dock' is not a valid quality name.");
+          done();
+        });
+      });
+
+    });
+
+    // ----------------------------------------------------------------------
+
     describe("tag list validation", function() {
       it("handles hash prefix or no prefix", function(done) {
         validators.validateTagList("alpha, #bravo", null, function(err, list) {

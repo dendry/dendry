@@ -170,6 +170,33 @@
         });
       });
 
+      it("inserts can have quality display names", function(done) {
+        var content = "[+ foo : sun +][+ {! return 4 !} : dock +]";
+        parse.compile(content, true, function(err, result) {
+          noerr(err);
+          result.content.should.eql([{
+            type:'paragraph',
+            content: [
+              {type:"insert", insert: 0},
+              {type:"insert", insert: 1}
+            ]
+          }]);
+          result.stateDependencies.length.should.equal(2);
+          result.stateDependencies[0].qdisplay.should.equal('sun');
+          result.stateDependencies[1].qdisplay.should.equal('dock');
+          done();
+        });
+      });
+
+      it("inserts must have valid quality display names", function(done) {
+        var content = "[+ foo : sun.dock +]";
+        parse.compile(content, true, function(err, result) {
+          (!!err).should.be.true;
+          err.message.should.equal("'sun.dock' is not a valid qdisplay name.");
+          done();
+        });
+      });
+
       it("should nest emphasis", function(done) {
         var content = "*first **second level** more first*";
         parse.compile(content, true, function(err, result) {
@@ -251,6 +278,50 @@
 
       it("inserts can't have nested ranges", function(done) {
         var content = "[+ Foo **Bar** Sun +]";
+        parse.compile(content, true, function(err, result) {
+          (!!err).should.be.true;
+          err.message.should.equal(
+            "Insert content doesn't look like logic or magic."
+          );
+          done();
+        });
+      });
+
+      it("inserts must have function source", function(done) {
+        var content = "[+ **Bar** +]";
+        parse.compile(content, true, function(err, result) {
+          (!!err).should.be.true;
+          err.message.should.equal(
+            "Insert content doesn't look like logic or magic."
+          );
+          done();
+        });
+      });
+
+      it("inserts with qdisplay must have function source", function(done) {
+        var content = "[+ **Bar** : foo +]";
+        parse.compile(content, true, function(err, result) {
+          (!!err).should.be.true;
+          err.message.should.equal(
+            "Insert content doesn't look like logic or magic."
+          );
+          done();
+        });
+      });
+
+      it("inserts must have plain text qdisplay", function(done) {
+        var content = "[+ {! return Q.bar !} **: foo** +]";
+        parse.compile(content, true, function(err, result) {
+          (!!err).should.be.true;
+          err.message.should.equal(
+            "Insert content doesn't look like logic or magic."
+          );
+          done();
+        });
+      });
+
+      it("inserts must separate qdisplay with colon", function(done) {
+        var content = "[+ {! return Q.bar !} foo +]";
         parse.compile(content, true, function(err, result) {
           (!!err).should.be.true;
           err.message.should.equal(
@@ -454,7 +525,9 @@
             content: [
               {
                 type: 'paragraph',
-                content: ['one two three ', {type:'line-break'}, 'four five six']
+                content: ['one two three ',
+                          {type:'line-break'},
+                          'four five six']
               },
             ]
           });
@@ -463,7 +536,7 @@
       });
 
       it("should pass on logic compilation error", function(done) {
-        var content = "[? if $foo = 1 : go ?]";
+        var content = "[+ $foo + 1 : go +]";
         parse.compile(content, true, function(err, result) {
           (!!err).should.be.true;
           err.toString().should.equal(
