@@ -57,7 +57,7 @@
 
     // ---------------------------------------------------------------------
 
-    describe("built-in qdisplays", function() {
+    describe("qdisplays", function() {
       var cardinalCases = [
         {num:0, str:"zero"},
         {num:1, str:"one"},
@@ -102,6 +102,54 @@
         var str = case_.str;
         it("ordinal "+num+" should map to "+str, function() {
           engine.getOrdinalNumber(num).should.equal(str);
+        });
+      });
+
+      var fudgeCases = [
+        {num:0.5, str:"0.5"},
+        {num:1, str:"good"},
+        {num:2, str:"great"},
+        {num:3, str:"superb"},
+        {num:5, str:"superb+2"},
+        {num:0, str:"fair"},
+        {num:-1, str:"mediocre"},
+        {num:-2, str:"poor"},
+        {num:-3, str:"terrible"},
+        {num:-5, str:"terrible-2"}
+      ];
+      _.each(fudgeCases, function(case_) {
+        var num = case_.num;
+        var str = case_.str;
+        it("fudge "+num+" should map to "+str, function() {
+          engine.getFudgeDisplay(num).should.equal(str);
+        });
+      });
+
+      var customCases = [
+        {num:1, str:"One"},
+        {num:2, str:"2"},
+        {num:3, str:"3"},
+        {num:0, str:"Zero"},
+        {num:0.5, str:"Zero"},
+        {num:1.99999999, str:"One"},
+        {num:-0.0000001, str:"Sub-zero"}
+      ];
+      _.each(customCases, function(case_) {
+        var num = case_.num;
+        var str = case_.str;
+        it("should map "+num+" to "+str+" in custom qdisplay", function() {
+          var qdisplay = {
+            content: [
+              // We arrange them this way because ranges are closed,
+              // so a value of 1 should be caught by the 'one' range,
+              // not passed onto the 'zero' case.
+              {min:2}, // Catch all 2 or above and use the raw value.
+              {min:1, max:2, output: "One"},
+              {min:0, max:1, output: "Zero"},
+              {max:0, output: "Sub-zero"}, // Catch anything below zero.
+            ]
+          };
+          engine.getUserQDisplay(num, qdisplay).should.equal(str);
         });
       });
 
@@ -1713,7 +1761,9 @@
                     content:[
                       {type:'insert', insert:0},
                       ",",
-                      {type:'insert', insert:1}
+                      {type:'insert', insert:1},
+                      ",",
+                      {type:'insert', insert:2}
                     ]
                   }
                 ],
@@ -1721,13 +1771,16 @@
                   {type:'insert', qdisplay:'cardinal',
                    fn:function(_, Q) { return Q.foo || 0; }},
                   {type:'insert', qdisplay:'ordinal',
-                   fn:function(_, Q) { return Q.bar || 0; }}
+                   fn:function(_, Q) { return Q.bar || 0; }},
+                  {type:'insert', qdisplay:'fudge',
+                   fn:function(_, Q) { return Q.sun || 0; }}
                 ]
               }
             }
           },
           qualities: {
-            foo: { initial: 5 }
+            foo: { initial: 5 },
+            sun: { initial: -5 }
           }
         };
         var ui = new TestUserInterface();
@@ -1735,7 +1788,7 @@
         dendryEngine.beginGame();
         ui.content[0].should.eql([{
           type:'paragraph',
-          content: ["five", ",", "zeroth"]
+          content: ["five", ",", "zeroth", ",", "terrible-2"]
         }]);
       });
 
@@ -1764,7 +1817,7 @@
             foo: { initial: 5 }
           },
           qdisplays: {
-            myqd: {}
+            myqd: { content:[] }
           }
         };
         var ui = new TestUserInterface();
