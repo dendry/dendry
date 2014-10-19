@@ -1829,6 +1829,53 @@
         }]);
       });
 
+      it("displays insert content with rich qdisplay", function() {
+        var game = {
+          scenes: {
+            "root": {
+              id:"root",
+              content:{
+                content:[
+                  {
+                    type:'paragraph',
+                    content:[
+                      {type:'insert', insert:0}
+                    ]
+                  }
+                ],
+                stateDependencies: [
+                  {type:'insert', qdisplay:'myqd',
+                   fn:function(_, Q) { return Q.foo || 0; }},
+                ]
+              }
+            }
+          },
+          qualities: {
+            foo: { initial: 5 }
+          },
+          qdisplays: {
+            myqd: {content:[
+              {min:0, max:10, output: {
+                content: [
+                  "Foo: ", {type:'insert', insert:0}
+                ],
+                stateDependencies: [
+                  {type:'insert',
+                   fn:function(_, Q) { return Q.foo || 0; }}
+                ]
+              }}
+            ]}
+          }
+        };
+        var ui = new TestUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame();
+        ui.content[0].should.eql([{
+          type:'paragraph',
+          content: ["Foo: ","5"]
+        }]);
+      });
+
       it("displays content from scene with go-to", function() {
         var game = {
           scenes: {
