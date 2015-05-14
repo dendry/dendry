@@ -1713,42 +1713,6 @@
         ]);
       });
 
-      it("displays insert content", function() {
-        var game = {
-          scenes: {
-            "root": {
-              id:"root",
-              content:{
-                content:[
-                  {
-                    type:'paragraph',
-                    content:[
-                      {type:'insert', insert:0},
-                      ",",
-                      {type:'insert', insert:1}
-                    ]
-                  }
-                ],
-                stateDependencies: [
-                  {type:'insert', fn:function(_, Q) { return Q.foo || 0; }},
-                  {type:'insert', fn:function(_, Q) { return Q.bar || 0; }}
-                ]
-              }
-            }
-          },
-          qualities: {
-            foo: { initial: 5 }
-          }
-        };
-        var ui = new TestUserInterface();
-        var dendryEngine = new engine.DendryEngine(ui, game);
-        dendryEngine.beginGame();
-        ui.content[0].should.eql([{
-          type:'paragraph',
-          content: ["5", ",", "0"]
-        }]);
-      });
-
       it("displays insert content via built-in qdisplay", function() {
         var game = {
           scenes: {
@@ -1792,7 +1756,40 @@
         }]);
       });
 
-      it("displays insert unaltered content with noop qdisplay", function() {
+      it("displays insert number as string with no qdisplay", function() {
+        var game = {
+          scenes: {
+            "root": {
+              id:"root",
+              content:{
+                content:[
+                  {
+                    type:'paragraph',
+                    content:[
+                      {type:'insert', insert:0}
+                    ]
+                  }
+                ],
+                stateDependencies: [
+                  {type:'insert', fn:function(_, Q) { return Q.foo || 0; }},
+                ]
+              }
+            }
+          },
+          qualities: {
+            foo: { initial: 5 }
+          }
+        };
+        var ui = new TestUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame();
+        ui.content[0].should.eql([{
+          type:'paragraph',
+          content: ["5"]
+        }]);
+      });
+
+      it("displays insert number as string with noop qdisplay", function() {
         var game = {
           scenes: {
             "root": {
@@ -1872,7 +1869,43 @@
         dendryEngine.beginGame();
         ui.content[0].should.eql([{
           type:'paragraph',
-          content: ["Foo: ","5"]
+          content: ["Foo: ", "5"]
+        }]);
+      });
+
+      it("displays insert multiple content", function() {
+        var game = {
+          scenes: {
+            "root": {
+              id:"root",
+              content:{
+                content:[
+                  {
+                    type:'paragraph',
+                    content:[
+                      {type:'insert', insert:0},
+                      ",",
+                      {type:'insert', insert:1}
+                    ]
+                  }
+                ],
+                stateDependencies: [
+                  {type:'insert', fn:function(_, Q) { return Q.foo || 0; }},
+                  {type:'insert', fn:function(_, Q) { return Q.bar || 0; }}
+                ]
+              }
+            }
+          },
+          qualities: {
+            foo: { initial: 5 }
+          }
+        };
+        var ui = new TestUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame();
+        ui.content[0].should.eql([{
+          type:'paragraph',
+          content: ["5", ",", "0"]
         }]);
       });
 
