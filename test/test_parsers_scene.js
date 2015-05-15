@@ -197,17 +197,17 @@
           type: "scene",
           title: "The scene title",
           tags: ["alpha", "bravo"],
-          content: "This is the scene content.",
+          content: {type:'paragraph', content:"This is the scene content."},
           options: [{id:"@foo", title:"The title for foo."},
                     {id:"@bar"}],
           sections: [{
             id: "test_scene_parser.foo",
             gameOver: true,
-            content: "This is section 'foo'."
+            content: {type:'paragraph', content:"This is section 'foo'."}
           },{
             id: "test_scene_parser.bar",
             title: "The Bar Scene",
-            content: "This is section 'bar'.",
+            content: {type:'paragraph', content:"This is section 'bar'."},
             goTo: [{id:"foo"}],
             maxVisits: 1, countVisitsMax: 5,
             options: [{id:"@foo", title:"Return to foo."}]

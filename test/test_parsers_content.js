@@ -23,17 +23,49 @@
 
     describe("paragraphs", function() {
 
+      it("plain content becomes a paragraph", function(done) {
+        var content = "foo bar";
+        parse.compile(content, true, function(err, result) {
+          noerr(err);
+          result.should.eql({
+            type:'paragraph',
+            content: "foo bar"
+          });
+          done();
+        });
+      });
+
+      it("plain content is trimmed", function(done) {
+        var content = "  foo bar ";
+        parse.compile(content, true, function(err, result) {
+          noerr(err);
+          result.should.eql({
+            type:'paragraph',
+            content: "foo bar"
+          });
+          done();
+        });
+      });
+
+      it("line breaks become spaces", function(done) {
+        var content = "one two three\nfour five six";
+        parse.compile(content, true, function(err, result) {
+          noerr(err);
+          result.should.eql({
+            type: 'paragraph',
+            content: 'one two three four five six'
+          });
+          done();
+        });
+      });
+
       it("should begin with paragraph text", function(done) {
         var content = "foo *bar*";
         parse.compile(content, true, function(err, result) {
           noerr(err);
           result.should.eql({
-            content: [
-              {
-                type:'paragraph',
-                content: ["foo ", {type:"emphasis-1", content:["bar"]}]
-              }
-            ]
+            type:'paragraph',
+            content: ["foo ", {type:"emphasis-1", content:"bar"}]
           });
           done();
         });
@@ -44,15 +76,11 @@
         parse.compile(content, true, function(err, result) {
           noerr(err);
           result.should.eql({
+            type:'paragraph',
             content: [
-              {
-                type:'paragraph',
-                content: [
-                  {type:"emphasis-1", content:["foo"]},
-                  " ",
-                  {type:"emphasis-1", content:["bar"]}
-                ]
-              }
+              {type:"emphasis-1", content:"foo"},
+              " ",
+              {type:"emphasis-1", content:"bar"}
             ]
           });
           done();
@@ -64,17 +92,12 @@
         parse.compile(content, true, function(err, result) {
           noerr(err);
           result.should.eql({
+            type:'paragraph',
             content: [
-              {
-                type:'paragraph',
-                content: [
-                  {type:"emphasis-2", content:[
-                    "foo ",
-                    {type:"emphasis-1", content:["bar"]}
-                  ]},
-                  {type:"emphasis-1", content:[" sun"]}
-                ]
-              }
+              {type:"emphasis-2", content:[
+                "foo ", {type:"emphasis-1", content:"bar"}
+              ]},
+              {type:"emphasis-1", content:" sun"}
             ]
           });
           done();
@@ -85,28 +108,22 @@
         var content = "**foo *bar\n\nsun* dock**";
         parse.compile(content, true, function(err, result) {
           noerr(err);
-          result.should.eql({
-            content: [
-              {
-                type:'paragraph',
-                content: [
-                  {type:"emphasis-2", content:[
-                    "foo ",
-                    {type:"emphasis-1", content:["bar"]}
-                  ]}
-                ]
-              },
-              {
-                type:'paragraph',
-                content: [
-                  {type:"emphasis-2", content:[
-                    {type:"emphasis-1", content:["sun"]},
-                    " dock"
-                  ]}
-                ]
-              }
-            ]
-          });
+          result.should.eql([
+            {
+              type:'paragraph',
+              content: {
+                type:"emphasis-2", content:[
+                  "foo ", {type:"emphasis-1", content:"bar"}
+                ]}
+            },
+            {
+              type:'paragraph',
+              content: {
+                type:"emphasis-2", content:[
+                  {type:"emphasis-1", content:"sun"}, " dock"
+                ]}
+            }
+          ]);
           done();
         });
       });
@@ -115,27 +132,22 @@
         var content = "**foo *bar\n\nsun";
         parse.compile(content, true, function(err, result) {
           noerr(err);
-          result.should.eql({
-            content: [
-              {
-                type:'paragraph',
-                content: [
-                  {type:"emphasis-2", content:[
-                    "foo ",
-                    {type:"emphasis-1", content:["bar"]}
-                  ]}
-                ]
-              },
-              {
-                type:'paragraph',
-                content: [
-                  {type:"emphasis-2", content:[
-                    {type:"emphasis-1", content:["sun"]}
-                  ]}
-                ]
+          result.should.eql([
+            {
+              type:'paragraph',
+              content: {
+                type:"emphasis-2",
+                content:["foo ", {type:"emphasis-1", content:"bar"}]
               }
-            ]
-          });
+            },
+            {
+              type:'paragraph',
+              content: {
+                type:"emphasis-2",
+                content:{type:"emphasis-1", content:"sun"}
+              }
+            }
+          ]);
           done();
         });
       });
@@ -156,13 +168,13 @@
         var content = "[+ foo +][+ {! return 4 !} +]";
         parse.compile(content, true, function(err, result) {
           noerr(err);
-          result.content.should.eql([{
+          result.content.should.eql({
             type:'paragraph',
             content: [
               {type:"insert", insert: 0},
               {type:"insert", insert: 1}
             ]
-          }]);
+          });
           result.stateDependencies.length.should.equal(2);
           result.stateDependencies[0].fn(null, {foo:2}).should.equal(2);
           result.stateDependencies[1].fn(null, {}).should.equal(4);
@@ -174,13 +186,13 @@
         var content = "[+ foo : sun +][+ {! return 4 !} : dock +]";
         parse.compile(content, true, function(err, result) {
           noerr(err);
-          result.content.should.eql([{
+          result.content.should.eql({
             type:'paragraph',
             content: [
               {type:"insert", insert: 0},
               {type:"insert", insert: 1}
             ]
-          }]);
+          });
           result.stateDependencies.length.should.equal(2);
           result.stateDependencies[0].qdisplay.should.equal('sun');
           result.stateDependencies[1].qdisplay.should.equal('dock');
@@ -202,21 +214,15 @@
         parse.compile(content, true, function(err, result) {
           noerr(err);
           result.should.eql({
-            content: [
-              {
-                type:'paragraph',
-                content: [
-                  {
-                    type:'emphasis-1',
-                    content:[
-                      "first ",
-                      {type:"emphasis-2", content:["second level"]},
-                      " more first"
-                    ]
-                  }
-                ]
-              }
-            ]
+            type:'paragraph',
+            content: {
+              type:'emphasis-1',
+              content:[
+                "first ",
+                {type:"emphasis-2", content:"second level"},
+                " more first"
+              ]
+            }
           });
           done();
         });
@@ -227,14 +233,8 @@
         parse.compile(content, true, function(err, result) {
           noerr(err);
           result.should.eql({
-            content: [
-              {
-                type:'paragraph',
-                content: [
-                  {type:'hidden', content:['This is hidden']}
-                ]
-              }
-            ]
+            type:'paragraph',
+            content: {type:'hidden', content:'This is hidden'}
           });
           done();
         });
@@ -245,14 +245,8 @@
         parse.compile(content, true, function(err, result) {
           noerr(err);
           result.should.eql({
-            content: [
-              {
-                type:'paragraph',
-                content: [
-                  {type:'hidden', content:['Is this hidden?']}
-                ]
-              }
-            ]
+            type:'paragraph',
+            content: {type:'hidden', content:'Is this hidden?'}
           });
           done();
         });
@@ -263,14 +257,8 @@
         parse.compile(content, true, function(err, result) {
           noerr(err);
           result.should.eql({
-            content: [
-              {
-                type:'paragraph',
-                content: [
-                  {type:'hidden', content:['Is this hidden+']}
-                ]
-              }
-            ]
+            type:'paragraph',
+            content: {type:'hidden', content:'Is this hidden+'}
           });
           done();
         });
@@ -378,17 +366,14 @@
         var content = "[? if foo : Conditional, but ?][Is this hidden?] Plain";
         parse.compile(content, true, function(err, result) {
           noerr(err);
-          result.content.should.eql([
-            {
-              type:'paragraph',
-              content: [
-                {type:'conditional', predicate:0,
-                 content:['Conditional, but ']},
-                {type:'hidden', content:['Is this hidden?']},
-                " Plain"
-              ]
-            }
-          ]);
+          result.content.should.eql({
+            type:'paragraph',
+            content: [
+              {type:'conditional', predicate:0, content:'Conditional, but '},
+              {type:'hidden', content:'Is this hidden?'},
+              " Plain"
+            ]
+          });
           done();
         });
       });
@@ -397,18 +382,18 @@
         var content = "[? if foo : Foo [? if bar: Bar ?] End Foo ?]";
         parse.compile(content, true, function(err, result) {
           noerr(err);
-          result.content.should.eql([{
+          result.content.should.eql({
             type:'paragraph',
-            content: [{
+            content: {
               type:'conditional',
               predicate:0,
               content:[
                 'Foo ',
-                {type:'conditional', predicate:1, content:["Bar "]},
+                {type:'conditional', predicate:1, content:"Bar "},
                 " End Foo"
               ]
-            }]
-          }]);
+            }
+          });
           done();
         });
       });
@@ -417,7 +402,14 @@
         var content = "[? if {! var foo = '[*Not hidden*]'; !}: hi ?]";
         parse.compile(content, true, function(err, result) {
           noerr(err);
-          result.content[0].content[0].content.length.should.equal(1);
+          result.content.should.eql({
+            type: "paragraph",
+            content: {
+              "content": "hi",
+              "predicate": 0,
+              "type": "conditional"
+            }
+          });
           result.stateDependencies.length.should.equal(1);
           result.stateDependencies[0].fn.source.should.equal(
             "var foo = '[*Not hidden*]';"
@@ -431,12 +423,8 @@
         parse.compile(content, true, function(err, result) {
           noerr(err);
           result.should.eql({
-            content: [
-              {
-                type: 'quotation',
-                content: ['one two three four five six']
-              }
-            ]
+            type: 'quotation',
+            content: 'one two three four five six'
           });
           done();
         });
@@ -447,12 +435,8 @@
         parse.compile(content, true, function(err, result) {
           noerr(err);
           result.should.eql({
-            content: [
-              {
-                type: 'attribution',
-                content: ['one two three four five six']
-              }
-            ]
+            type: 'attribution',
+            content: 'one two three four five six'
           });
           done();
         });
@@ -462,18 +446,10 @@
         var content = "> one two three\n>> four five six";
         parse.compile(content, true, function(err, result) {
           noerr(err);
-          result.should.eql({
-            content: [
-              {
-                type: 'quotation',
-                content: ['one two three']
-              },
-              {
-                type: 'attribution',
-                content: ['four five six']
-              }
-            ]
-          });
+          result.should.eql([
+            {type: 'quotation', content: 'one two three'},
+            {type: 'attribution', content: 'four five six'}
+          ]);
           done();
         });
       });
@@ -483,12 +459,8 @@
         parse.compile(content, true, function(err, result) {
           noerr(err);
           result.should.eql({
-            content: [
-              {
-                type: 'heading',
-                content: ['one two three four five six']
-              }
-            ]
+            type: 'heading',
+            content: 'one two three four five six'
           });
           done();
         });
@@ -498,38 +470,22 @@
         var content = "one two three\n---\nfour five six";
         parse.compile(content, true, function(err, result) {
           noerr(err);
-          result.should.eql({
-            content: [
-              {
-                type: 'paragraph',
-                content: ['one two three']
-              },
-              {
-                type: 'hrule'
-              },
-              {
-                type: 'paragraph',
-                content: ['four five six']
-              }
-            ]
-          });
+          result.should.eql([
+            {type: 'paragraph', content: 'one two three'},
+            {type: 'hrule'},
+            {type: 'paragraph', content: 'four five six'}
+          ]);
           done();
         });
       });
 
       it("should break lines on //", function(done) {
-        var content = "one two three //\nfour five six";
+        var content = "one two three//\nfour five six";
         parse.compile(content, true, function(err, result) {
           noerr(err);
           result.should.eql({
-            content: [
-              {
-                type: 'paragraph',
-                content: ['one two three ',
-                          {type:'line-break'},
-                          'four five six']
-              },
-            ]
+            type: 'paragraph',
+            content: ['one two three', {type:'line-break'}, 'four five six']
           });
           done();
         });
@@ -554,7 +510,6 @@
           done();
         });
       });
-
     }); // end paragraphs
 
     // ------------------------------------------------------------------------
@@ -565,12 +520,28 @@
         var content = "foo *bar*";
         parse.compile(content, false, function(err, result) {
           noerr(err);
-          result.should.eql({
-            content: [
-              "foo ",
-              {type:"emphasis-1", content:["bar"]}
-            ]
-          });
+          result.should.eql([
+            "foo ",
+            {type:"emphasis-1", content:"bar"}
+          ]);
+          done();
+        });
+      });
+
+      it("plain content is trimmed", function(done) {
+        var content = "  foo bar ";
+        parse.compile(content, false, function(err, result) {
+          noerr(err);
+          result.should.eql("foo bar");
+          done();
+        });
+      });
+
+      it("all line breaks become spaces", function(done) {
+        var content = "alpha\nbravo\n\ncharlie";
+        parse.compile(content, false, function(err, result) {
+          noerr(err);
+          result.should.eql("alpha bravo charlie");
           done();
         });
       });
@@ -579,11 +550,7 @@
         var content = "foo\n\n---\n\nbar";
         parse.compile(content, false, function(err, result) {
           noerr(err);
-          result.should.eql({
-            content: [
-              "foo --- bar"
-            ]
-          });
+          result.should.eql("foo --- bar");
           done();
         });
       });
@@ -592,12 +559,10 @@
         var content = "foo *bar";
         parse.compile(content, false, function(err, result) {
           noerr(err);
-          result.should.eql({
-            content: [
+          result.should.eql([
               "foo ",
-              {type:'emphasis-1', content:["bar"]}
-            ]
-          });
+              {type:'emphasis-1', content:"bar"}
+          ]);
           done();
         });
       });

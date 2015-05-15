@@ -87,13 +87,10 @@
       parse.parseFromContent("a.qdisplay.dry", content, function(err, result) {
         noerr(err);
         result.content.should.eql([
-          {min:-5,
-           max:-3,
-           output:{
-             content:[
-               "Foo ",
-               {type:'emphasis-1', content:["bar"]}
-             ]}
+          {
+            min:-5,
+            max:-3,
+            output:["Foo ", {type:'emphasis-1', content:"bar"}]
           }
         ]);
         done();

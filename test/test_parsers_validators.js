@@ -1045,13 +1045,11 @@
           content, null, function(err, result) {
             noerr(err);
             result.should.eql({
-              content: [{
-                type:'paragraph',
-                content:[
-                  "foo ",
-                  {type:"emphasis-1", content:["bar"]}
-                ]
-              }]
+              type:'paragraph',
+              content:[
+                "foo ",
+                {type:"emphasis-1", content:"bar"}
+              ]
             });
             done();
           });
@@ -1062,12 +1060,10 @@
         validators.validateLineContent(
           content, null, function(err, result) {
             noerr(err);
-            result.should.eql({
-              content: [
+            result.should.eql([
                 "foo ",
-                {type:"emphasis-1", content:["bar"]}
-              ]
-            });
+                {type:"emphasis-1", content:"bar"}
+            ]);
             done();
           });
       });
