@@ -1011,7 +1011,7 @@
         compiler.compile(info, scenes, qualities, qdisps, function(err, game) {
           noerr(err);
           var filename = "/tmp/test-dendry.game";
-          compiler.saveCompiledGame(game, filename, function(err) {
+          compiler.saveCompiledGame(game, filename, 0, function(err) {
             noerr(err);
             compiler.loadCompiledGame(filename, function(err, loaded) {
               noerr(err);
@@ -1087,7 +1087,7 @@
         var qdisps = [];
         compiler.compile(info, scenes, qualities, qdisps, function(err, game) {
           noerr(err);
-          compiler.convertGameToJSON(game, function(err, json) {
+          compiler.convertGameToJSON(game, 0, function(err, json) {
             noerr(err);
             compiler.convertJSONToGame(json, function(err, converted) {
               noerr(err);
@@ -1145,7 +1145,7 @@
           "qualities": {},
           "tagLookup": {}
         };
-        compiler.convertGameToJSON(game, function(err, json) {
+        compiler.convertGameToJSON(game, 0, function(err, json) {
           noerr(err);
           json.should.not.match(/$metadata/);
           done();
