@@ -5,13 +5,13 @@
     <style>
       body {
         font-family: "Minion Pro", Georgia, serif;
-        background-color: #f7f7e0;
+        background-color: #f3f3e3;
         padding: 2em;
-        line-height: 145%;
+        line-height: 155%;
       }
       header, #content, footer {
         color: #431;
-        max-width: 640px;
+        max-width: 620px;
         margin: 0 auto;
       }
       footer {
@@ -19,23 +19,27 @@
         font-size: 0.8em;
       }
       header {
-        font-size: 75%;
         text-align: right
       }
       header h1, header h2 {
         display: inline-block;
         font-weight: normal;
         margin: 0;
+        font-size: 1em;
+      } 
+      header h1 {
+        font-weight: bold;
       }
       header h2:before {
         content: "by";
         font-style: italic;
-        padding: 0 0.3em;
+        padding: 0 0.3em 0 0;
       }
       #content {
-        background-color: #f7f7f7;
+        background-color: #f3f3f3;
+        font-size: 1.1em;
         padding: 1em;
-        box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
+        box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.2);
       }
       #content h1:first-child {
         margin-top: 0.5em;
@@ -71,7 +75,7 @@
         padding: 0.5em;
       }
       ul.choices li div.subtitle {
-        margin-left: 1em;
+        margin-left: 2em;
         font-style: italic;
       }
       ul.choices li.unavailable {

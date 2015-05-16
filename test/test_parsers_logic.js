@@ -113,6 +113,44 @@
         });
       });
 
+      it("should support three clause conjunction", function(done) {
+        // Regression: three ands in sequence omits the final clause
+        // in code generation.
+        logic.compilePredicate(
+          'foo = 1 and bar = 1 and sun = 1',
+          function(err, fn) {
+            noerr(err);
+            var state = {
+              qualities: {
+                foo: 1,
+                bar: 1,
+                sun: 1
+              }
+            };
+            // The predicate can be true even if the final clause is omitted.
+            engine.runPredicate(fn, false, {}, state).should.be.true;
+            state.qualities.sun = 0;
+            // But it won't turn to false if we invalidate the final clause.
+            engine.runPredicate(fn, false, {}, state).should.be.false;
+            done();
+          });
+      });
+
+      it("should support three clause disjunction", function(done) {
+        logic.compilePredicate(
+          'foo = 1 or bar = 1 or sun = 1',
+          function(err, fn) {
+            noerr(err);
+            var state = {
+              qualities: {
+                sun: 1
+              }
+            };
+            engine.runPredicate(fn, false, {}, state).should.be.true;
+            done();
+          });
+      });
+
       it("should support complex boolean queries", function(done) {
         logic.compilePredicate(
           'foo = 1 and (foo < bar or not foo > sun)',
@@ -145,6 +183,10 @@
               }
             };
             engine.runPredicate(fn, false, {}, state).should.be.true;
+            state.visits.sun = 0;
+            state.visits.bar = 2;
+            // Fail on last AND clause.
+            engine.runPredicate(fn, false, {}, state).should.be.false;
             done();
           });
       });
@@ -210,6 +252,52 @@
           };
           engine.runActions([fn], {}, state);
           state.qualities.foo.should.equal(1);
+          done();
+        });
+      });
+
+      it("should allow value references", function(done) {
+        logic.compileActions('foo = bar', function(err, fn) {
+          noerr(err);
+          var state = {
+            qualities: {
+              bar: 1
+            }
+          };
+          engine.runActions([fn], {}, state);
+          state.qualities.foo.should.equal(1);
+          done();
+        });
+      });
+
+      it("should allow arithmetic", function(done) {
+        logic.compileActions('foo = sun + dock - trog', function(err, fn) {
+          noerr(err);
+          var state = {
+            qualities: {
+              sun: 2,
+              dock: 3,
+              trog: 1
+            }
+          };
+          engine.runActions([fn], {}, state);
+          state.qualities.foo.should.equal(4);
+          done();
+        });
+      });
+
+      it("should allow repeated operation", function(done) {
+        logic.compileActions('foo = sun + dock + trog', function(err, fn) {
+          noerr(err);
+          var state = {
+            qualities: {
+              sun: 2,
+              dock: 3,
+              trog: 1
+            }
+          };
+          engine.runActions([fn], {}, state);
+          state.qualities.foo.should.equal(6);
           done();
         });
       });
