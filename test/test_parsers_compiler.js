@@ -973,7 +973,7 @@
 
     describe("compiling files", function() {
       it("should compile a standard project directory", function(done) {
-        var diry = path.resolve(__dirname, "files", "test_game");
+        var diry = path.resolve(__dirname, "files", "test_game", "source");
         compiler.compileGame(diry, function(err, game) {
           noerr(err);
           game.title.should.equal('Test Game');

@@ -1572,7 +1572,7 @@
         // We should have recieved one set of content, the root content.
         ui.content.length.should.equal(1);
         ui.content[0].should.eql([
-          {type:'paragraph', content:["This is the root content."]}
+          {type:'paragraph', content:"This is the root content."}
         ]);
 
         // We should have received one set of choices, and it should have one
@@ -1630,7 +1630,7 @@
         dendryEngine.beginGame().gameOver();
         ui.content.length.should.equal(1);
         ui.content[0].should.eql(
-          [{type:'paragraph', content:["Game Over"]}]
+          [{type:'paragraph', content:"Game Over"}]
         );
       });
 
@@ -1646,11 +1646,11 @@
         dendryEngine.beginGame().choose(0);
         ui.content.length.should.equal(2);
         ui.content[0].should.eql([
-          {type:'paragraph', content:["Foo content"]}
+          {type:'paragraph', content:"Foo content"}
         ]);
-        ui.content[1].should.eql(
-          [{type:'paragraph', content:["Game Over"]}]
-        );
+        ui.content[1].should.eql([
+          {type:'paragraph', content:"Game Over"}
+        ]);
         dendryEngine.isGameOver().should.be.true;
       });
 
@@ -1922,10 +1922,32 @@
         dendryEngine.beginGame().choose(0);
         ui.content.length.should.equal(2);
         ui.content[0].should.eql([
-          {type:'paragraph', content:["Foo content"]}
+          {type:'paragraph', content:"Foo content"}
         ]);
         ui.content[1].should.eql([
-          {type:'paragraph', content:["Bar content"]}
+          {type:'paragraph', content:"Bar content"}
+        ]);
+      });
+
+      it("display multiple paragraphs", function() {
+        var game = {
+          scenes: {
+            "root": {id:"root", content:[
+              {type:"paragraph", content:"Able Baker"},
+              {type:"paragraph", content:"Charlie Dog"}
+            ]}
+          }
+        };
+        var ui = new TestUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame();
+        ui.content.length.should.equal(2);
+        ui.content[0].should.eql([
+          {type:"paragraph", content:"Able Baker"},
+          {type:"paragraph", content:"Charlie Dog"}
+        ]);
+        ui.content[1].should.eql([
+          {type:"paragraph", content:"Game Over"}
         ]);
       });
     });
@@ -2170,6 +2192,108 @@
 
 
     }); // end describe signals
+
+    // ----------------------------------------------------------------------
+
+    describe("display content (internal)", function() {
+      it("generates paragraph from raw content", function() {
+        var ui = new engine.NullUserInterface();
+        var game = {};
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        var content = "Foo Bar";
+        var result = dendryEngine._makeDisplayContent(content, true);
+        result.should.eql([
+          {type:'paragraph', content:'Foo Bar'}
+        ]);
+      });
+
+      it("handles single paragraph", function() {
+        var ui = new engine.NullUserInterface();
+        var game = {};
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        var content = {type:'paragraph', content:"Foo Bar"};
+        var result = dendryEngine._makeDisplayContent(content, true);
+        result.should.eql([
+          {type:'paragraph', content:'Foo Bar'}
+        ]);
+      });
+
+      it("handles one item in one paragraph", function() {
+        var ui = new engine.NullUserInterface();
+        var game = {};
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        var content = {
+          type:'paragraph', 
+          content:{type:"emphasis-1", content:"Foo Bar"}
+        };
+        var result = dendryEngine._makeDisplayContent(content, true);
+        result.should.eql([
+          {type:'paragraph', content:{type:"emphasis-1", content:"Foo Bar"}}
+        ]);
+      });
+
+      it("handles list of one paragraph", function() {
+        var ui = new engine.NullUserInterface();
+        var game = {};
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        var content = [
+          {type:'paragraph', content:"Foo Bar"}
+        ];
+        var result = dendryEngine._makeDisplayContent(content, true);
+        result.should.eql([
+          {type:'paragraph', content:'Foo Bar'}
+        ]);
+      });
+
+      it("handles one item in a list of one paragraph", function() {
+        var ui = new engine.NullUserInterface();
+        var game = {};
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        var content = [{
+          type:'paragraph', 
+          content:{type:"emphasis-1", content:"Foo Bar"}
+        }];
+        var result = dendryEngine._makeDisplayContent(content, true);
+        result.should.eql([
+          {type:'paragraph', content:{type:"emphasis-1", content:"Foo Bar"}}
+        ]);
+      });
+
+      it("handles list of multiple paragraphs", function() {
+        var ui = new engine.NullUserInterface();
+        var game = {};
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        var content = [
+          {type:'paragraph', content:"Foo Bar"},
+          {type:'paragraph', content:"Sun Dock"}
+        ];
+        var result = dendryEngine._makeDisplayContent(content, true);
+        result.should.eql([
+          {type:'paragraph', content:"Foo Bar"},
+          {type:'paragraph', content:"Sun Dock"}
+        ]);
+      });
+
+      it("merges top level insert given in paragraph list", function() {
+        var ui = new engine.NullUserInterface();
+        var game = {scenes:{root:{id:'root'}}};
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame();
+        var content = {
+          content: [
+            {type:'paragraph', content:[{type:'insert', insert:0}]}
+          ],
+          stateDependencies: [
+            {type:'insert', fn:function(_, Q) { return Q.foo || 0; }}
+          ]
+        };
+        var result = dendryEngine._makeDisplayContent(content, true);
+        result.should.eql([
+          {type:'paragraph', content:["0"]}
+        ]);
+      });
+
+    }); // end describe display content
 
   });
 }());

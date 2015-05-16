@@ -38,6 +38,14 @@
         text.should.equal("The title.".bold + "\n");
       });
 
+      it("should accept single item of content", function() {
+        var text = toText.convert([
+          {type:'heading',
+           content:"The title."
+           }], 60);
+        text.should.equal("The title.".bold + "\n");
+      });
+
       it("should bolden level 2 emphasis", function() {
         var text = toText.convert([
           {type:"paragraph",
@@ -163,6 +171,14 @@
            }]);
         text.should.equal("<h1>The title.</h1>");
       });
+
+      it("should convert single item of content in paragraph", function() {
+        var text = toHTML.convert([
+          {type:'heading',
+           content:"The title."
+           }]);
+        text.should.equal("<h1>The title.</h1>");
+      });      
 
       it("should use em and strong for emphasis", function() {
         var text = toHTML.convert([
