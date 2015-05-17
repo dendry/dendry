@@ -1127,9 +1127,22 @@
         });
       });
 
-      it("validates single goto with predicate", function(done) {
+      it("validates single goto with magic predicate", function(done) {
         validators.validateGoTo(
           '@foo if {! return true !}', null,
+          function(err, result) {
+            noerr(err);
+            result.length.should.equal(1);
+            result[0].id.should.equal('foo');
+            (result[0].predicate === undefined).should.be.false;
+            result[0].predicate().should.be.true;
+            done();
+          });
+      });
+
+      it("validates single goto with logic predicate", function(done) {
+        validators.validateGoTo(
+          '@foo if true', null,
           function(err, result) {
             noerr(err);
             result.length.should.equal(1);
@@ -1170,14 +1183,16 @@
           });
       });
 
-      it("requires non-terminal clauses to have a predicate", function(done) {
+      it("allows multiple clauses to have no predicate", function(done) {
         validators.validateGoTo(
           '@foo; @bar', null,
           function(err, result) {
-            (!!err).should.be.true;
-            err.toString().should.equal(
-              "Error: Only the last goto instruction can have no if-clause."
-            );
+            noerr(err);
+            result.length.should.equal(2);
+            result[0].id.should.equal('foo');
+            (result[0].predicate === undefined).should.be.true;
+            result[1].id.should.equal('bar');
+            (result[1].predicate === undefined).should.be.true;
             done();
           });
       });

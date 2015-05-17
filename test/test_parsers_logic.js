@@ -302,7 +302,7 @@
         });
       });
 
-      it("should allow multiple statements", function(done) {
+      it("should allow two statements", function(done) {
         logic.compileActions('foo = 1; foo += 1;', function(err, fn) {
           noerr(err);
           var state = {
@@ -310,6 +310,30 @@
           };
           engine.runActions([fn], {}, state);
           state.qualities.foo.should.equal(2);
+          done();
+        });
+      });
+
+      it("should allow three statements", function(done) {
+        logic.compileActions('foo = 1; foo += 1; foo *= 2;', function(err, fn) {
+          noerr(err);
+          var state = {
+            qualities: {}
+          };
+          engine.runActions([fn], {}, state);
+          state.qualities.foo.should.equal(4);
+          done();
+        });
+      });
+
+      it("should allow three statements without trailing semi", function(done) {
+        logic.compileActions('foo = 1; foo += 1; foo *= 2', function(err, fn) {
+          noerr(err);
+          var state = {
+            qualities: {}
+          };
+          engine.runActions([fn], {}, state);
+          state.qualities.foo.should.equal(4);
           done();
         });
       });

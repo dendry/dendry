@@ -30,10 +30,10 @@
       var dendryEngine = new engine.DendryEngine(ui, game);
       dendryEngine.beginGame();
       var state = dendryEngine.state;
-      state.currentSceneSeed = (new engine.Random(0)).getSeed();
+      state.currentRandomState = (engine.Random.fromSeeds([0])).getState();
 
       var hashValue = hash.hashState(dendryEngine.state);
-      hashValue.should.equal("1269a0333c03f0b1795acf6c5f820100ba0ce229");
+      hashValue.should.equal("46aad32a6336bdbbd8061f8e8f32de456437a280");
     });
 
     it("should depend on quality value", function() {

@@ -42,12 +42,12 @@
         var random = new engine.Random.fromTime();
         for (i = 0; i < 100; ++i) random.random(); // Burn off some numbers.
 
-        var seed = random.getSeed();
+        var state = random.getState();
         var target = [];
         for (i = 0; i < 100; ++i) target.push(random.random());
 
-        // Restore the seed.
-        random = new engine.Random.fromSeed(seed);
+        // Restore the state.
+        random = new engine.Random.fromState(state);
         var repeated = [];
         for (i = 0; i < 100; ++i) repeated.push(random.random());
 
@@ -450,6 +450,41 @@
         var dendryEngine = new engine.DendryEngine(ui, game);
         dendryEngine.beginGame();
         dendryEngine.getCurrentScene().id.should.equal('foo');
+      });
+
+      it("should honor multiple clause goto", function() {
+        var game = {
+          scenes: {
+            "root": {
+              id: "root", content:"Root content",
+              goTo:[
+                {id:"foo"},
+                {id:"bar"}
+              ]
+            },
+            "foo": {id: "foo", content:"Foo content"},
+            "bar": {id: "bar", content:"Bar content"}
+          }
+        };
+        var ui = new engine.NullUserInterface();
+        var goneToFoo = false;
+        var goneToBar = false;
+
+        // Because this is random, give it some chances to check we get to both.
+        for (var i = 0; i < 20; ++i) {
+          var dendryEngine = new engine.DendryEngine(ui, game);
+          dendryEngine.beginGame();
+          var sceneName = dendryEngine.getCurrentScene().id;
+          if (sceneName === 'foo') {
+            goneToFoo = true;
+            if (goneToBar) break;
+          } else if (sceneName === 'bar') {
+            goneToBar = true;
+            if (goneToFoo) break;
+          }
+        }
+        goneToFoo.should.be.true;
+        goneToBar.should.be.true;
       });
 
       it("should honor multiple clause goto with predicates", function() {
