@@ -33,7 +33,7 @@
       state.currentRandomState = (engine.Random.fromSeeds([0])).getState();
 
       var hashValue = hash.hashState(dendryEngine.state);
-      hashValue.should.equal("46aad32a6336bdbbd8061f8e8f32de456437a280");
+      hashValue.should.equal("d00db511e5c182abb95d3507aabfc108becc1875");
     });
 
     it("should depend on quality value", function() {

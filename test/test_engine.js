@@ -507,6 +507,28 @@
         dendryEngine.beginGame();
         dendryEngine.getCurrentScene().id.should.equal('bar');
       });
+
+      it("should not use goto if none are valid", function() {
+        var game = {
+          scenes: {
+            "root": {
+              id: "root", content:"Root content",
+              goTo:[
+                {id:"foo",
+                 predicate: function(state, Q) { return false; }},
+                {id:"bar",
+                 predicate: function(state, Q) { return false; }}
+              ]
+            },
+            "foo": {id: "foo", content:"Foo content"},
+            "bar": {id: "bar", content:"Bar content"}
+          }
+        };
+        var ui = new engine.NullUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame();
+        dendryEngine.getCurrentScene().id.should.equal('root');
+      });
     });
 
     // ---------------------------------------------------------------------
