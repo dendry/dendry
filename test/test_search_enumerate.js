@@ -26,8 +26,8 @@
           foo: {initial: 1}
         }
       };
-      var count = enumerate.countStates(game, 1000);
-      count.states.should.equal(2);
+      var count = enumerate.countStates(game);
+      count.numStatesFound.should.equal(2);
       count.hasReachedSearchLimit.should.be.false;
     });
 
@@ -40,8 +40,8 @@
           "sun": {id: "sun", title:'Sun', gameOver:true}
         }
       };
-      var count = enumerate.countStates(game, 1000);
-      count.states.should.equal(4);
+      var count = enumerate.countStates(game);
+      count.numStatesFound.should.equal(4);
       count.hasReachedSearchLimit.should.be.false;
     });
 
@@ -58,10 +58,10 @@
       // By experiment we know that these seeds make different random choices
       // in root's go-to. If the PRNG changes, this would have to change.
       count = enumerate.countStates(game, 10, undefined, [0]);
-      count.states.should.equal(2);
+      count.numStatesFound.should.equal(2);
 
       count = enumerate.countStates(game, 10, undefined, [2]);
-      count.states.should.equal(1);
+      count.numStatesFound.should.equal(1);
     });
 
     it("should count game over states", function() {
@@ -74,12 +74,12 @@
           "trog": {id: "trog", title:'Trog', gameOver:true}
         }
       };
-      var count = enumerate.countStates(game, 1000);
-      count.states.should.equal(5);
-      count.gameOverStates.should.equal(2);
+      var count = enumerate.countStates(game);
+      count.numStatesFound.should.equal(5);
+      count.numGameOverStatesFound.should.equal(2);
     });
 
-    it("should return no goal states if goal is undefined", function() {
+    it("should count no goal states if goal is undefined", function() {
       var game = {
         scenes: {
           "root": {id: "root", options:[{id:'@foo'}, {id:'@bar'}]},
@@ -89,8 +89,8 @@
           "trog": {id: "trog", title:'Trog', gameOver:true}
         }
       };
-      var count = enumerate.countStates(game, 1000);
-      count.goalStates.should.equal(0);
+      var count = enumerate.countStates(game);
+      count.numGoalStatesFound.should.equal(0);
     });
 
     it("should find goal states", function() {
@@ -107,12 +107,12 @@
         }
       };
       var count = enumerate.countStates(game, 1000, 'trog');
-      count.states.should.equal(6);
-      count.gameOverStates.should.equal(3);
-      count.goalStates.should.equal(2);
+      count.numStatesFound.should.equal(6);
+      count.numGameOverStatesFound.should.equal(3);
+      count.numGoalStatesFound.should.equal(2);
     });
 
-    it("should return one state per visit up to max-visits", function() {
+    it("should count one state per visit up to max-visits", function() {
       var game = {
         scenes: {
           "root": {id: "root", options:[{id:'@foo'}]},
@@ -124,10 +124,10 @@
       };
       var count = enumerate.countStates(game, 1000);
       count.hasReachedSearchLimit.should.be.false;
-      count.states.should.equal(21);
+      count.numStatesFound.should.equal(21);
     });
 
-    it("should return one state per visit up to count-visits-max", function() {
+    it("should count one state per visit up to count-visits-max", function() {
       var game = {
         scenes: {
           "root": {id: "root", options:[{id:'@foo'}]},
@@ -139,10 +139,10 @@
       };
       var count = enumerate.countStates(game, 1000);
       count.hasReachedSearchLimit.should.be.false;
-      count.states.should.equal(21);
+      count.numStatesFound.should.equal(21);
     });
 
-    it("should return one state per quality value up to max", function() {
+    it("should count one state per quality value up to max", function() {
       var game = {
         scenes: {
           "root": {id: "root", options:[{id:'@foo'}]},
@@ -156,10 +156,102 @@
       };
       var count = enumerate.countStates(game, 1000);
       count.hasReachedSearchLimit.should.be.false;
-      count.states.should.equal(19);
+      count.numStatesFound.should.equal(19);
     });
 
-    it("should return the limit if the state is unbounded", function() {
+    it("should return one state per quality value up to max", function() {
+      var game = {
+        scenes: {
+          "root": {id: "root", options:[{id:'@foo'}]},
+          "foo": {id: "foo", title:'Foo', onArrival:[
+            function(state, Q) { Q.foo += 1; }
+          ]}
+        },
+        qualities: {
+          foo: {initial: 1, max: 4}
+        }
+      };
+      var result = enumerate.getStates(game);
+      result.hasReachedSearchLimit.should.be.false;
+      result.numStatesFound.should.equal(7);
+      var numStatesWithFoo = [0,0,0,0,0,0];
+      for (var i = 0; i < result.searchStates.length; ++i) {
+        var state = result.searchStates[i].engineState;
+        numStatesWithFoo[state.qualities.foo]++;
+      }
+      numStatesWithFoo.should.eql([0,1,2,2,2,0]);
+    });
+
+    it("should keep track of where options lead to", function() {
+      var game = {
+        scenes: {
+          "root": {
+            id: "root", title: "Root",
+            options:[{id:'@foo'}, {id:'@bar'}]
+          },
+          "foo": {
+            id: "foo", title: "Foo",
+            options:[{id:'@bar'}, {id:'@root'}, {id:'@end'}]
+          },
+          "bar": {
+            id: "bar", title: "Bar",
+            options:[{id:'@end'}]
+          },
+          "end": {
+            id: "end", title: "End",
+            gameOver:true
+          }
+        }
+      };
+      var result = enumerate.getStates(game);
+      result.searchStates.length.should.equal(4);
+
+      result.searchStates[0].engineState.sceneId.should.equal('root');
+      result.searchStates[0].options.should.eql([1,2]);
+
+      result.searchStates[1].engineState.sceneId.should.equal('foo');
+      result.searchStates[1].options.should.eql([2,0,3]);
+
+      result.searchStates[2].engineState.sceneId.should.equal('bar');
+      result.searchStates[2].options.should.eql([3]);
+
+      result.searchStates[3].engineState.sceneId.should.equal('end');
+      result.searchStates[3].options.should.eql([]);      
+      result.searchStates[3].engineState.gameOver.should.be.true;
+    });
+
+    it("should keep track of where options lead to with visits", function() {
+      var game = {
+        scenes: {
+          "root": {
+            id: "root", title: "Root",
+            options:[{id:'@foo'}, {id:'@bar'}]
+          },
+          "foo": {
+            id: "foo", title: "Foo",
+            options:[{id:'@bar'}, {id:'@root'}, {id:'@end'}],
+            countVisitsMax:2
+          },
+          "bar": {
+            id: "bar", title: "Bar",
+            options:[{id:'@end'}]
+          },
+          "end": {
+            id: "end", title: "End",
+            gameOver:true
+          }
+        }
+      };
+      var result = enumerate.getStates(game);
+      result.searchStates.length.should.equal(11);
+      var sceneCounts = {'root':0, 'foo':0, 'bar':0, 'end':0};
+      for (var i = 0; i < result.searchStates.length; ++i) {
+        sceneCounts[result.searchStates[i].engineState.sceneId]++;
+      }
+      sceneCounts.should.eql({'root':3, 'foo':2, 'bar':3, 'end':3});
+    });
+
+    it("should count the limit if the state is unbounded", function() {
       var game = {
         scenes: {
           "root": {id: "root", options:[{id:'@foo'}]},
@@ -171,7 +263,7 @@
       };
       var count = enumerate.countStates(game, 500);
       count.hasReachedSearchLimit.should.be.true;
-      count.states.should.equal(500);
+      count.numStatesFound.should.equal(500);
     });
 
   });
