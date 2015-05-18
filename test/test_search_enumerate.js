@@ -45,6 +45,25 @@
       count.hasReachedSearchLimit.should.be.false;
     });
 
+    it("should use seed for random choices", function() {
+      var game = {
+        scenes: {
+          "root": {id: "root", goTo:[{id:'foo'}, {id:'bar'}]},
+          "foo": {id: "foo", gameOver:true, title:'Foo'},
+          "bar": {id: "bar", options:[{id:'@sun'}], title:'Bar'},
+          "sun": {id: "sun", gameOver:true, title:"Sun"}
+        }
+      };
+      var count;
+      // By experiment we know that these seeds make different random choices
+      // in root's go-to. If the PRNG changes, this would have to change.
+      count = enumerate.countStates(game, 10, undefined, [0]);
+      count.states.should.equal(2);
+
+      count = enumerate.countStates(game, 10, undefined, [2]);
+      count.states.should.equal(1);
+    });
+
     it("should count game over states", function() {
       var game = {
         scenes: {
