@@ -53,6 +53,17 @@
 
         repeated.should.eql(target);
       });
+
+      it("can set seed when beginning a game", function() {
+        var game = { scenes: { "root": {id: "root"} } };
+        var ui = new engine.NullUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame([0]);
+        dendryEngine.random.getState().should.eql([
+          // Internal Random state variables for a seed of 0.
+          -998148438, -183324164, -150966310, -440273110, -280389254
+        ]);
+      });
     });
 
     // ---------------------------------------------------------------------
