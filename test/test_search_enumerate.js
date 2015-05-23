@@ -45,6 +45,23 @@
       count.hasReachedSearchLimit.should.be.false;
     });
 
+    it("should allow options to be not choosable", function() {
+      var game = {
+        scenes: {
+          "root": {id: "root", options:[
+            {id:'@foo', chooseIf: function() { return false; }},
+            {id:'@bar'}
+          ]},
+          "foo": {id: "foo", options:[{id:'@sun'}], title:'Foo'},
+          "bar": {id: "bar", options:[{id:'@sun'}], title:'Bar'},
+          "sun": {id: "sun", title:'Sun', gameOver:true}
+        }
+      };
+      var count = enumerate.countStates(game);
+      count.numStatesFound.should.equal(3);
+      count.hasReachedSearchLimit.should.be.false;
+    });
+
     it("should use seed for random choices", function() {
       var game = {
         scenes: {
@@ -207,16 +224,16 @@
       result.searchStates.length.should.equal(4);
 
       result.searchStates[0].engineState.sceneId.should.equal('root');
-      result.searchStates[0].options.should.eql([1,2]);
+      result.searchStates[0].validChoiceDestinations.should.eql([1,2]);
 
       result.searchStates[1].engineState.sceneId.should.equal('foo');
-      result.searchStates[1].options.should.eql([2,0,3]);
+      result.searchStates[1].validChoiceDestinations.should.eql([2,0,3]);
 
       result.searchStates[2].engineState.sceneId.should.equal('bar');
-      result.searchStates[2].options.should.eql([3]);
+      result.searchStates[2].validChoiceDestinations.should.eql([3]);
 
       result.searchStates[3].engineState.sceneId.should.equal('end');
-      result.searchStates[3].options.should.eql([]);      
+      result.searchStates[3].validChoiceDestinations.should.eql([]);      
       result.searchStates[3].engineState.gameOver.should.be.true;
     });
 
