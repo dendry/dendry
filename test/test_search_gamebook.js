@@ -38,7 +38,7 @@
             content: "This is sun content!",
             subtitle:"Go for the sun!",
             unavailableSubtitle:"You can't go for the sun yet!",
-            id:"sun", title:'Sun'
+            id:"sun", title:'Sun', options:[{id:'@foo'}]
           }
         },
         qualities: {
