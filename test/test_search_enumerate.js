@@ -45,6 +45,20 @@
       count.hasReachedSearchLimit.should.be.false;
     });
 
+    it("should double count scenes with intermediate go to", function() {
+      var game = {
+        scenes: {
+          "root": {id: "root", options:[{id:'@foo'}, {id:'@bar'}]},
+          "foo": {id: "foo", goTo:[{id:'sun'}], title:'Foo'},
+          "bar": {id: "bar", options:[{id:'@sun'}], title:'Bar'},
+          "sun": {id: "sun", title:'Sun', gameOver:true}
+        }
+      };
+      var count = enumerate.countStates(game);
+      count.numStatesFound.should.equal(4);
+      count.hasReachedSearchLimit.should.be.false;
+    });
+
     it("should allow options to be not choosable", function() {
       var game = {
         scenes: {

@@ -33,7 +33,7 @@
       state.currentRandomState = (engine.Random.fromSeeds([0])).getState();
 
       var hashValue = hash.hashState(dendryEngine.state);
-      hashValue.should.equal("d00db511e5c182abb95d3507aabfc108becc1875");
+      hashValue.should.equal("10f0d25c78de04fbf9c762f07b4179f2faf08140");
     });
 
     it("should depend on quality value", function() {
@@ -53,7 +53,7 @@
       var initialValue = hash.hashState(dendryEngine.state);
       dendryEngine.state.qualities.foo += 1;
       var finalValue = hash.hashState(dendryEngine.state);
-      initialValue.should.not.equal(finalValue);
+      initialValue.should.not.eql(finalValue);
     });
 
     it("should change when engine updates qualities", function() {
@@ -79,7 +79,7 @@
       var finalValue = hash.hashState(dendryEngine.state);
       var finalSceneId = dendryEngine.state.sceneId;
       initialSceneId.should.equal(finalSceneId);
-      initialValue.should.not.equal(finalValue);
+      initialValue.should.not.eql(finalValue);
     });
 
     it("should depend on visit counts", function() {
@@ -100,7 +100,7 @@
       var finalValue = hash.hashState(dendryEngine.state);
       var finalSceneId = dendryEngine.state.sceneId;
       initialSceneId.should.equal(finalSceneId);
-      initialValue.should.not.equal(finalValue);
+      initialValue.should.not.eql(finalValue);
     });
 
     it("should depend on current scene", function() {
@@ -117,7 +117,29 @@
       var initialValue = hash.hashState(dendryEngine.state);
       dendryEngine.choose(0);
       var finalValue = hash.hashState(dendryEngine.state);
-      initialValue.should.not.equal(finalValue);
+      initialValue.should.not.eql(finalValue);
+    });
+
+    it("should depend on go to history", function() {
+      var game = {
+        scenes: {
+          "root": {id: "root", options:[{id:'@foo'}, {id:'@bar'}]},
+          "foo": {id: "foo", title:'Foo'},
+          "bar": {id: "bar", title:'Bar', goTo:[{id:'foo'}]}
+        }
+      };
+      var ui = new engine.NullUserInterface();
+      var dendryEngine = new engine.DendryEngine(ui, game);
+
+      dendryEngine.beginGame();
+      dendryEngine.choose(0);
+      var directToFoo = hash.hashState(dendryEngine.state);
+
+      dendryEngine.beginGame();
+      dendryEngine.choose(1);
+      var fooViaBar = hash.hashState(dendryEngine.state);
+
+      directToFoo.should.not.eql(fooViaBar);
     });
 
   });

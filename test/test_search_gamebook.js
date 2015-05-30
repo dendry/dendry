@@ -15,7 +15,7 @@
 
   describe("gamebook", function() {
 
-    it("should have root as first state", function() {
+    it("should compile simple book", function() {
       var game = {
         scenes: {
           "root": {
@@ -52,6 +52,32 @@
         'content':'Root Content'
       }]);
     });
+
+    it("should make scenes with go-to have their own number", function() {
+      var game = {
+        scenes: {
+          "root": {
+            id: "root", options:[{id:'@foo'}, {id:'@bar'}], 
+            content: "Root Content"
+          },
+          "foo": {
+            id:"foo", title:'Foo', gameOver:true,
+            content: "Foo Content"
+          },
+          "bar": {
+            id:"bar", title:'Bar', goTo:[{id:'foo'}],
+            content: "Bar Content"
+          }
+        },
+        qualities: {
+          foo: {initial: 1}
+        }
+      };
+      var book = gamebook.build(game);
+      book.length.should.equal(3);
+    });
+
+
 
   });
 }());

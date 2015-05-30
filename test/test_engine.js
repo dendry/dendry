@@ -463,6 +463,23 @@
         dendryEngine.getCurrentScene().id.should.equal('foo');
       });
 
+      it("should track go-to path", function() {
+        var game = {
+          scenes: {
+            "root": {id: "root", content:"Root content", goTo:[{id:"foo"}]},
+            "foo": {id: "foo", content:"Foo content", goTo:[{id:'bar'}]},
+            'bar': {id: 'bar', content:'Bar content'}
+          }
+        };
+        var ui = new engine.NullUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame();
+        dendryEngine.getCurrentScene().id.should.equal('bar');
+        dendryEngine.state.sceneIdsSinceGoTo.should.eql([
+          'root', 'foo', 'bar'
+        ]);
+      });
+
       it("should honor multiple clause goto", function() {
         var game = {
           scenes: {
@@ -517,6 +534,31 @@
         var dendryEngine = new engine.DendryEngine(ui, game);
         dendryEngine.beginGame();
         dendryEngine.getCurrentScene().id.should.equal('bar');
+      });
+
+      it("should not affect random state with one valid goto", function() {
+        var game = {
+          scenes: {
+            "root": {
+              id: "root", content:"Root content",
+              goTo:[
+                {id:"foo",
+                 predicate: function(state, Q) { return false; }},
+                {id:"bar",
+                 predicate: function(state, Q) { return true; }}
+              ]
+            },
+            "foo": {id: "foo", content:"Foo content"},
+            "bar": {id: "bar", content:"Bar content"}
+          }
+        };
+        var ui = new engine.NullUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame();
+        var randomStateA = _.cloneDeep(dendryEngine.state.currentRandomState);
+        dendryEngine.getCurrentScene().id.should.equal('bar');
+        var randomStateB = _.cloneDeep(dendryEngine.state.currentRandomState);
+        randomStateA.should.eql(randomStateB);
       });
 
       it("should not use goto if none are valid", function() {
