@@ -1593,6 +1593,30 @@
         dendryEngine.isGameOver().should.be.true;
       });
 
+      it("ends the game on start without choices", function() {
+        var game = {
+          scenes: {
+            "root": {id: "root"}
+          }
+        };
+        var ui = new engine.NullUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame();
+        dendryEngine.isGameOver().should.be.true;
+      });
+
+      it("doesn't end the game if it is explicitly disallowed", function() {
+        var game = {
+          scenes: {
+            "root": {id: "root", gameOver: false}
+          }
+        };
+        var ui = new engine.NullUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame();
+        dendryEngine.isGameOver().should.be.false;
+      });
+
       it("adds a root choice if no other choice is choosable", function() {
         var game = {
           scenes: {
