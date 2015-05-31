@@ -1,0 +1,22 @@
+\makeatletter
+\chapter*{\thetitle}
+\makeatother
+
+{{#list gamebook }}
+\section*{ {{@number}} }
+\sectionmark{ {{@number}} }
+\label{p{{@number}}p}
+{{latex content}}
+{{#if choices}}
+
+\begin{itemize}
+{{#each choices}}
+\item {{latexLine choice.title}} {{#if choice.subtitle }} \\
+\textit{ {{latexLine choice.subtitle}} } \\ {{/if}}
+\textbf{\hyperref[p{{turn_to}}p]{Turn to {{turn_to}}.} }
+
+{{/each}}
+\end{itemize}
+{{/if}}
+
+{{/list}}

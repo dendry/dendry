@@ -14,6 +14,7 @@
 
   var toText = require('../lib/ui/content/text');
   var toHTML = require('../lib/ui/content/html');
+  var toLaTeX = require('../lib/ui/content/latex');
 
   describe("content convertor", function() {
 
@@ -285,7 +286,136 @@
         text.should.equal("<p>One.<br>Two.</p>");
       });
 
-    }); // end text output
+    }); // end html output
 
+    // ------------------------------------------------------------------------
+
+    describe("LaTeX output", function() {
+
+      it("should put titles in section header", function() {
+        var output = toLaTeX.convert([
+          {type:'heading',
+           content:["The title."]
+           }]);
+        output.should.equal("\\subsection*{The title.}\n\n");
+      });
+
+      it("should convert single item of content in paragraph", function() {
+        var output = toLaTeX.convert([
+          {type:'heading',
+           content:"The title."
+           }]);
+        output.should.equal("\\subsection*{The title.}\n\n");
+      });      
+
+      it("should use textit and textbf for emphasis", function() {
+        var output = toLaTeX.convert([
+          {type:"paragraph",
+           content:[
+             {type:'emphasis-1',
+              content:["First."]},
+             " ",
+             {type:'emphasis-2',
+              content:["Second."]}
+           ]}
+        ]);
+        output.should.equal("\\textit{First.} \\textbf{Second.}\n\n");
+      });
+
+      it("should not add extra spaces after end of emphasis", function() {
+        var output = toLaTeX.convert([
+          {type:"paragraph",
+           content:[
+             {type:'emphasis-1',
+              content:["Foo"]},
+             "."
+           ]}
+        ]);
+        output.should.equal("\\textit{Foo}.\n\n");
+      });
+
+      it("should not decorate hidden output", function() {
+        var output = toLaTeX.convert([
+          {type:"paragraph",
+           content:[
+             {type:'hidden',
+              content:["Hide me."]}
+           ]}
+        ]);
+        output.should.equal('Hide me.\n\n');
+      });
+
+
+      it("should fail on conditionals", function() {
+        (function() {
+          toLaTeX.convert([
+            {type:"paragraph",
+             content:[
+               {type:'conditional',
+                predicate: 0,
+                content:["Show me."]}
+             ]}
+          ]);
+        }).should.throw("conditional should have been evaluated by now.");
+      });
+
+      it("should fail on inserts", function() {
+        (function() {
+          toLaTeX.convert([
+            {type:"paragraph",
+             content:[
+               "Foo is ",
+               {type:'insert', insert:0},
+               "."
+             ]}
+          ]);
+        }).should.throw("insert should have been evaluated by now.");
+      });
+
+      it("should create paragraphs of different types", function() {
+        var output = toLaTeX.convert([
+          {type:'heading',
+           content:["One."]},
+          {type:'paragraph',
+           content:["Two."]},
+          {type:'quotation',
+           content:["Three."]},
+          {type:'paragraph',
+           content:["Four."]},
+          {type:'attribution',
+           content:["Five."]},
+          {type:'paragraph',
+           content:["Six."]}
+        ]);
+        output.should.equal(
+          "\\subsection*{One.}\n\n"+
+          "Two.\n\n"+
+          "\\begin{quote}Three.\\end{quote}\n\n"+
+          "Four.\n\n"+
+          "\\begin{quote}Five.\\end{quote}\n\n"+
+          "Six.\n\n");
+      });
+
+      it("should insert hrule as asterisks", function() {
+        var output = toLaTeX.convert([
+          {type:'paragraph', content:["One."]},
+          {type:'hrule'},
+          {type:'paragraph', content:["Two."]}
+        ]);
+        output.should.equal("One.\n\n* * *\n\nTwo.\n\n");
+      });
+
+      it("should add line breaks where needed", function() {
+        var output = toLaTeX.convert([
+          {type:'paragraph', content:[
+            "One.",
+            {type:'line-break'},
+            "Two."
+          ]}
+        ]);
+        output.should.equal("One.\\\\\nTwo.\n\n");
+      });
+
+    }); // end latex output
   });
 }());

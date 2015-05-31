@@ -1,0 +1,26 @@
+div.paragraph h1.number {
+	margin: 0 0 0.25em 0;
+	text-align: center;
+}
+div.paragraph {
+	page-break-before: always;
+	margin: 2em 0;
+}
+div.content h1 {
+	font-size: 1.5em;
+}
+div.content p {
+	margin: 0 0 1em 0;
+}
+ul.choices {
+	margin-top: 1em;
+}
+ul.choices li {
+	margin-bottom: 1em;
+}
+ul.choices li div.subtitle {
+	font-style: italic;
+}
+ul.choices li .turn-to {
+	display: block;
+}

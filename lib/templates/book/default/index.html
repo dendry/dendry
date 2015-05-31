@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="iso-8859-1" />
+	<title>{{game.title}}</title>
+	<link rel="stylesheet" href="style.css"  type="text/css" />
+</head>
+<body>
+	{{#list gamebook }}
+	<div class="paragraph">
+		<h1 id="p{{@number}}" class="number">{{@number}}</h1>
+		<div class="content">
+			{{html content}}
+		</div>
+
+		{{#if choices}}
+		<ul class="choices">
+		{{#each choices}}
+		<li><div class="title">{{htmlLine choice.title}}</div>
+			{{#if choice.subtitle }}<div class="subtitle">{{htmlLine choice.subtitle}}</div>{{/if}}
+	 		<a href="#p{{turn_to}}" class="turn-to">Turn to {{turn_to}}</a>
+	 	</li>
+		{{/each}}
+		</ul>
+		{{/if}}
+	</div>
+	{{/list}}
+</body>
+</html>
