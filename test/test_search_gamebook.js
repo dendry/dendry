@@ -65,6 +65,18 @@
       book.length.should.equal(3);
     });
 
+    it("should fail if there are too many states", function() {
+      var game = {
+        scenes: {
+          "root": {id: "root", options:[{id:'@foo'}]},
+          "foo": {id: "foo", title:'Foo', countVisitsMax:500}
+        }
+      };
+      should(function() {
+        gamebook.build(game, 250);
+      }).throw("Reached search limit of 250 sections.");
+    });
+
 
 
   });
