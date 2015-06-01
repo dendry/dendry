@@ -300,6 +300,14 @@
         output.should.equal("\\subsection*{The title.}\n\n");
       });
 
+      it("should escape special characters", function() {
+        var output = toLaTeX.convert([
+          {type:'paragraph',
+           content:["For $4.00 I got a moustache {."]
+           }]);
+        output.should.equal("For \\$4.00 I got a moustache \\{.\n\n");
+      });
+
       it("should convert single item of content in paragraph", function() {
         var output = toLaTeX.convert([
           {type:'heading',
