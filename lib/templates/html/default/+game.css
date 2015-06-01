@@ -1,0 +1,99 @@
+body {
+  font-family: "Minion Pro", Georgia, serif;
+  background-color: #f3f3e3;
+  padding: 2em;
+  line-height: 155%;
+}
+header, #content, footer {
+  color: #431;
+  max-width: 620px;
+  margin: 0 auto;
+}
+footer {
+  margin-top: 1em;
+  font-size: 0.8em;
+}
+header {
+  text-align: right
+}
+header h1, header h2 {
+  display: inline-block;
+  font-weight: normal;
+  margin: 0;
+  font-size: 1em;
+} 
+header h1 {
+  font-weight: bold;
+}
+header h2:before {
+  content: "by";
+  font-style: italic;
+  padding: 0 0.3em 0 0;
+}
+#content {
+  background-color: #f3f3f3;
+  font-size: 1.1em;
+  padding: 1em;
+  box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.2);
+}
+#content h1:first-child {
+  margin-top: 0.5em;
+}
+#content h1 {
+  margin: 1em 0 0.5em 0;
+  font-size: 1.5em;
+  font-weight: normal;
+}
+a {
+  color: #900;
+  text-decoration: none;
+}
+p {
+  margin: 0 0 1em 0;
+}
+p.game-over {
+  border: 2px solid #bbb;
+  padding: 0.5em;
+  margin: 0.5em 0 0 0;
+  border-radius: 4px;
+  color: #999;
+}
+ul.choices {
+  border: 2px solid #876;
+  padding: 0;
+  margin: 0.5em 0 0 0;
+  list-style-type: none;
+  border-radius: 4px;
+}
+ul.choices li {
+  border-bottom: 1px solid #876;
+  padding: 0.5em;
+}
+ul.choices li div.subtitle {
+  margin-left: 2em;
+  font-style: italic;
+}
+ul.choices li.unavailable {
+  color: #999;
+  background-color: rgba(153,136,119,0.2) !important;
+  cursor: default !important;
+}
+ul.choices li:hover {
+  background-color: rgba(255,204,153,0.2);
+  cursor: pointer;
+}
+ul.choices li:last-child {
+  border-bottom: none;
+}
+ul.choices a {
+  text-decoration: none;
+}
+blockquote {
+  margin: 1em 2em;
+}
+blockquote.attribution {
+  margin-left: 4em;
+}
+blockquote + blockquote.attribution {
+  margin-top: -1em;
+}
