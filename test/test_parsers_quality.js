@@ -127,7 +127,10 @@
           type: "quality",
           name: "The Quality Name",
           initial: 5,
-          content: "This is the description of this quality."
+          content: {
+            type: 'paragraph',
+            content: "This is the description of this quality."
+          }
         });
         done();
       });
