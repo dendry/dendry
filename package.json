@@ -19,7 +19,7 @@
     "prompt": "0.2.x",
     "handlebars": "3.0.x",
     "colors": "1.1.x",
-    "async": "1.0.x",
+    "async": "1.1.x",
     "lodash": "3.9.x",
     "dive": "0.4.x",
     "browserify": "10.x.x",
