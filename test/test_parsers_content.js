@@ -479,6 +479,19 @@
         });
       });
 
+      it("should allow hrules with double newline separation", function(done) {
+        var content = "one two three\n\n---\n\nfour five six";
+        parse.compile(content, true, function(err, result) {
+          noerr(err);
+          result.should.eql([
+            {type: 'paragraph', content: 'one two three'},
+            {type: 'hrule'},
+            {type: 'paragraph', content: 'four five six'}
+          ]);
+          done();
+        });
+      });
+
       it("should break lines on //", function(done) {
         var content = "one two three//\nfour five six";
         parse.compile(content, true, function(err, result) {

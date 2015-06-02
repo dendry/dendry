@@ -33,6 +33,30 @@
       });
     });
 
+    it("should parse content", function(done) {
+      var content = "title: My Title\n\nContent";
+      parse.parseFromContent("foo.scene.dry", content, function(err, result) {
+        noerr(err);
+        result.title.should.equal('My Title');
+        result.content.should.eql({type:'paragraph', content:'Content'});
+        done();
+      });
+    });
+
+    it("should not interpret hrule as choices", function(done) {
+      var content = "title: My Title\n\nContent\n\n---\n\nMore Content";
+      parse.parseFromContent("foo.scene.dry", content, function(err, result) {
+        noerr(err);
+        result.title.should.equal('My Title');
+        result.content.should.eql([
+          {type:'paragraph', content:'Content'},
+          {type:'hrule'},
+          {type:'paragraph', content:'More Content'}
+          ]);
+        done();
+      });
+    });
+
     it("handles parsing of sections", function(done) {
       var content = "title: My Title\n@bar";
       parse.parseFromContent("foo.scene.dry", content, function(err, result) {
