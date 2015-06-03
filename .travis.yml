@@ -2,6 +2,9 @@ language: node_js
 node_js:
   - stable
   - 0.10
+branches:
+  only:
+  	- master
 script: npm run-script test-on-travis
 after_success:
   - npm run-script upload-to-coveralls
