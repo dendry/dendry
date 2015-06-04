@@ -7,7 +7,7 @@
         font-family: "Minion Pro", Georgia, serif;
         background-color: #f3f3e3;
         padding: 2em;
-        line-height: 155%;
+        line-height: 165%;
       }
       header, #content, footer {
         color: #431;
@@ -42,7 +42,7 @@
         box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.2);
       }
       #content h1:first-child {
-        margin-top: 0.5em;
+        margin-top: 0;
       }
       #content h1 {
         margin: 1em 0 0.5em 0;
@@ -54,7 +54,10 @@
         text-decoration: none;
       }
       p {
-        margin: 0 0 1em 0;
+        margin: 0;
+      }
+      p + p {
+        text-indent: 1em;
       }
       p.game-over {
         border: 2px solid #bbb;
