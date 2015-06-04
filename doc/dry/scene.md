@@ -1,29 +1,10 @@
-# Options
-  
-## id
-required: true
-
-## title
-
-## subtitle
-
-## unavailable subtitle
-
-## view if
-
-## choose if
-
-## order
-
-## priority
-
-## frequency
-
-
-# Scene (top level of the file or an @ section)
+# Scene
 
 ## id
-required: true,
+*Required*
+
+## type
+*Required*
 
 ## title
 
@@ -76,13 +57,29 @@ required: true,
 
 
 ## content
-required: true
-
-## options
+*Required*
 
 
-# Scene (top level only)
+# Sub Scenes
 
-# type
-required: true
-must be: `scene`
+
+# Options
+  
+## id
+*Required*
+
+## title
+
+## subtitle
+
+## unavailable subtitle
+
+## view if
+
+## choose if
+
+## order
+
+## priority
+
+## frequency

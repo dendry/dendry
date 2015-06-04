@@ -33,7 +33,8 @@
     "jshint": "2.7.x",
     "mocha-jshint": "2.2.x",
     "istanbul": "0.3.x",
-    "coveralls": "2.11.x"
+    "coveralls": "2.11.x",
+    "marked": "0.3.x"
   },
   "engines": {
     "node": ">= 0.10"
