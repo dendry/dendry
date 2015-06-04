@@ -152,10 +152,13 @@
         {prop:'prop-Three: sun', val:{propThree:'sun'}},
         {prop:'PROP_THREE: sun', val:{propThree:'sun'}},
         {prop:'Prop three: sun', val:{propThree:'sun'}},
+        {prop:'Prop Three: sun', val:{propThree:'sun'}},
         {prop:'propFour: dock', val:{propFour:'dock'}},
+        {prop:'PropFour: dock', val:{propFour:'dock'}},
         {prop:'propFour : dock', val:{propFour:'dock'}},
         {prop:'prop Four: dock', val:{propFour:'dock'}},
-        {prop:'prOp-four: dock', val:{propFour:'dock'}}
+        {prop:'prOp-four: dock', val:{propFour:'dock'}},
+        {prop:'PROP: trog', val:{prop:'trog'}}
       ];
       _.each(camelTests, function(test) {
         it("should camel case property '"+test.prop+"'", function(done) {
