@@ -24,49 +24,60 @@
 
   var getPropertiesFromMarkdown = function(data) {
     var lexed = marked.lexer(data.toString());
-    var properties = null;
+    var propertiesForThisSet = null;
+    var lastProperty = null;
     var sets = [];
     _.each(lexed, function(chunk) {
       if (chunk.type === 'heading') {
         if (chunk.depth === 1) {
-          properties = [];
-          sets[chunk.text.toLowerCase()] = properties;
+          propertiesForThisSet = {};
+          sets[chunk.text.toLowerCase()] = propertiesForThisSet;
         } else if (chunk.depth === 2) {
-          (!!properties).should.be.true;
-          properties.push(chunk.text);
+          (!!propertiesForThisSet).should.be.true;
+          propertiesForThisSet[chunk.text] = false;
+          lastProperty = chunk.text;
         }
+      } else if (chunk.type === 'paragraph' && chunk.text === '*Required*') {
+        (!!lastProperty).should.be.true;
+        propertiesForThisSet[lastProperty] = true;
       }
     });
     return sets;
   };
 
-
   // A new should type to make failures more understandable.
   should.Assertion.add('documented', function(documentedPropertiesAsDict) {
     this.params = {operator: 'be present in the docs'};
     should.exist(documentedPropertiesAsDict[this.obj]);
-    documentedPropertiesAsDict[this.obj].should.be.true;
+  });
+
+  should.Assertion.add('documentedAsRequired', function(docPropsAsDict, req) {
+    this.params = {operator: 'be marked as'+(req?'':' not')+' required'};
+    docPropsAsDict[this.obj].should.equal(req);
   });
 
   var validatePropertiesMatchSchema = function(schema, properties, ignore) {
     var ignoreAsDict = {};
     _.each(ignore, function(name) { ignoreAsDict[name] = true; });
 
-    var propertiesAsDict = {};
-    _.each(properties, function(name) {
+    var propertiesDictCopy = {};
+    _.each(properties, function(isRequired, name) {
       var camelName = dry.convertPropertyNameToCamelCase(name);
-      propertiesAsDict[camelName] = true; 
+      propertiesDictCopy[camelName] = isRequired; 
     });
 
     // Each of the properties in the schema should be present. 
-    _.each(schema, function(_, name) {
+    _.each(schema, function(propertySchema, name) {
       if (name.substr(0, 1) === '$') return;
       if (ignoreAsDict[name] === true) return;
-      name.should.be.documented(propertiesAsDict);
-      delete propertiesAsDict[name];
+      name.should.be.documented(propertiesDictCopy);
+      name.should.be.documentedAsRequired(
+        propertiesDictCopy, propertySchema.required
+        );
+      delete propertiesDictCopy[name];
     });
     // And we should have no others.
-    propertiesAsDict.should.eql({});
+    propertiesDictCopy.should.eql({});
   };
 
 
