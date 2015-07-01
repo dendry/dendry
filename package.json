@@ -20,7 +20,7 @@
     "handlebars": "3.0.x",
     "colors": "1.1.x",
     "async": "1.x.x",
-    "lodash": "3.9.x",
+    "lodash": "3.10.x",
     "dive": "0.4.x",
     "browserify": "10.x.x",
     "uglify-js": "2.4.x",
