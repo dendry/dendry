@@ -5,7 +5,7 @@
  */
 /*jshint indent:2 */
 (function() {
-  "use strict";
+  'use strict';
 
   var _ = require('lodash');
   var path = require('path');
@@ -14,46 +14,48 @@
   /*jshint -W030 */
 
   var noerr = function(err) {
-    if (err) console.trace(err);
+    if (err) {
+      console.trace(err);
+    }
     (!!err).should.be.false;
   };
 
   var parse = require('../lib/parsers/dry');
 
-  describe("dry-parser", function() {
+  describe('dry-parser', function() {
     var parseFromContent = parse.parseFromContent;
 
-    describe("filename", function() {
-      it("requires a valid id component", function(done) {
-        parseFromContent("foo$bar.dry", "\ncontent", function(err, result) {
+    describe('filename', function() {
+      it('requires a valid id component', function(done) {
+        parseFromContent('foo$bar.dry', '\ncontent', function(err, result) {
           (!!err).should.be.true;
           err.toString().should.equal(
-            "Error: Cannot extract id or type from filename."
+            'Error: Cannot extract id or type from filename.'
           );
           (result === undefined).should.be.true;
           done();
         });
       });
 
-      it("sets the id", function(done) {
-        parseFromContent("test.dry", "prop: foo", function(err, result) {
+      it('sets the id', function(done) {
+        parseFromContent('test.dry', 'prop: foo', function(err, result) {
           noerr(err);
           result.id.should.equal('test');
           done();
         });
       });
 
-      it("sets a nested id", function(done) {
+      it('sets a nested id', function(done) {
         parseFromContent(
-          "foo.bar.type.dry", "prop: foo", function(err, result) {
+          'foo.bar.type.dry', 'prop: foo', function(err, result) {
             noerr(err);
             result.id.should.equal('foo.bar');
             done();
           });
       });
 
-      it("sets the type, if given", function(done) {
-        parseFromContent("test.type.dry", "prop: foo", function(err, result) {
+      it('sets the type, if given', function(done) {
+        parseFromContent('test.type.dry', 'prop: foo', function(err, result) {
           noerr(err);
           result.id.should.equal('test');
           result.type.should.equal('type');
@@ -61,8 +63,8 @@
         });
       });
 
-      it("should not set the type, if not given", function(done) {
-        parseFromContent("test.dry", "prop: foo", function(err, result) {
+      it('should not set the type, if not given', function(done) {
+        parseFromContent('test.dry', 'prop: foo', function(err, result) {
           noerr(err);
           result.id.should.equal('test');
           (result.type === undefined).should.be.true;
@@ -70,9 +72,9 @@
         });
       });
 
-      it("copes with full paths", function(done) {
+      it('copes with full paths', function(done) {
         parseFromContent(
-          "/tmp/foo/test.type.dry", "prop: foo",
+          '/tmp/foo/test.type.dry', 'prop: foo',
           function(err, result) {
             noerr(err);
             result.id.should.equal('test');
@@ -81,8 +83,8 @@
           });
       });
 
-      it("copes with any extension", function(done) {
-        parseFromContent("test.type.bar", "prop: foo", function(err, result) {
+      it('copes with any extension', function(done) {
+        parseFromContent('test.type.bar', 'prop: foo', function(err, result) {
           noerr(err);
           result.id.should.equal('test');
           result.type.should.equal('type');
@@ -93,14 +95,15 @@
 
     // ----------------------------------------------------------------------
 
-    describe("properties", function() {
+    describe('properties', function() {
       var reserved = ['id', 'sections', 'options', 'content'];
       reserved.forEach(function(name) {
-        it("should not allow "+name+" as a property name", function(done) {
-          parseFromContent("test.dry", name+": foo", function(err, result) {
+        it('should not allow ' + name + ' as a property name', function(done) {
+          parseFromContent('test.dry', name + ': foo', function(err, result) {
             (!!err).should.be.true;
             err.toString().should.equal(
-              "Error: test.dry line 1: Property '"+name+"' is a reserved name."
+              'Error: test.dry line 1: Property "' + name +
+              '" is a reserved name.'
             );
             (result === undefined).should.be.true;
             done();
@@ -108,32 +111,32 @@
         });
       });
 
-      it("should not allow properties to be redefined", function(done) {
+      it('should not allow properties to be redefined', function(done) {
         parseFromContent(
-          "test.dry", "prop: foo\nprop: bar",
+          'test.dry', 'prop: foo\nprop: bar',
           function(err, result) {
             (!!err).should.be.true;
             err.toString().should.equal(
-              "Error: test.dry line 2: Property 'prop' is already defined."
+              'Error: test.dry line 2: Property "prop" is already defined.'
             );
             (result === undefined).should.be.true;
             done();
           });
       });
 
-      it("should not allow type to be redefined", function(done) {
-        parseFromContent("test.type.dry", "type: foo", function(err, result) {
+      it('should not allow type to be redefined', function(done) {
+        parseFromContent('test.type.dry', 'type: foo', function(err, result) {
           (!!err).should.be.true;
           err.toString().should.equal(
-            "Error: test.type.dry line 1: Property 'type' is already defined."
+            'Error: test.type.dry line 1: Property "type" is already defined.'
           );
           (result === undefined).should.be.true;
           done();
         });
       });
 
-      it("allow type to be set if not inferred", function(done) {
-        parseFromContent("test.dry", "type: foo", function(err, result) {
+      it('allow type to be set if not inferred', function(done) {
+        parseFromContent('test.dry', 'type: foo', function(err, result) {
           noerr(err);
           result.type.should.equal('foo');
           done();
@@ -161,10 +164,10 @@
         {prop:'PROP: trog', val:{prop:'trog'}}
       ];
       _.each(camelTests, function(test) {
-        it("should camel case property '"+test.prop+"'", function(done) {
+        it('should camel case property "' + test.prop + '"', function(done) {
           parseFromContent(
-            "test.dry", test.prop+'\n',
-            function(err, result){
+            'test.dry', test.prop + '\n',
+            function(err, result) {
               noerr(err);
               for (var name in test.val) {
                 result[name].should.equal(test.val[name]);
@@ -174,17 +177,17 @@
         });
       });
 
-      it("allow a property to be split over two lines", function(done) {
-        parseFromContent("test.dry", "prop: foo\n\tbar", function(err, result){
+      it('allow a property to be split over two lines', function(done) {
+        parseFromContent('test.dry', 'prop: foo\n\tbar', function(err, result) {
           noerr(err);
           result.prop.should.equal('foo bar');
           done();
         });
       });
 
-      it("allow a property to be split over multiple lines", function(done) {
+      it('allow a property to be split over multiple lines', function(done) {
         parseFromContent(
-          "test.dry", "prop: foo\n\tbar\n  sun",
+          'test.dry', 'prop: foo\n\tbar\n  sun',
           function(err, result) {
             noerr(err);
             result.prop.should.equal('foo bar sun');
@@ -192,22 +195,22 @@
           });
       });
 
-      it("should not allow interspersed non-conforming content",
+      it('should not allow interspersed non-conforming content',
          function(done) {
            parseFromContent(
-             "test.dry", "prop: A\nbar\nprop2: B",
+             'test.dry', 'prop: A\nbar\nprop2: B',
              function(err, result) {
                (!!err).should.be.true;
                err.toString().should.equal(
-                 "Error: test.dry line 2: Invalid property definition."
+                 'Error: test.dry line 2: Invalid property definition.'
                );
                (result === undefined).should.be.true;
                done();
              });
          });
 
-      it("should be terminated by a blank line", function(done) {
-        parseFromContent("test.dry", "prop: foo\n\nbar", function(err, result){
+      it('should be terminated by a blank line', function(done) {
+        parseFromContent('test.dry', 'prop: foo\n\nbar', function(err, result) {
           noerr(err);
           result.prop.should.equal('foo');
           result.content.should.equal('bar');
@@ -215,8 +218,8 @@
         });
       });
 
-      it("can be skipped with an initial blank line", function(done) {
-        parseFromContent("test.dry", "\nbar", function(err, result) {
+      it('can be skipped with an initial blank line', function(done) {
+        parseFromContent('test.dry', '\nbar', function(err, result) {
           noerr(err);
           result.content.should.equal('bar');
           done();
@@ -226,35 +229,39 @@
 
     // ----------------------------------------------------------------------
 
-    describe("magic", function() {
-      it("parses magic in properties", function(done) {
-        var content = "foo: {! return true; !}\nbar: 2";
-        parseFromContent("test.dry", content, function(err, result) {
+    describe('magic', function() {
+      it('parses magic in properties', function(done) {
+        var content = 'foo: {! return true; !}\nbar: 2';
+        parseFromContent('test.dry', content, function(err, result) {
           noerr(err);
-          result.foo.should.equal("{! return true; !}");
-          result.bar.should.equal("2");
+          result.foo.should.equal('{! return true; !}');
+          result.bar.should.equal('2');
           done();
         });
       });
 
-      it("allows magic to span lines without indent", function(done) {
-        var content = "foo: {!\nreturn true;\n!} \nbar: 2";
-        parseFromContent("test.dry", content, function(err, result) {
-          if (err) console.error(err);
+      it('allows magic to span lines without indent', function(done) {
+        var content = 'foo: {!\nreturn true;\n!} \nbar: 2';
+        parseFromContent('test.dry', content, function(err, result) {
+          if (err) {
+            console.error(err);
+          }
           noerr(err);
-          result.foo.should.equal("{!\nreturn true;\n!}");
-          result.bar.should.equal("2");
+          result.foo.should.equal('{!\nreturn true;\n!}');
+          result.bar.should.equal('2');
           done();
         });
       });
 
-      it("allows multiple magic blocks in property", function(done) {
-        var content = "foo: {!\nreturn true;\n!}\n  {!\na=0; !}\nbar: 2";
-        parseFromContent("test.dry", content, function(err, result) {
-          if (err) console.error(err);
+      it('allows multiple magic blocks in property', function(done) {
+        var content = 'foo: {!\nreturn true;\n!}\n  {!\na=0; !}\nbar: 2';
+        parseFromContent('test.dry', content, function(err, result) {
+          if (err) {
+            console.error(err);
+          }
           noerr(err);
-          result.foo.should.equal("{!\nreturn true;\n!} {!\na=0; !}");
-          result.bar.should.equal("2");
+          result.foo.should.equal('{!\nreturn true;\n!} {!\na=0; !}');
+          result.bar.should.equal('2');
           done();
         });
       });
@@ -262,41 +269,41 @@
 
     // ----------------------------------------------------------------------
 
-    describe("content", function() {
-      it("allows multiple paragraphs", function(done) {
-        parseFromContent("test.dry", "\nfoo\n\nbar", function(err, result) {
+    describe('content', function() {
+      it('allows multiple paragraphs', function(done) {
+        parseFromContent('test.dry', '\nfoo\n\nbar', function(err, result) {
           noerr(err);
           result.content.should.equal('foo\n\nbar');
           done();
         });
       });
 
-      it("interprets apparent continuation lines as text", function(done) {
-        parseFromContent("test.dry", "\nfoo\n\tbar", function(err, result) {
+      it('interprets apparent continuation lines as text', function(done) {
+        parseFromContent('test.dry', '\nfoo\n\tbar', function(err, result) {
           noerr(err);
           result.content.should.equal('foo\n\tbar');
           done();
         });
       });
 
-      it("interprets apparent option lines as text", function(done) {
-        parseFromContent("test.dry", "\nfoo\n- bar", function(err, result) {
+      it('interprets apparent option lines as text', function(done) {
+        parseFromContent('test.dry', '\nfoo\n- bar', function(err, result) {
           noerr(err);
           result.content.should.equal('foo\n- bar');
           done();
         });
       });
 
-      it("interprets apparent property lines as text", function(done) {
-        parseFromContent("test.dry", "\nfoo\nbar: foo", function(err, result) {
+      it('interprets apparent property lines as text', function(done) {
+        parseFromContent('test.dry', '\nfoo\nbar: foo', function(err, result) {
           noerr(err);
           result.content.should.equal('foo\nbar: foo');
           done();
         });
       });
 
-      it("ends when a new section id is given", function(done) {
-        parseFromContent("test.dry", "\nfoo\n@bar", function(err, result) {
+      it('ends when a new section id is given', function(done) {
+        parseFromContent('test.dry', '\nfoo\n@bar', function(err, result) {
           noerr(err);
           result.content.should.equal('foo');
           result.sections.length.should.equal(1);
@@ -305,8 +312,8 @@
         });
       });
 
-      it("ends when an option block is given", function(done) {
-        parseFromContent("test.dry", "\nfoo\n\n- @bar", function(err, result) {
+      it('ends when an option block is given', function(done) {
+        parseFromContent('test.dry', '\nfoo\n\n- @bar', function(err, result) {
           noerr(err);
           result.content.should.equal('foo');
           result.options.length.should.equal(1);
@@ -315,17 +322,17 @@
         });
       });
 
-      it("ignores extra blank lines", function(done) {
-        parseFromContent("test.dry", "\nfoo\n\n\nbar", function(err, result) {
+      it('ignores extra blank lines', function(done) {
+        parseFromContent('test.dry', '\nfoo\n\n\nbar', function(err, result) {
           noerr(err);
           result.content.should.equal('foo\n\nbar');
           done();
         });
       });
 
-      it("ignores trailing blank lines", function(done) {
+      it('ignores trailing blank lines', function(done) {
         parseFromContent(
-          "test.dry", "\nfoo\n\nbar\n\n\n",
+          'test.dry', '\nfoo\n\nbar\n\n\n',
           function(err, result) {
             noerr(err);
             result.content.should.equal('foo\n\nbar');
@@ -333,8 +340,8 @@
           });
       });
 
-      it("should be blank if we start with options", function(done) {
-        parseFromContent("test.dry", "\n- @bar", function(err, result) {
+      it('should be blank if we start with options', function(done) {
+        parseFromContent('test.dry', '\n- @bar', function(err, result) {
           noerr(err);
           result.content.should.equal('');
           result.options.length.should.equal(1);
@@ -345,9 +352,9 @@
     });
 
     // ----------------------------------------------------------------------
-    describe("options", function() {
-      it("can start with either a tag or id", function(done) {
-        parseFromContent("test.dry", "\n- @bar\n-#foo", function(err, result) {
+    describe('options', function() {
+      it('can start with either a tag or id', function(done) {
+        parseFromContent('test.dry', '\n- @bar\n-#foo', function(err, result) {
           noerr(err);
           result.content.should.equal('');
           result.options.length.should.equal(2);
@@ -357,20 +364,20 @@
         });
       });
 
-      it("must start with a tag or id", function(done) {
-        parseFromContent("test.dry", "\n- $foo", function(err, result) {
+      it('must start with a tag or id', function(done) {
+        parseFromContent('test.dry', '\n- $foo', function(err, result) {
           (!!err).should.be.true;
           err.toString().should.equal(
-            "Error: test.dry line 2: Invalid property or option definition."
+            'Error: test.dry line 2: Invalid property or option definition.'
           );
           (result === undefined).should.be.true;
           done();
         });
       });
 
-      it("can have a title with an id", function(done) {
+      it('can have a title with an id', function(done) {
         parseFromContent(
-          "test.dry", "\n- @foo\n- @bar: The title",
+          'test.dry', '\n- @foo\n- @bar: The title',
           function(err, result) {
             noerr(err);
             result.options.length.should.equal(2);
@@ -382,8 +389,8 @@
           });
       });
 
-      it("can have a qualified id", function(done) {
-        parseFromContent("test.dry", "\n- @foo.bar", function(err, result) {
+      it('can have a qualified id', function(done) {
+        parseFromContent('test.dry', '\n- @foo.bar', function(err, result) {
           noerr(err);
           result.options.length.should.equal(1);
           result.options[0].id.should.equal('@foo.bar');
@@ -391,8 +398,8 @@
         });
       });
 
-      it("can have a relative id", function(done) {
-        parseFromContent("test.dry", "\n- @..foo.bar", function(err, result) {
+      it('can have a relative id', function(done) {
+        parseFromContent('test.dry', '\n- @..foo.bar', function(err, result) {
           noerr(err);
           result.options.length.should.equal(1);
           result.options[0].id.should.equal('@..foo.bar');
@@ -400,44 +407,44 @@
         });
       });
 
-      it("cannot have a two part tag", function(done) {
-        parseFromContent("test.dry", "\n- #foo.bar", function(err, result) {
+      it('cannot have a two part tag', function(done) {
+        parseFromContent('test.dry', '\n- #foo.bar', function(err, result) {
           (!!err).should.be.true;
           err.toString().should.equal(
-            "Error: test.dry line 2: Invalid property or option definition."
+            'Error: test.dry line 2: Invalid property or option definition.'
           );
           (result === undefined).should.be.true;
           done();
         });
       });
 
-      it("should not allow content after options", function(done) {
-        parseFromContent("test.dry", "\n- @foo\n\nbar", function(err, result) {
+      it('should not allow content after options', function(done) {
+        parseFromContent('test.dry', '\n- @foo\n\nbar', function(err, result) {
           (!!err).should.be.true;
           err.toString().should.equal(
-            "Error: test.dry line 4: Found content after an options block."
+            'Error: test.dry line 4: Found content after an options block.'
           );
           (result === undefined).should.be.true;
           done();
         });
       });
 
-      it("should not allow multiple options blocks", function(done) {
+      it('should not allow multiple options blocks', function(done) {
         parseFromContent(
-          "test.dry", "\n- @foo\n\n- #bar",
+          'test.dry', '\n- @foo\n\n- #bar',
           function(err, result) {
             (!!err).should.be.true;
             err.toString().should.equal(
-              "Error: test.dry line 4: Found content after an options block."
+              'Error: test.dry line 4: Found content after an options block.'
             );
             (result === undefined).should.be.true;
             done();
           });
       });
 
-      it("allow property definitions", function(done) {
+      it('allow property definitions', function(done) {
         parseFromContent(
-          "test.dry", "\n- @foo\n- foo:bar\n- #sun\n- sun:dock",
+          'test.dry', '\n- @foo\n- foo:bar\n- #sun\n- sun:dock',
           function(err, result) {
             noerr(err);
             result.options.length.should.equal(2);
@@ -449,9 +456,9 @@
           });
       });
 
-      it("properties don't clash with scene properties", function(done) {
+      it('properties don\'t clash with scene properties', function(done) {
         parseFromContent(
-          "test.dry", "foo:trog\n\n- @foo\n- foo:bar\n- #sun\n- sun:dock",
+          'test.dry', 'foo:trog\n\n- @foo\n- foo:bar\n- #sun\n- sun:dock',
           function(err, result) {
             noerr(err);
             result.foo.should.equal('trog');
@@ -464,46 +471,46 @@
           });
       });
 
-      it("properties can't precede their link", function(done) {
+      it('properties can\'t precede their link', function(done) {
         parseFromContent(
-          "test.dry", "\n- foo:bar\n- @foo",
+          'test.dry', '\n- foo:bar\n- @foo',
           function(err, result) {
             (!!err).should.be.true;
             err.toString().should.equal(
-              "Error: test.dry line 2: "+
-                "Property found in options before an option is defined."
+              'Error: test.dry line 2: ' +
+                'Property found in options before an option is defined.'
             );
             done();
           });
       });
 
-      it("title given in link can't be overridden", function(done) {
+      it('title given in link can\'t be overridden', function(done) {
         parseFromContent(
-          "test.dry", "\n- @foo: The Title\n- title:Another Title",
+          'test.dry', '\n- @foo: The Title\n- title:Another Title',
           function(err, result) {
             (!!err).should.be.true;
             err.toString().should.equal(
-              "Error: test.dry line 3: Property 'title' is already defined."
+              'Error: test.dry line 3: Property "title" is already defined.'
             );
             done();
           });
       });
 
-      it("require properties to have a preceding hyphen", function(done) {
+      it('require properties to have a preceding hyphen', function(done) {
         parseFromContent(
-          "test.dry", "\n- @cube\nfoo:bar",
+          'test.dry', '\n- @cube\nfoo:bar',
           function(err, result) {
             (!!err).should.be.true;
             err.toString().should.equal(
-              "Error: test.dry line 3: Hyphens are required in an option block."
+              'Error: test.dry line 3: Hyphens are required in an option block.'
             );
             (result === undefined).should.be.true;
             done();
           });
       });
 
-      it("interpret a tag without a hyphen as a comment", function(done) {
-        parseFromContent("test.dry", "\n- @cube\n#foo", function(err, result) {
+      it('interpret a tag without a hyphen as a comment', function(done) {
+        parseFromContent('test.dry', '\n- @cube\n#foo', function(err, result) {
           noerr(err);
           result.options.length.should.equal(1);
           result.options[0].id.should.equal('@cube');
@@ -511,8 +518,8 @@
         });
       });
 
-      it("interpret an id without a hyphen as a new section", function(done) {
-        parseFromContent("test.dry", "\n- @cube\n@foo", function(err, result) {
+      it('interpret an id without a hyphen as a new section', function(done) {
+        parseFromContent('test.dry', '\n- @cube\n@foo', function(err, result) {
           noerr(err);
           result.options.length.should.equal(1);
           result.options[0].id.should.equal('@cube');
@@ -522,40 +529,40 @@
         });
       });
 
-      it("should not allow an id to be specified more than once",
+      it('should not allow an id to be specified more than once',
          function(done) {
            parseFromContent(
-             "test.dry", "\n- @foo\n-@foo",
+             'test.dry', '\n- @foo\n-@foo',
              function(err, result) {
                (!!err).should.be.true;
                err.toString().should.equal(
-                 "Error: test.dry line 3: "+
-                   "Option with id/tag '@foo' already specified."
+                 'Error: test.dry line 3: ' +
+                   'Option with id/tag "@foo" already specified.'
                );
                (result === undefined).should.be.true;
                done();
              });
          });
 
-      it("should allow an id to be specified in other sections",
+      it('should allow an id to be specified in other sections',
          function(done) {
            parseFromContent(
-             "test.dry", "\n- @foo\n@bar\n\n-@foo",
+             'test.dry', '\n- @foo\n@bar\n\n-@foo',
              function(err, result) {
                noerr(err);
                done();
              });
          });
 
-      it("should not allow a tag to be specified more than once",
+      it('should not allow a tag to be specified more than once',
          function(done) {
            parseFromContent(
-             "test.dry", "\n- #foo\n-#foo",
+             'test.dry', '\n- #foo\n-#foo',
              function(err, result) {
                (!!err).should.be.true;
                err.toString().should.equal(
-                 "Error: test.dry line 3: "+
-                   "Option with id/tag '#foo' already specified."
+                 'Error: test.dry line 3: ' +
+                   'Option with id/tag "#foo" already specified.'
                );
                (result === undefined).should.be.true;
                done();
@@ -565,9 +572,9 @@
 
     // ----------------------------------------------------------------------
 
-    describe("sections", function() {
-      it("can begin at the start of the file", function(done) {
-        parseFromContent("test.dry", "@foo", function(err, result) {
+    describe('sections', function() {
+      it('can begin at the start of the file', function(done) {
+        parseFromContent('test.dry', '@foo', function(err, result) {
           noerr(err);
           result.content.should.equal('');
           result.sections.length.should.equal(1);
@@ -576,22 +583,22 @@
         });
       });
 
-      it("require a valid id", function(done) {
+      it('require a valid id', function(done) {
         parseFromContent(
-          "test.dry", "\nContent\n@foo$bar",
+          'test.dry', '\nContent\n@foo$bar',
           function(err, result) {
             (!!err).should.be.true;
             err.toString().should.equal(
-              "Error: test.dry line 3: Malformed id 'foo$bar' "+
-                "(use letters, numbers, _ and - only)."
+              'Error: test.dry line 3: Malformed id "foo$bar" ' +
+                '(use letters, numbers, _ and - only).'
             );
             (result === undefined).should.be.true;
             done();
           });
       });
 
-      it("begin by interpreting following lines as properties", function(done){
-        parseFromContent("test.dry", "@foo\nsun:dock", function(err, result) {
+      it('begin by interpreting following lines as properties', function(done) {
+        parseFromContent('test.dry', '@foo\nsun:dock', function(err, result) {
           noerr(err);
           result.sections.length.should.equal(1);
           result.sections[0].id.should.equal('test.foo');
@@ -600,22 +607,22 @@
         });
       });
 
-      it("should not allow an id to be reused more than once", function(done) {
-        parseFromContent("test.dry", "@foo\n@foo", function(err, result) {
+      it('should not allow an id to be reused more than once', function(done) {
+        parseFromContent('test.dry', '@foo\n@foo', function(err, result) {
           (!!err).should.be.true;
           err.toString().should.equal(
-            "Error: test.dry line 2: Section with id 'foo' already defined."
+            'Error: test.dry line 2: Section with id "foo" already defined.'
           );
           (result === undefined).should.be.true;
           done();
         });
       });
 
-      it("should not allow an id to match the top level id", function(done) {
-        parseFromContent("test.dry", "@test", function(err, result) {
+      it('should not allow an id to match the top level id', function(done) {
+        parseFromContent('test.dry', '@test', function(err, result) {
           (!!err).should.be.true;
           err.toString().should.equal(
-            "Error: test.dry line 1: Section can't use the file id 'test'."
+            'Error: test.dry line 1: Section can\'t use the file id "test".'
           );
           (result === undefined).should.be.true;
           done();
@@ -626,8 +633,8 @@
 
     // ----------------------------------------------------------------------
 
-    describe("filesystem", function() {
-      it("should load and parse file", function(done) {
+    describe('filesystem', function() {
+      it('should load and parse file', function(done) {
         var fn = path.join(__dirname, 'files', 'test_dry_parser.test.dry');
         parse.parseFromFile(fn, function(err, result) {
           noerr(err);
@@ -640,7 +647,7 @@
         });
       });
 
-      it("should fail if the file is not there", function(done) {
+      it('should fail if the file is not there', function(done) {
         var fn = path.join(__dirname, 'files', 'not-a-file.type.dry');
         parse.parseFromFile(fn, function(err, result) {
           (!!err).should.be.true;
@@ -653,86 +660,84 @@
 
     // ----------------------------------------------------------------------
 
-    describe("file and line", function() {
-      it("should output global file and line", function() {
+    describe('file and line', function() {
+      it('should output global file and line', function() {
         var content = {
           $metadata: {
-            $file: "file.dry",
+            $file: 'file.dry',
             $line: 5
           }
         };
         var result = parse.propertyFileAndLine(content, null);
-        result.should.equal("file.dry line 5");
+        result.should.equal('file.dry line 5');
       });
 
-      it("should use filename instead of negative line", function() {
+      it('should use filename instead of negative line', function() {
         var content = {
           $metadata: {
-            $file: "file.dry",
+            $file: 'file.dry',
             $line: -1
           }
         };
         var result = parse.propertyFileAndLine(content, null);
-        result.should.equal("file.dry filename");
+        result.should.equal('file.dry filename');
       });
 
-      it("should use property file and line", function() {
+      it('should use property file and line', function() {
         var content = {
           $metadata: {
-            $file: "file.dry",
+            $file: 'file.dry',
             $line: -1,
-            foo: {$file:"other.dry", $line:2}
+            foo: {$file:'other.dry', $line:2}
           }
         };
         var result = parse.propertyFileAndLine(content, 'foo');
-        result.should.equal("other.dry line 2");
+        result.should.equal('other.dry line 2');
       });
 
-      it("should fallback if property file not defined", function() {
+      it('should fallback if property file not defined', function() {
         var content = {
           $metadata: {
-            $file: "file.dry",
+            $file: 'file.dry',
             $line: -1,
             foo: {$line:2}
           }
         };
         var result = parse.propertyFileAndLine(content, 'foo');
-        result.should.equal("file.dry line 2");
+        result.should.equal('file.dry line 2');
       });
 
-      it("should fallback if property line not defined", function() {
+      it('should fallback if property line not defined', function() {
         var content = {
           $metadata: {
-            $file: "file.dry",
+            $file: 'file.dry',
             $line: 2,
-            foo: {$file:"other.dry"}
+            foo: {$file:'other.dry'}
           }
         };
         var result = parse.propertyFileAndLine(content, 'foo');
-        result.should.equal("other.dry line 2");
+        result.should.equal('other.dry line 2');
       });
 
-      it("can display only file", function() {
+      it('can display only file', function() {
         var content = {
           $metadata: {
-            $file: "file.dry",
+            $file: 'file.dry',
           }
         };
         var result = parse.propertyFileAndLine(content, null);
-        result.should.equal("file.dry");
+        result.should.equal('file.dry');
       });
 
-      it("can display only line", function() {
+      it('can display only line', function() {
         var content = {
           $metadata: {
             $line: 2,
           }
         };
         var result = parse.propertyFileAndLine(content, null);
-        result.should.equal("line 2");
+        result.should.equal('line 2');
       });
-
-
     });
 
   });

@@ -5,7 +5,7 @@
  */
 /*jshint indent:2 */
 (function() {
-  "use strict";
+  'use strict';
 
   var should = require('should');
   // Disable errors from using the should library.
@@ -13,32 +13,32 @@
 
   var gamebook = require('../lib/search/gamebook');
 
-  describe("gamebook", function() {
+  describe('gamebook', function() {
 
-    it("should compile simple book", function() {
+    it('should compile simple book', function() {
       var game = {
         scenes: {
-          "root": {
-            id: "root", options:[
+          'root': {
+            id: 'root', options:[
               {id:'@sun', chooseIf: function() { return false; }},
               {id:'@foo'},
               {id:'@bar'}
-            ], 
-            content: "Root Content"
+            ],
+            content: 'Root Content'
           },
-          "foo": {
-            id:"foo", title:'Foo', gameOver:true,
-            content: "This is the end of the road, I'm afraid."
+          'foo': {
+            id:'foo', title:'Foo', gameOver:true,
+            content: 'This is the end of the road, I am afraid.'
           },
-          "bar": {
-            id:"bar", title:'Bar',
-            content: "Passing through Bar...", options:[{id:'@sun'}]
+          'bar': {
+            id:'bar', title:'Bar',
+            content: 'Passing through Bar...', options:[{id:'@sun'}]
           },
-          "sun": {
-            content: "This is sun content!",
-            subtitle:"Go for the sun!",
-            unavailableSubtitle:"You can't go for the sun yet!",
-            id:"sun", title:'Sun', options:[{id:'@foo'}]
+          'sun': {
+            content: 'This is sun content!',
+            subtitle:'Go for the sun!',
+            unavailableSubtitle:'You cannot go for the sun yet!',
+            id:'sun', title:'Sun', options:[{id:'@foo'}]
           }
         },
         qualities: {
@@ -53,31 +53,29 @@
       }]);
     });
 
-    it("should make scenes with go-to have their own number", function() {
+    it('should make scenes with go-to have their own number', function() {
       var game = {
         scenes: {
-          "root": {id: "root", options:[{id:'@foo'}, {id:'@bar'}]},
-          "foo": {id:"foo", title:'Foo', gameOver:true},
-          "bar": {id:"bar", title:'Bar', goTo:[{id:'foo'}]}
+          'root': {id: 'root', options:[{id:'@foo'}, {id:'@bar'}]},
+          'foo': {id:'foo', title:'Foo', gameOver:true},
+          'bar': {id:'bar', title:'Bar', goTo:[{id:'foo'}]}
         }
       };
       var book = gamebook.build(game);
       book.length.should.equal(3);
     });
 
-    it("should fail if there are too many states", function() {
+    it('should fail if there are too many states', function() {
       var game = {
         scenes: {
-          "root": {id: "root", options:[{id:'@foo'}]},
-          "foo": {id: "foo", title:'Foo', countVisitsMax:500}
+          'root': {id: 'root', options:[{id:'@foo'}]},
+          'foo': {id: 'foo', title:'Foo', countVisitsMax:500}
         }
       };
       should(function() {
         gamebook.build(game, 250);
-      }).throw("Reached search limit of 250 sections.");
+      }).throw('Reached search limit of 250 sections.');
     });
-
-
 
   });
 }());

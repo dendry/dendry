@@ -5,7 +5,7 @@
  */
 /*jshint indent:2 */
 (function() {
-  "use strict";
+  'use strict';
 
   var should = require('should');
   // Disable errors from using the should library.
@@ -14,13 +14,13 @@
   var engine = require('../lib/engine');
   var hash = require('../lib/search/hash');
 
-  describe("search hash", function() {
+  describe('search hash', function() {
 
-    it("should return a known value with a known state", function() {
+    it('should return a known value with a known state', function() {
       var game = {
         scenes: {
-          "root": {id: "root", options:[{id:'@foo'}]},
-          "foo": {id: "foo", title:'Foo'}
+          'root': {id: 'root', options:[{id:'@foo'}]},
+          'foo': {id: 'foo', title:'Foo'}
         },
         qualities: {
           foo: {initial: 1}
@@ -33,14 +33,14 @@
       state.currentRandomState = (engine.Random.fromSeeds([0])).getState();
 
       var hashValue = hash.hashState(dendryEngine.state);
-      hashValue.should.equal("d00db511e5c182abb95d3507aabfc108becc1875");
+      hashValue.should.equal('d00db511e5c182abb95d3507aabfc108becc1875');
     });
 
-    it("should depend on quality value", function() {
+    it('should depend on quality value', function() {
       var game = {
         scenes: {
-          "root": {id: "root", options:[{id:'@foo'}]},
-          "foo": {id: "foo", title:'Foo'}
+          'root': {id: 'root', options:[{id:'@foo'}]},
+          'foo': {id: 'foo', title:'Foo'}
         },
         qualities: {
           foo: {initial: 1}
@@ -56,11 +56,11 @@
       initialValue.should.not.eql(finalValue);
     });
 
-    it("should change when engine updates qualities", function() {
+    it('should change when engine updates qualities', function() {
       var game = {
         scenes: {
-          "root": {id: "root", options:[{id:'@foo'}]},
-          "foo": {id: "foo", title:'Foo', onArrival: [
+          'root': {id: 'root', options:[{id:'@foo'}]},
+          'foo': {id: 'foo', title:'Foo', onArrival: [
             function(state, Q) { Q.foo += 1; }
           ]}
         },
@@ -82,11 +82,11 @@
       initialValue.should.not.eql(finalValue);
     });
 
-    it("should depend on visit counts", function() {
+    it('should depend on visit counts', function() {
       var game = {
         scenes: {
-          "root": {id: "root", options:[{id:'@foo'}]},
-          "foo": {id: "foo", title:'Foo', countVisitsMax:2}
+          'root': {id: 'root', options:[{id:'@foo'}]},
+          'foo': {id: 'foo', title:'Foo', countVisitsMax:2}
         }
       };
       var ui = new engine.NullUserInterface();
@@ -103,11 +103,11 @@
       initialValue.should.not.eql(finalValue);
     });
 
-    it("should depend on current scene", function() {
+    it('should depend on current scene', function() {
       var game = {
         scenes: {
-          "root": {id: "root", options:[{id:'@foo'}]},
-          "foo": {id: "foo", title:'Foo'}
+          'root': {id: 'root', options:[{id:'@foo'}]},
+          'foo': {id: 'foo', title:'Foo'}
         }
       };
       var ui = new engine.NullUserInterface();
@@ -120,12 +120,12 @@
       initialValue.should.not.eql(finalValue);
     });
 
-    it("should depend on go to history", function() {
+    it('should depend on go to history', function() {
       var game = {
         scenes: {
-          "root": {id: "root", options:[{id:'@foo'}, {id:'@bar'}]},
-          "foo": {id: "foo", title:'Foo'},
-          "bar": {id: "bar", title:'Bar', goTo:[{id:'foo'}]}
+          'root': {id: 'root', options:[{id:'@foo'}, {id:'@bar'}]},
+          'foo': {id: 'foo', title:'Foo'},
+          'bar': {id: 'bar', title:'Bar', goTo:[{id:'foo'}]}
         }
       };
       var ui = new engine.NullUserInterface();

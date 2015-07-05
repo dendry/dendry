@@ -5,7 +5,7 @@
  */
 /*jshint indent:2 */
 (function() {
-  "use strict";
+  'use strict';
 
   var _ = require('lodash');
   var should = require('should');
@@ -13,19 +13,21 @@
   /*jshint -W030 */
 
   var noerr = function(err) {
-    if (err) console.trace(err);
+    if (err) {
+      console.trace(err);
+    }
     (!!err).should.be.false;
   };
 
   var logic = require('../lib/parsers/logic');
   var engine = require('../lib/engine');
 
-  describe("logic-compiler", function() {
+  describe('logic-compiler', function() {
 
     // ----------------------------------------------------------------------
 
     describe('predicate', function() {
-      it("should compile a trivial predicate", function(done) {
+      it('should compile a trivial predicate', function(done) {
         logic.compilePredicate('true', function(err, fn) {
           noerr(err);
           var state = {
@@ -36,7 +38,7 @@
         });
       });
 
-      it("should look up qualities", function(done) {
+      it('should look up qualities', function(done) {
         logic.compilePredicate('foo > 0', function(err, fn) {
           noerr(err);
           var state = {
@@ -47,7 +49,7 @@
         });
       });
 
-      it("should look up visits", function(done) {
+      it('should look up visits', function(done) {
         logic.compilePredicate('@foo > 0', function(err, fn) {
           noerr(err);
           var state = {
@@ -59,19 +61,19 @@
         });
       });
 
-      it("should look up complex scene ids", function(done) {
+      it('should look up complex scene ids', function(done) {
         logic.compilePredicate('@foo.bar.sun > 0', function(err, fn) {
           noerr(err);
           var state = {
             qualities: {},
-            visits: {"foo.bar.sun":1}
+            visits: {'foo.bar.sun':1}
           };
           engine.runPredicate(fn, false, {}, state).should.be.true;
           done();
         });
       });
 
-      it("should default to zero when looking up visits", function(done) {
+      it('should default to zero when looking up visits', function(done) {
         logic.compilePredicate('@foo > 0', function(err, fn) {
           noerr(err);
           var state = {
@@ -83,7 +85,7 @@
         });
       });
 
-      it("should default to 0 on unknown quality access", function(done) {
+      it('should default to 0 on unknown quality access', function(done) {
         logic.compilePredicate('foo = 0', function(err, fn) {
           noerr(err);
           var state = {
@@ -95,13 +97,13 @@
       });
 
       var nonzeroCases = [
-        {Q:{}, result:false, desc:"unknown quality should default to false"},
-        {Q:{foo:0}, result:false, desc:"zero values should be false"},
-        {Q:{foo:1}, result:true, desc:"positive values should be true"},
-        {Q:{foo:-1}, result:true, desc:"negative values should be true"}
+        {Q:{}, result:false, desc:'unknown quality should default to false'},
+        {Q:{foo:0}, result:false, desc:'zero values should be false'},
+        {Q:{foo:1}, result:true, desc:'positive values should be true'},
+        {Q:{foo:-1}, result:true, desc:'negative values should be true'}
       ];
       _.each(nonzeroCases, function(test) {
-        it("bare numbers: "+test.desc, function(done) {
+        it('bare numbers: ' + test.desc, function(done) {
           logic.compilePredicate('foo', function(err, fn) {
             noerr(err);
             var state = {
@@ -113,7 +115,7 @@
         });
       });
 
-      it("should support three clause conjunction", function(done) {
+      it('should support three clause conjunction', function(done) {
         // Regression: three ands in sequence omits the final clause
         // in code generation.
         logic.compilePredicate(
@@ -136,7 +138,7 @@
           });
       });
 
-      it("should support three clause disjunction", function(done) {
+      it('should support three clause disjunction', function(done) {
         logic.compilePredicate(
           'foo = 1 or bar = 1 or sun = 1',
           function(err, fn) {
@@ -151,7 +153,7 @@
           });
       });
 
-      it("should support complex boolean queries", function(done) {
+      it('should support complex boolean queries', function(done) {
         logic.compilePredicate(
           'foo = 1 and (foo < bar or not foo > sun)',
           function(err, fn) {
@@ -168,7 +170,7 @@
           });
       });
 
-      it("should support complex boolean queries with visits", function(done) {
+      it('should support complex boolean queries with visits', function(done) {
         logic.compilePredicate(
           'foo = 1 and (foo < @bar or not foo > @sun) and @sun',
           function(err, fn) {
@@ -191,14 +193,14 @@
           });
       });
 
-      it("should support function calls", function(done) {
+      it('should support function calls', function(done) {
         logic.compilePredicate(
           'foo() = 2 and bar(3, 2) = 6',
           function(err, fn) {
             noerr(err);
             var functions = {
               foo: function() { return 2; },
-              bar: function(a, b) { return a*b; }
+              bar: function(a, b) { return a * b; }
             };
             var state = {
               qualities: {}
@@ -208,7 +210,7 @@
           });
       });
 
-      it("should augment function with metadata", function(done) {
+      it('should augment function with metadata', function(done) {
         var src = 'foo() = 2 and bar(3, 2) = 6';
         logic.compilePredicate(
           src,
@@ -220,7 +222,7 @@
           });
       });
 
-      it("should pass on tokenizer errors", function(done) {
+      it('should pass on tokenizer errors', function(done) {
         logic.compilePredicate('$foo', function(err, fn) {
           (!!err).should.be.true;
           err.toString().should.equal(
@@ -230,7 +232,7 @@
         });
       });
 
-      it("should pass on compiler errors", function(done) {
+      it('should pass on compiler errors', function(done) {
         logic.compilePredicate('true foo', function(err, fn) {
           (!!err).should.be.true;
           err.toString().should.equal(
@@ -244,7 +246,7 @@
     // ----------------------------------------------------------------------
 
     describe('actions', function() {
-      it("should set qualities", function(done) {
+      it('should set qualities', function(done) {
         logic.compileActions('foo = 1', function(err, fn) {
           noerr(err);
           var state = {
@@ -256,7 +258,7 @@
         });
       });
 
-      it("should allow value references", function(done) {
+      it('should allow value references', function(done) {
         logic.compileActions('foo = bar', function(err, fn) {
           noerr(err);
           var state = {
@@ -270,7 +272,7 @@
         });
       });
 
-      it("should allow arithmetic", function(done) {
+      it('should allow arithmetic', function(done) {
         logic.compileActions('foo = sun + dock - trog', function(err, fn) {
           noerr(err);
           var state = {
@@ -286,7 +288,7 @@
         });
       });
 
-      it("should allow repeated operation", function(done) {
+      it('should allow repeated operation', function(done) {
         logic.compileActions('foo = sun + dock + trog', function(err, fn) {
           noerr(err);
           var state = {
@@ -302,7 +304,7 @@
         });
       });
 
-      it("should allow two statements", function(done) {
+      it('should allow two statements', function(done) {
         logic.compileActions('foo = 1; foo += 1;', function(err, fn) {
           noerr(err);
           var state = {
@@ -314,7 +316,7 @@
         });
       });
 
-      it("should allow three statements", function(done) {
+      it('should allow three statements', function(done) {
         logic.compileActions('foo = 1; foo += 1; foo *= 2;', function(err, fn) {
           noerr(err);
           var state = {
@@ -326,7 +328,7 @@
         });
       });
 
-      it("should allow three statements without trailing semi", function(done) {
+      it('should allow three statements without trailing semi', function(done) {
         logic.compileActions('foo = 1; foo += 1; foo *= 2', function(err, fn) {
           noerr(err);
           var state = {
@@ -338,7 +340,7 @@
         });
       });
 
-      it("doesn't require terminal semicolon", function(done) {
+      it('doesn\'t require terminal semicolon', function(done) {
         logic.compileActions('foo = 1; foo += 1', function(err, fn) {
           noerr(err);
           var state = {
@@ -350,7 +352,7 @@
         });
       });
 
-      it("should augment function with metadata", function(done) {
+      it('should augment function with metadata', function(done) {
         var src = 'foo = 1; foo += 1';
         logic.compileActions(
           src,
@@ -362,7 +364,7 @@
           });
       });
 
-      it("should default to 0 on unknown quality modification", function(done) {
+      it('should default to 0 on unknown quality modification', function(done) {
         logic.compileActions('bar *= 2; foo += 1;', function(err, fn) {
           noerr(err);
           var state = {

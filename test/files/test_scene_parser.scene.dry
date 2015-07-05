@@ -10,7 +10,7 @@ This is the scene content.
 @foo
 game-over: true
 
-This is section 'foo'.
+This is section "foo".
 
 
 @bar
@@ -19,6 +19,6 @@ max-visits: 1
 count-visits-max: 5
 go-to: foo
 
-This is section 'bar'.
+This is section "bar".
 
 - @foo: Return to foo.

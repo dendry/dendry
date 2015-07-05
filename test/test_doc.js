@@ -5,7 +5,7 @@
  */
 /*jshint indent:2 */
 (function() {
-  "use strict";
+  'use strict';
 
   var fs = require('fs');
   var path = require('path');
@@ -18,7 +18,9 @@
   var dry = require('../lib/parsers/dry');
 
   var noerr = function(err) {
-    if (err) console.trace(err);
+    if (err) {
+      console.trace(err);
+    }
     (!!err).should.be.false;
   };
 
@@ -52,7 +54,9 @@
   });
 
   should.Assertion.add('documentedAsRequired', function(docPropsAsDict, req) {
-    this.params = {operator: 'be marked as'+(req?'':' not')+' required'};
+    this.params = {
+      operator: 'be marked as' + (req ? '' : ' not') + ' required'
+    };
     docPropsAsDict[this.obj].should.equal(req);
   });
 
@@ -63,13 +67,17 @@
     var propertiesDictCopy = {};
     _.each(properties, function(isRequired, name) {
       var camelName = dry.convertPropertyNameToCamelCase(name);
-      propertiesDictCopy[camelName] = isRequired; 
+      propertiesDictCopy[camelName] = isRequired;
     });
 
-    // Each of the properties in the schema should be present. 
+    // Each of the properties in the schema should be present.
     _.each(schema, function(propertySchema, name) {
-      if (name.substr(0, 1) === '$') return;
-      if (ignoreAsDict[name] === true) return;
+      if (name.substr(0, 1) === '$') {
+        return;
+      }
+      if (ignoreAsDict[name] === true) {
+        return;
+      }
       name.should.be.documented(propertiesDictCopy);
       name.should.be.documentedAsRequired(
         propertiesDictCopy, propertySchema.required
@@ -80,15 +88,14 @@
     propertiesDictCopy.should.eql({});
   };
 
+  describe('documentation', function() {
 
-  describe("documentation", function() {
-
-    describe("scene", function() {
+    describe('scene', function() {
       var scene = require('../lib/parsers/scene');
 
-      it("has correct top level properties", function(done) {
+      it('has correct top level properties', function(done) {
         var schema = scene.schema;
-        var doc = path.resolve(__dirname, "..", "doc", "dry", "scene.md");
+        var doc = path.resolve(__dirname, '..', 'doc', 'dry', 'scene.md');
         fs.readFile(doc, function(err, data) {
           noerr(err);
           var sets = getPropertiesFromMarkdown(data);
@@ -98,10 +105,10 @@
           done();
         });
       });
-  
-      it("has correct options properties", function(done) {
+
+      it('has correct options properties', function(done) {
         var schema = scene.optionSchema;
-        var doc = path.resolve(__dirname, "..", "doc", "dry", "scene.md");
+        var doc = path.resolve(__dirname, '..', 'doc', 'dry', 'scene.md');
         fs.readFile(doc, function(err, data) {
           noerr(err);
           var sets = getPropertiesFromMarkdown(data);
@@ -111,13 +118,12 @@
       });
     }); // end describe scene
 
-
-    describe("quality", function() {
+    describe('quality', function() {
       var quality = require('../lib/parsers/quality');
 
-      it("has correct top level properties", function(done) {
+      it('has correct top level properties', function(done) {
         var schema = quality.schema;
-        var doc = path.resolve(__dirname, "..", "doc", "dry", "quality.md");
+        var doc = path.resolve(__dirname, '..', 'doc', 'dry', 'quality.md');
         fs.readFile(doc, function(err, data) {
           noerr(err);
           var sets = getPropertiesFromMarkdown(data);
@@ -127,13 +133,12 @@
       });
     }); // end describe quality
 
-
-    describe("qdisplay", function() {
+    describe('qdisplay', function() {
       var qdisplay = require('../lib/parsers/qdisplay');
 
-      it("has correct top level properties", function(done) {
+      it('has correct top level properties', function(done) {
         var schema = qdisplay.schema;
-        var doc = path.resolve(__dirname, "..", "doc", "dry", "qdisplay.md");
+        var doc = path.resolve(__dirname, '..', 'doc', 'dry', 'qdisplay.md');
         fs.readFile(doc, function(err, data) {
           noerr(err);
           var sets = getPropertiesFromMarkdown(data);

@@ -5,7 +5,7 @@
  */
 /*jshint indent:2 */
 (function() {
-  "use strict";
+  'use strict';
 
   var path = require('path');
   var should = require('should');
@@ -13,20 +13,22 @@
   /*jshint -W030 */
 
   var noerr = function(err) {
-    if (err) console.trace(err);
+    if (err) {
+      console.trace(err);
+    }
     (!!err).should.be.false;
   };
 
   var parse = require('../lib/parsers/quality');
   var dryParser = require('../lib/parsers/dry');
 
-  describe("quality parser", function() {
+  describe('quality parser', function() {
 
     // ----------------------------------------------------------------------
 
-    it("should parse basic content", function(done) {
-      var content = "name: Foo Quality";
-      parse.parseFromContent("foo.quality.dry", content, function(err, result) {
+    it('should parse basic content', function(done) {
+      var content = 'name: Foo Quality';
+      parse.parseFromContent('foo.quality.dry', content, function(err, result) {
         noerr(err);
         result.id.should.equal('foo');
         result.name.should.equal('Foo Quality');
@@ -34,9 +36,9 @@
       });
     });
 
-    it("should parse initial value", function(done) {
-      var content = "name: Foo Quality\ninitial: 10b";
-      parse.parseFromContent("foo.quality.dry", content, function(err, result) {
+    it('should parse initial value', function(done) {
+      var content = 'name: Foo Quality\ninitial: 10b';
+      parse.parseFromContent('foo.quality.dry', content, function(err, result) {
         noerr(err);
         result.id.should.equal('foo');
         result.name.should.equal('Foo Quality');
@@ -45,98 +47,98 @@
       });
     });
 
-    it("should reject ids that aren't valid quality names", function(done) {
-      var content = "name: My Quality";
+    it('should reject ids that aren\'t valid quality names', function(done) {
+      var content = 'name: My Quality';
       parse.parseFromContent(
-        "foo.bar.quality.dry", content,
+        'foo.bar.quality.dry', content,
         function(err, result) {
           (!!err).should.be.true;
           err.toString().should.equal(
-            "Error: foo.bar.quality.dry filename: "+
-            "'foo.bar' is not a valid quality name."
+            'Error: foo.bar.quality.dry filename: ' +
+            '"foo.bar" is not a valid quality name.'
             );
           (result === undefined).should.be.true;
           done();
         });
     });
 
-    it("should enforce required type", function(done) {
-      var content = "name: My Quality";
+    it('should enforce required type', function(done) {
+      var content = 'name: My Quality';
       // No 'type' inferred from filename.
-      parse.parseFromContent("foo.dry", content, function(err, result) {
+      parse.parseFromContent('foo.dry', content, function(err, result) {
         (!!err).should.be.true;
         err.toString().should.equal(
-          "Error: foo.dry: Required property 'type' missing.");
+          'Error: foo.dry: Required property "type" missing.');
         (result === undefined).should.be.true;
         done();
       });
     });
 
-    it("should reject unknown properties", function(done) {
-      var content = "name: My Quality\nlabel: foo";
-      parse.parseFromContent("foo.quality.dry", content, function(err, result) {
+    it('should reject unknown properties', function(done) {
+      var content = 'name: My Quality\nlabel: foo';
+      parse.parseFromContent('foo.quality.dry', content, function(err, result) {
         (!!err).should.be.true;
         err.toString().should.equal(
-          "Error: foo.quality.dry: Unknown properties: 'label' "+
-          "(foo.quality.dry line 2).");
+          'Error: foo.quality.dry: Unknown properties: "label" ' +
+          '(foo.quality.dry line 2).');
         (result === undefined).should.be.true;
         done();
       });
     });
 
-    it("should reject sections", function(done) {
-      var content = "name: My Quality\n@bar";
-      parse.parseFromContent("foo.quality.dry", content, function(err, result) {
+    it('should reject sections', function(done) {
+      var content = 'name: My Quality\n@bar';
+      parse.parseFromContent('foo.quality.dry', content, function(err, result) {
         (!!err).should.be.true;
         err.toString().should.equal(
-          "Error: foo.quality.dry: Unknown properties: 'sections'.");
+          'Error: foo.quality.dry: Unknown properties: "sections".');
         (result === undefined).should.be.true;
         done();
       });
     });
 
-    it("should reject options", function(done) {
-      var content = "name: My Quality\n\n- @foo";
-      parse.parseFromContent("foo.quality.dry", content, function(err, result) {
+    it('should reject options', function(done) {
+      var content = 'name: My Quality\n\n- @foo';
+      parse.parseFromContent('foo.quality.dry', content, function(err, result) {
         (!!err).should.be.true;
         err.toString().should.equal(
-          "Error: foo.quality.dry: Unknown properties: 'options'.");
+          'Error: foo.quality.dry: Unknown properties: "options".');
         (result === undefined).should.be.true;
         done();
       });
     });
 
-    it("should reject malformed dry files", function(done) {
-      var content = "name: My Quality\nfoo";
-      parse.parseFromContent("foo.quality.dry", content, function(err, result) {
+    it('should reject malformed dry files', function(done) {
+      var content = 'name: My Quality\nfoo';
+      parse.parseFromContent('foo.quality.dry', content, function(err, result) {
         (!!err).should.be.true;
         err.toString().should.equal(
-          "Error: foo.quality.dry line 2: Invalid property definition.");
+          'Error: foo.quality.dry line 2: Invalid property definition.');
         (result === undefined).should.be.true;
         done();
       });
     });
 
-    it("should load and parse quality file", function(done) {
+    it('should load and parse quality file', function(done) {
       var fn = path.join(__dirname, 'files', 'test_quality_parser.quality.dry');
       parse.parseFromFile(fn, function(err, result) {
         noerr(err);
         dryParser.removeMetadataFromObject(result);
         result.should.eql({
-          id: "test_quality_parser",
-          type: "quality",
-          name: "The Quality Name",
+          id: 'test_quality_parser',
+          type: 'quality',
+          name: 'The Quality Name',
           initial: 5,
           content: {
             type: 'paragraph',
-            content: "This is the description of this quality."
+            content: 'This is the description of this quality.'
           }
         });
         done();
       });
     });
 
-    it("should pass on dry file errors", function(done) {
+    it('should pass on dry file errors', function(done) {
       var fn = path.join(__dirname, 'files', 'unknown.scene.dry');
       parse.parseFromFile(fn, function(err, result) {
         (!!err).should.be.true;

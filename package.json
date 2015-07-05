@@ -31,6 +31,7 @@
     "mocha": "2.2.x",
     "should": "6.0.x",
     "jshint": "2.7.x",
+    "jscs": "1.13.x",
     "mocha-jshint": "2.2.x",
     "istanbul": "0.3.x",
     "coveralls": "2.11.x",
