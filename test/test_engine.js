@@ -1699,6 +1699,90 @@
 
     // ----------------------------------------------------------------------
 
+    describe('style', function() {
+      var StyleDetectorUserInterface = function() {
+        this.styles = [];
+      };
+      engine.UserInterface.makeParentOf(StyleDetectorUserInterface);
+      StyleDetectorUserInterface.prototype.setStyle = function(style) {
+        this.styles.push(style);
+      };
+
+      it('sets the style when scene changes', function() {
+        var game = {
+          scenes: {
+            'root': {
+              id: 'root',
+              style: 'root-style',
+              content: 'This is the root content.',
+              options:[
+                {id:'@foo', title:'To the Foo'}
+              ]
+            },
+            'foo': {id:'foo'}
+          }
+        };
+        var ui = new StyleDetectorUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame();
+        dendryEngine.choose(0);
+
+        // Check both the original and the new scene styles.
+        ui.styles.length.should.equal(2);
+        ui.styles[0].should.equal('root-style');
+        (ui.styles[1] === undefined).should.be.true;
+      });
+
+      it('sets the style when scene is redisplayed', function() {
+        var game = {
+          scenes: {
+            'root': {
+              id: 'root',
+              style: 'root-style',
+              content: 'This is the root content.',
+              options:[
+                {id:'@foo', title:'To the Foo'}
+              ]
+            },
+            'foo': {id:'foo'}
+          }
+        };
+        var ui = new StyleDetectorUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame();
+        dendryEngine.displaySceneContent();
+
+        // Check both the original and the new scene styles.
+        ui.styles.length.should.equal(2);
+        ui.styles[0].should.equal('root-style');
+        ui.styles[1].should.equal('root-style');
+      });
+
+      it('sets the style on a go-to', function() {
+        var game = {
+          scenes: {
+            'root': {
+              id: 'root',
+              style: 'root-style',
+              goTo: [{id:'foo'}],
+              content: 'This is the root content.'
+            },
+            'foo': {id:'foo'}
+          }
+        };
+        var ui = new StyleDetectorUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+        dendryEngine.beginGame();
+
+        // Check both the original and the new scene styles.
+        ui.styles.length.should.equal(2);
+        ui.styles[0].should.equal('root-style');
+        (ui.styles[1] === undefined).should.be.true;
+      });
+    });
+
+    // ----------------------------------------------------------------------
+
     describe('display', function() {
       var TestUserInterface = function() {
         this.content = [];

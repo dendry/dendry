@@ -52,7 +52,7 @@ could contain:
     At night the ferris wheel is a spiders web silhouetted against the city...
 
 If the type is contained in the filename, it is an error to also include it
-as a property in the file. 
+as a property in the file.
 
 In a scene file, you can define multiple scenes with lines beginning with
 the `@` symbol. You do not use the type parameter: whether you've specified
@@ -61,6 +61,9 @@ knows that only scenes can appear in the file.
 
 
 ## signal
+
+## style
+
 
 ## tags
 
@@ -123,7 +126,7 @@ honor the maximum visits when displaying the available choices of scene.
 
     You receive a once in a lifetime opportunity...
 
-This value cannot be greater than the count-visits-max property. If 
+This value cannot be greater than the count-visits-max property. If
 count-visits-max is not set, it will be implicitly set to be equal to
 max-visits. If count-visits-max is less than max-visits, Dendry will raise
 an error.

@@ -1,12 +1,13 @@
 body {
   font-family: "Minion Pro", Georgia, serif;
+  font-size: 1.125em;
   background-color: #f3f3e3;
   padding: 2em;
-  line-height: 165%;
+  line-height: 1.65em;
 }
 header, #content, footer {
   color: #431;
-  max-width: 620px;
+  max-width: 560px;
   margin: 0 auto;
 }
 footer {
@@ -21,7 +22,7 @@ header h1, header h2 {
   font-weight: normal;
   margin: 0;
   font-size: 1em;
-} 
+}
 header h1 {
   font-weight: bold;
 }
@@ -33,16 +34,21 @@ header h2:before {
 #content {
   background-color: #f3f3f3;
   font-size: 1.1em;
-  padding: 1em;
+  padding: 1em 1.5em 1.5em 1.5em;
   box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.2);
 }
 #content h1:first-child {
-  margin-top: 0;
+  margin-top: 0.5em;
 }
 #content h1 {
-  margin: 1em 0 0.5em 0;
-  font-size: 1.5em;
+  margin: 2em 0 1em 0;
+  font-size: 1.35em;
   font-weight: normal;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  text-shadow: rgba(255, 255, 255, 0.75) 2px 2px 2px,
+               rgba(0, 0, 0, 0.1) -1px -1px 2px;
 }
 a {
   color: #900;
@@ -50,9 +56,22 @@ a {
 }
 p {
   margin: 0;
-}
-p + p {
   text-indent: 1em;
+}
+h1 + p {
+  text-indent: 0;
+}
+h1 + p:first-line {
+  font-weight: bold;
+}
+h1 + p:first-letter {
+  position: relative;
+  padding-top: 0.16em;
+  display: block;
+  float: left;
+  font-weight: normal;
+  font-size: 3.2em;
+  line-height: 0.75em;
 }
 p.game-over {
   border: 2px solid #bbb;
@@ -64,13 +83,13 @@ p.game-over {
 ul.choices {
   border: 2px solid #876;
   padding: 0;
-  margin: 0.5em 0 0 0;
+  margin: 0.25em 0 0 0;
   list-style-type: none;
   border-radius: 4px;
 }
 ul.choices li {
   border-bottom: 1px solid #876;
-  padding: 0.5em;
+  padding: 0.25em;
 }
 ul.choices li div.subtitle {
   margin-left: 2em;
@@ -78,11 +97,11 @@ ul.choices li div.subtitle {
 }
 ul.choices li.unavailable {
   color: #999;
-  background-color: rgba(153,136,119,0.2) !important;
+  background-color: rgba(0, 0, 0, 0.1) !important;
   cursor: default !important;
 }
 ul.choices li:hover {
-  background-color: rgba(255,204,153,0.2);
+  background-color: rgba(0, 0, 0, 0.05);
   cursor: pointer;
 }
 ul.choices li:last-child {
