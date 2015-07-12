@@ -32,10 +32,18 @@ header h2:before {
   padding: 0 0.3em 0 0;
 }
 #content {
+  position: relative;
   background-color: #f3f3f3;
   font-size: 1.1em;
   padding: 1em 1.5em 1.5em 1.5em;
   box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.2);
+}
+#content #read-marker {
+  position: absolute;
+  right: 0;
+  width: 1em;
+  height: 2px;
+  background-color: rgba(0, 0, 0, 0.5);
 }
 #content h1:first-child {
   margin-top: 0.5em;

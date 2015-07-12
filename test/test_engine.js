@@ -1699,6 +1699,67 @@
 
     // ----------------------------------------------------------------------
 
+    describe('output', function() {
+      var OutputDetectorUserInterface = function() {
+        this.beginCount = 0;
+        this.endCount = 0;
+      };
+      engine.UserInterface.makeParentOf(OutputDetectorUserInterface);
+      OutputDetectorUserInterface.prototype.beginOutput = function() {
+        ++this.beginCount;
+      };
+      OutputDetectorUserInterface.prototype.endOutput = function() {
+        ++this.endCount;
+      };
+
+      it('begins and ends output', function() {
+        var game = {
+          scenes: {
+            'root': {
+              id: 'root',
+              content: 'This is the root content.',
+              options:[
+                {id:'@foo', title:'To the Foo'}
+              ]
+            },
+            'foo': {id:'foo'}
+          }
+        };
+        var ui = new OutputDetectorUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+
+        dendryEngine.beginGame();
+        ui.beginCount.should.equal(1);
+        ui.endCount.should.equal(1);
+
+        dendryEngine.choose(0);
+        ui.beginCount.should.equal(2);
+        ui.endCount.should.equal(2);
+      });
+
+      it('doesn\'t begin again in go-to', function() {
+        var game = {
+          scenes: {
+            'root': {
+              id: 'root',
+              style: 'root-style',
+              goTo: [{id:'foo'}],
+              content: 'This is the root content.'
+            },
+            'foo': {id:'foo'}
+          }
+        };
+        var ui = new OutputDetectorUserInterface();
+        var dendryEngine = new engine.DendryEngine(ui, game);
+
+        dendryEngine.beginGame();
+        ui.beginCount.should.equal(1);
+        ui.endCount.should.equal(1);
+      });
+    });
+
+    // ----------------------------------------------------------------------
+
     describe('style', function() {
       var StyleDetectorUserInterface = function() {
         this.styles = [];
